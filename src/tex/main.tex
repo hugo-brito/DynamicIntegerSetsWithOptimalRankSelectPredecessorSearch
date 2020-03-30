@@ -1,0 +1,138 @@
+\documentclass{article}
+
+% Paper properties
+\usepackage[a4paper, portrait, margin=1in]{geometry}
+
+% No indentation on paragraphs
+\setlength\parindent{0pt}
+\setlength{\parskip}{0.5em}
+
+\usepackage[fleqn]{amsmath}
+\usepackage{booktabs}
+\usepackage{microtype}
+
+% Clickable links
+\usepackage{hyperref}
+
+% % Text in columns
+% \usepackage{multicol}
+% \setlength{\columnsep}{0.5cm}
+
+% Highlight something
+\usepackage{tcolorbox}
+
+% Graphics
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{wrapfig}
+
+% ttfamily font (also needed for the aspect of the code snippets)
+\usepackage[scaled=.85]{sourcecodepro}
+\usepackage[T1]{fontenc}
+
+% default document font (Helvetica)
+\usepackage[scaled]{helvet}
+\renewcommand\familydefault{\sfdefault} 
+
+% Code formatting
+\usepackage{listings}
+\lstset{
+  language=java,
+  extendedchars=true,
+  basicstyle=\small\ttfamily,
+  showstringspaces=false,
+  showspaces=false,
+  numbers=left,
+  numberstyle=\footnotesize,
+  numbersep=9pt,
+  tabsize=4,
+  breaklines=true,
+  showtabs=false,
+  frame=single,
+  extendedchars=false,
+  inputencoding=utf8,
+  captionpos=b
+}
+
+%------------------------------------------------------------------
+% CHAPTERS AND SECTIONS
+%------------------------------------------------------------------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\Large\bfseries}
+  {Chapter \thesection \hspace*{0.1em} --- }
+  {0pt}
+  {}
+
+%------------------------------------------------------------------
+% HEADERS AND FOOTERS
+%------------------------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Hugo de Brito}
+% \chead{An Implementation and Evaluation of Theoretically Optimal Dynamic Rank, Select, and Predecessor Data Structure}
+\lhead{Thesis Report}
+\lfoot{IT University of Copenhagen}
+\cfoot{\thepage}
+\rfoot{June 2020}
+\renewcommand{\footrulewidth}{0.25pt}
+
+
+%------------------------------------------------------------------
+% TITLE
+%------------------------------------------------------------------
+\title{
+    \vspace{2 cm}
+    \centerline{\includegraphics[width=120mm]{src/tex/images/logo_en.png}}
+    \vspace{3 cm}
+    \large Thesis Project\\Spring 2020\\
+    \vspace{1 cm}
+    \LARGE{An Implementation and Evaluation of Theoretically Optimal Dynamic Rank, Select, and Predecessor Data Structure}
+    \vspace{1 cm}
+    \large{\\
+    MSc Software Development\\}
+    \vspace{2 cm}
+    \small{IT-Universitetet i København\\ Rued Langgaards Vej 7\\ 2300 København S, Danmark\\}
+    \vspace{4 cm}
+    \scriptsize{
+        Supervisor\\
+        Holger Dell\\
+        \href{mailto:hold@itu.dk}{{\tt hold@itu.dk}}\\
+    }
+}
+
+\author{
+    Hugo de Brito\\
+    \href{mailto:hubr@itu.dk}{{\tt hubr@itu.dk}}
+}
+
+\date{2. Jun 2020}
+
+%------------------------------------------------------------------
+% DOCUMENT STARTS HERE
+%------------------------------------------------------------------
+\begin{document}
+\maketitle
+
+% No page number, header or footer
+\thispagestyle{empty}
+
+% \vspace{2cm}
+% \begin{tcolorbox}
+% \centerline{\small{I hereby declare that I have answered these exam questions myself without any outside help.}}
+% \end{tcolorbox}
+
+\newpage
+
+\input{src/tex/00_intro.tex}
+\newpage
+\tableofcontents
+\newpage
+\input{src/tex/chapters/001.tex}
+\newpage
+
+% References
+\bibliographystyle{apalike}
+\bibliography{src/tex/references}
+\end{document}

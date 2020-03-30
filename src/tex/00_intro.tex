@@ -1,0 +1,122 @@
+\section*{Thesis Project Agreement}
+
+\subsection*{Problem Definition} % To identify, define and delimit a problem within information technology.
+% A Binary search tree dictionary is a data structure that is used to store key-value pairs. It has several advantages in usage compared to other implementations of key-value pair data structures (fx hash table) like memory efficiency and ordered elements. A full implementation of concurrent hash table exists natively in both Java and C# but that is not the case for concurrent trees. Building a concurrent version of the binary search tree dictionary is thus interesting but also challenging as all operations on the tree have to be started from the root node.
+% Nowadays the need for parallel processing is rising and a concurrent version in Java should be developed. This thesis project will contribute to that by building a data structure that will be optimized for concurrent using purposes.
+% Our implementation will be based on available implementation of concurrent trees, as we start by testing different implementations from current literature. Based on that, we will evaluate the performance of each of them and choose the best candidate for further development.
+
+\textbf{Please state the problem or problems that you will investigate in the project. You can elaborate on the problems with questions that you want to answer, or you can form hypotheses. The examiner and external examiner will use the problem formulation in the project base and the project report with production, if any, as a point of departure for the examination and assessment.}
+
+\textit{When filling out this project agreement, please take following points into consideration:
+\begin{itemize}
+    \item To identify and analyze relevant means for solving the problem, such as academic theories, methods, literature, tools and other sources, as well as existing solutions to the problem.
+    \item To combine the selected means, develop them further if necessary, and apply them in a concerted effort towards the solution of the problem.
+    \item To evaluate the achieved solution.
+    \item To report in a coherent and stringent way the problem, the background research, the work towards the solution, the achieved solution, the evaluation, and other relevant material, while adhering to the academic standards.
+    \item To reflect upon the problem, the chosen approach, the achieved solution, and other findings.
+\end{itemize}}
+
+% \subsection{Guy Jacobsen Thesis Abstract}
+
+% Data compression is when you take a big chunk of data and crunch it down to fit into a smaller space. That data is put on ice; you have to un-crunch the compressed data to get at it. Data optimization, on the other hand, is when you take a chunk of data plus a collection of operations you can perform on that data, and crunch it into a smaller space while retaining the ability to perform the operation efficiently.
+
+% This thesis investigates the problem of data optimization for some fundamental static data types, concentrating on linked data structures such as trees. I chose to restrict my attention to static data structures because they are easier to optimize since the optimization can be performed off-line.
+
+% Data optimization comes in two different flavors: concrete and abstract. Concrete optimization finds minimal representations within a given implementation of a data structure; abstract optimization seeks implementations with guaranteed economy of space and time.
+
+% I consider the problem of concrete optimization of various pointer-based implementations of trees and graphs. The only legitimate use of a pointer is as a reference, so we are free to map the pieces of a linked structure into memory as we choose. The problem is to find a mapping that maximizes the overlap of the pieces, and hence, minimizes the space they occupy.
+
+% I solve the problem of finding a minimal representation for general unordered trees where pointers to children are stored in a block of consecutive locations. The algorithm presented is based on weighted matching. I also present an analysis showing that the average number of cons-cells required to store a binary tree of $n$ nodes as minimal binary DAG is asymptotic to $n/(\frac{\pi}{8}\lg\ n)^{1/2}$.
+
+% Methods for representing trees of $n$ nodes in $O(n)$ bits that allow efficient tree-traversal are presented. I develop tools for abstract optimization based on a succinct representation for ordered sets that supports ranking and selection. These tools are put to use in a building an $O(n)$-bit data structure that represents $n$-node planar graphs, allowing efficient traversal and adjacency-testing.
+
+% \subsubsection{What is data optimization?}
+
+% Small is beautiful. It is good when a piece of data can be made smaller. It is a bad, however, when this reduction in size is accompanied by a reduction in accessibility as well, but this is the usual compromise made in classical data compression. Sometimes such a compromise is unacceptable.
+
+% The job of an optimizing compiler is to take a specification of operations to be performed on data and produce a functionally equivalent specification that is somehow better than the original. An equivalence between the original operations and the optimized operations is necessary; given the same data, the two versions must behave identically. An optimizing compiler is absolutely uncompromising in this regard.
+
+% I call transformations that make data smaller, while preserving important functionality, data optimizations. A compiler must be adamant about its optimization, because the computer is hard-wired for a certain set of operations. A fixed computer program that accesses a large static external data structure also assumes a particular concrete representation for the data it accesses. The analogy of a program optimizer is a data optimizer, which reduces the size of external data structures in a way that is transparent to the program.
+
+% My thesis systematically examines the problems of data optimization for the some basic data types and combinatorial objects. Special attention is devoted to the optimization of linked data structures, since these data structures have been traditionally neglected in the study of data compression. I place emphasis both on constructing and analyzing provably efficient algorithms and on the practical issues of real-world implementation.
+
+% Data optimization is much easier when we can sit back and do it off-line. I have therefore restricted my attention to static data structures. Extending the work I present to dynamic structures (where possible) would be the subject of another thesis.
+
+\subsubsection*{Problem Domain}
+
+Since their inception, roughly 30 years ago, succinct data structures have helped encoding large chunks of data while allowing operations on that data efficiently. The pioneer of this idea, Guy Jacobson, states that while one could compress data such that it takes less space, this is less than optimal since once compressed, the data cannot be queried efficiently. On the other hand, succinct data structures are more suited since they combine size reduction with data accessibility \cite{jacobson1988succinct}. They accomplish so by encoding data efficiently. This means that everything is accessed in-place, by reading bits at various positions in the data.
+
+This idea has been proven useful: the world is full of data, which grows by the day, and the convenience of querying such data is vitally important. Practical applications range from areas such as database management systems (DBMS), text indexing, bioinformatics, big data and data mining applications and beyond.
+
+\subsubsection*{Domain overview}
+Despite the numerous applications and the obvious advantages, for the particular problem \textit{Rank}, \textit{Select}, \textit{Update}, according to a preliminary literature search, there has not been found a public record of an implementation that achieves optimality regarding the running times of the stated operations. This means that, once the original piece of data which the data structure maps to is altered, it becomes void since it might not necessarily represent its non-encoded counterpart accurately. In order to be usable once more, it has to be re-encoded to reflect the changes, which in practice translates to a trade-off: the gains attained by building and having available a data structure that allows fast queries become less optimal when it has to be re-computed several times due to changes in the original data counterpart.
+
+\subsubsection*{Problem Formulation}
+% - I would expand 1.3 a bit more to explain each query.
+This original idea proposed by Guy Jacobson has branched in different directions:
+\begin{itemize}
+    \item A more recent publication reports on a data structure to perform \textit{Rank} and \textit{Select} operations over a bit array, which effectively consists of a \textbf{static} succinct data structure using $O(n/log_2(n))$ extra space \cite{gonzalez2005practical}.
+    \item It is possible to represent a binary search tree by using a bit vector of $2n+1$ size \cite{munro2004succinct}. This is a \textbf{non-succinct} approach to the problem, but once the tree is represented by such bit vector, querying:
+    \begin{itemize}
+        \item Left child ($x$) = $2$ rank($x$).
+        \item Right child ($x$) = $2$ rank($x$)$+1$.
+        \item Parent ($x$) = select($\lfloor x/2 \rfloor$)
+    \end{itemize}
+    
+    %BST approach I mentioned earlier is neither succinct, nor does it allow for optimal query time. that supports rank/select/update/etc.
+    \item A recent publication claims that an implementation of a \textbf{Dynamic} \textit{Rank}, \textit{Select} and \textit{Predecessor Search} data structure with \textbf{Optimal} asymptotic running times for these queries is possible \cite{patrascu2014dynamic}.
+\end{itemize}
+
+This last publication also establishes that: 
+\begin{itemize}
+    \item insert($x$) sets $S=S \cup \{x\}$.
+    \item delete($x$) sets $S=S \setminus \{x\}$.
+    \item predecessor($x$) returns $max\{y\in S\ |\ y < x\}$.
+    \item successor($x$) returns $min\{y\in S\ |\ y \geq x\}$.
+    \item rank($x$) returns $\#\{y\in S\ |\ y < x\}$.
+    \item select($i$) returns $y \in S$ with rank($y$) = $i$, if any.
+\end{itemize}
+
+This thesis is aimed at finding to which extend the claim from Patrascu and Thorup [FOCS 2014] is supported by practical evidence.
+
+\subsection*{Method} 
+
+\textbf{Please state which activities you plan to implement to carry out the project, for instance study of literature, collecting and working up empirical data, development and test of prototype or production etc.}
+
+The paper \textit{Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search} by Patrascu and Thorup [FOCS 2014] will be reviewed and its content will be used as a starting point for the following:
+\begin{itemize}
+    \item Exposition of the data structure present in the aforementioned paper. Since the paper in question is expected to be vague at times, the goal is to make the data structure (and its algorithmic operations) easier to understand by filling in the gaps left by the paper.
+    \item Implementation of the data structure as close as possible to the description including its standard operations (\textit{Insert}, \textit{Delete}, \textit{Predecessor}, \textit{Rank} and \textit{Select}).
+    \item Elaboration of a small survey on existing implementations that support some of the standard operations mentioned in the previous bullet point.
+    \item Implementation of a non-succinct version of the data structure, with polylog n query and update times, as a reference point for the experiments.
+    \item Design and execution of a suitable experiment/benchmark to assess if, when compared with the implementations surveyed in the previous point, it exists any gain in performance when using the data structure in question.
+    % - add "Implementation of a non-succinct version of the data structure, with polylog n query and update times, as a reference point for the experiments" as a separate bullet point
+    \item Evaluation and reflection of all the previous points.
+\end{itemize}
+
+\subsubsection*{Disclaimer}
+This proposal is to be perceived as a plan, not as a promise. Since a large part of the project will consist of researching and experimenting with new concepts, the need to diverge from what is stated here might arise.
+
+\subsection*{Deliverables}
+\textbf{Please state what you plan to submit: Report, production etc., expected number of pages, form (for instance CD or paper). If you are writing as a group, i.e. 2 persons or more, please note the type of examination you are planning. You have the following options: Mixed exam 1, Mixed exam 2, Mixed exam 3, Group exam. Check Study Guide for more information.}
+
+\textit{Describe what you intend to upload.
+NB. If you are writing a group project (two or more participants), please state your type of examination, i.e. how you are to be examined. E.g. "Group exam". Please see Exam form. The type is to be approved by your supervisor.}
+
+\begin{itemize}
+    \item Written report.
+    \item Product in form of code including implementation of the \textit{Dynamic Integer Sets with Optimal \textit{Rank}, \textit{Select}, and Predecessor Search} data structure, benchmark framework and other support custom programs.
+\end{itemize}
+
+
+\subsection*{Relevant Qualifications}
+\textbf{Please state relevant qualifications for the project, for instance your educational background, practical experience, passed courses/projects, progression in your studies etc.}
+
+The work to be developed in this paper will have its foundation in the learning outcomes of the following courses:
+\begin{itemize}
+    \item Introductory Programming.
+    \item Discrete Mathematics.
+    \item Algorithms and Data Structures.
+    \item Applied Algorithms.
+\end{itemize}
+In particular, the final project that was object of evaluation for the Applied Algorithms course exam featured a lesser version of the data structure I will present by the end of the project, which will be focused on the data structure introduced in the \textit{Dynamic Integer Sets with Optimal \textit{Rank}, \textit{Select}, and Predecessor Search} paper by Patrascu and Thorup.
