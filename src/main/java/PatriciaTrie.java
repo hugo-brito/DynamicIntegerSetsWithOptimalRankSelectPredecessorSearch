@@ -1,4 +1,4 @@
-class PatriciaTrie implements RankSelectPredecessorUpdate {
+class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
 	private Node head;
 	private long N;
@@ -56,9 +56,9 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
 	}
 
 	@Override
-	public void delete(long x) {
+	public Long delete(long x) {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
@@ -96,6 +96,26 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
 	public long select(long i) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public String toString() {
+		return toStringR(head.left, -1); 
+	}
+
+	/**
+	 * This recursive procedure shows the records in a patricia trie in order of their keys. We imagine the items to be in (virtual) external nodes, which we can identify by testing when the bit index on the current node is not	larger than the bit index on its parent. Otherwise, this program is a standard inorder traversal.
+	 * @param h
+	 * @param i
+	 * @return
+	 */
+	private String toStringR(Node h, int i)	{
+		if (h == head) return "";
+		if (h.bit <= i) return h.key.val + "\n";
+		return toStringR(h.left, h.bit) + toStringR(h.right, h.bit);
+	}
+
+	public static void main(String[] args) {
+		
 	}
 	
 }

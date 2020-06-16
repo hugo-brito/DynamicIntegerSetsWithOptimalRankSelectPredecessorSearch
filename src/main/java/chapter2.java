@@ -1,14 +1,14 @@
 /**
- * Often we view words as divided into ﬁelds of some length f. We then use x(i)_f to denote the ith ﬁeld,
- * starting from the right with x(0)_f the right most ﬁeld. Thus x represents the integer E^(w−1)_(i=0) 2^i x(i)1.
- * Note that ﬁelds can easily be masked out using regular instructions, e.g 
+ * Often we view words as divided into fields of some length f. We then use x(i)_f to denote the ith field,
+ * starting from the right with x(0)_f the right most field. Thus x represents the integer E^(w−1)_(i=0) 2^i x(i)1.
+ * Note that fields can easily be masked out using regular instructions, e.g
  */
 
 class FieldsOfWords {
 	/**
-	 * Often we view words as divided into ﬁelds of some length f. We then use x(i)_f to denote the ith ﬁeld,
-	 * starting from the right with x(0)_f the right most ﬁeld. Thus x represents the integer E^(w−1)_(i=0) 2^i x(i)1.
-	 * Note that ﬁelds can easily be masked out using regular instructions, e.g 
+	 * Often we view words as divided into fields of some length f. We then use x(i)_f to denote the ith field,
+	 * starting from the right with x(0)_f the right most field. Thus x represents the integer E^(w−1)_(i=0) 2^i x(i)1.
+	 * Note that fields can easily be masked out using regular instructions, e.g
 	 */
 
 	private final int F; // the number of bits in a field.
@@ -222,9 +222,9 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
 	}
 
 	@Override
-	public void delete(long x) {
+	public Long delete(long x) {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
