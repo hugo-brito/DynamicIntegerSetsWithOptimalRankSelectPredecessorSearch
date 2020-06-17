@@ -5,16 +5,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 	Node<BitsKey> head;
 	private long N;
 
-	// static class Node{
-	// 	final BitsKey key;
-	// 	Node left, right;
-
-	// 	public Node(BitsKey key){
-	// 	// NB!: We allow the key to be null because internal node cannot hold values
-	// 		this.key = key;
-	// 	}
-	// }
-
 	public BinarySearchTrie() {
 		head = null;
 		N = 0;
@@ -24,8 +14,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 	@Override
 	public void insert(long x) {
-		// Insert the new key only if not present
-		if (member(x)) return;
 
 		// We create the BitsKey at this stage because later we conveniently have access to the bit(d) method
 		head = insertR(head, new BitsKey(x), 0);
@@ -37,8 +25,10 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 	private Node<BitsKey> insertR(Node<BitsKey> curr, BitsKey v, int d) {
 		if (curr == null) return new Node<BitsKey>(v);
 		
-		if (curr.left == null && curr.right == null)
+		if (curr.left == null && curr.right == null) {
+			if (curr.key != null && curr.key.val == v.val) return curr;
 			return split(new Node<BitsKey>(v), curr, d);
+		}
 
 		if (v.bit(d) == 0) curr.left = insertR(curr.left, v, d+1);
 		else 			   curr.right = insertR(curr.right, v, d+1);
@@ -78,12 +68,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		head = deleteR(head, delete, 0);
 
-//		if (delete.bit(0) == 0) deleteR(head, head.left, delete, 1);
-//		else                       deleteR(head, head.right, delete, 1);
-
-
-//		N--;
-
 		return x;
 	}
 
@@ -94,10 +78,13 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 //		else if (key of current node is the one we want to delete) return null
 		else if (curr.key != null) {
-			if (curr.key.val == v.val)  return null;
+			if (curr.key.val == v.val) {
+				N--;
+				return null;
+			}
 
 //		else if (current node has a different key [and thus is a leaf]) return curr
-			else                        return curr;
+			else return curr;
 		}
 
 //		else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
@@ -110,7 +97,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 		//
 		// Otherwise one child is null, in that case return the other child.
 
-		if (curr.left != null & curr.right != null) return curr;
+		if (curr.left != null && curr.right != null) return curr;
 		else {
 			if (curr.left == null)  return curr.right;
 			else                    return curr.left;
