@@ -56,8 +56,8 @@ interface BinaryTree {
 
 	default <E> void printnode (final E x, final int h) {
 		for (int i = 0; i < h; i++)
-			System.out.print(" ");
-		System.out.println("[" + x.toString() + "]");
+			System.out.print("	");
+		System.out.println("[" + x + "]");
 	}
 
 }

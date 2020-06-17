@@ -228,6 +228,7 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
 		System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
 		System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
 		System.out.println("4611686018427387903 is member = " + t.member(4611686018427387903L));
+		t.show();
 
 
 
