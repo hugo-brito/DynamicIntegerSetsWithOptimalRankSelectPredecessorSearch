@@ -64,8 +64,7 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 	@Override
 	public boolean member(long x) {
 		Node res = search(head.left, new BitsKey(x), -1);
-		if (res == null || res.key.val != x) return false;
-		return true;
+		return res != null && res.key.val == x;
 	}
 
 	private Node search(Node h, BitsKey v, int i) {
