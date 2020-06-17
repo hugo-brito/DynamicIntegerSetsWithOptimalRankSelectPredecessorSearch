@@ -1,0 +1,55 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "java",
+			"name": "Debug (Launch) - Current File",
+			"request": "launch",
+			"mainClass": "${file}"
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-BinarySearchTrie<DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch>",
+			"request": "launch",
+			"mainClass": "BinarySearchTrie",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-BitsKey<DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch>",
+			"request": "launch",
+			"mainClass": "BitsKey",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-Indexing64bit<DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch>",
+			"request": "launch",
+			"mainClass": "Indexing64bit",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-MsbLsb<DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch>",
+			"request": "launch",
+			"mainClass": "MsbLsb",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-PatriciaTrie<DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch>",
+			"request": "launch",
+			"mainClass": "PatriciaTrie",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
+			"name": "Debug (Launch)-PatriciaTrie",
+			"request": "launch",
+			"mainClass": "org.ardverk.collection.sedgewick.PatriciaTrie"
+		}
+	]
+}
