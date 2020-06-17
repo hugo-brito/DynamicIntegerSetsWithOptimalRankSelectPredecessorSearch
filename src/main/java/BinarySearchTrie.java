@@ -15,13 +15,13 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		// We create the BitsKey at this stage because later we conveniently have access
 		// to the bit(d) method
-		head = insertR(head, new BitsKey(x), 0);
+		head = insert(head, new BitsKey(x), 0);
 
 		// Upon successful insertion, we update the total number of keys in the set
 		N++;
 	}
 
-	private Node<BitsKey> insertR(final Node<BitsKey> curr, final BitsKey v, final int d) {
+	private Node<BitsKey> insert(final Node<BitsKey> curr, final BitsKey v, final int d) {
 		if (curr == null)
 			return new Node<BitsKey>(v);
 
@@ -32,9 +32,9 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 		}
 
 		if (v.bit(d) == 0)
-			curr.left = insertR(curr.left, v, d + 1);
+			curr.left = insert(curr.left, v, d + 1);
 		else
-			curr.right = insertR(curr.right, v, d + 1);
+			curr.right = insert(curr.right, v, d + 1);
 
 		return curr;
 	}
@@ -73,12 +73,12 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		final BitsKey delete = new BitsKey(x);
 
-		head = deleteR(head, delete, 0);
+		head = delete(head, delete, 0);
 
 		return x;
 	}
 
-	private Node<BitsKey> deleteR(final Node<BitsKey> curr, final BitsKey v, final int d) {
+	private Node<BitsKey> delete(final Node<BitsKey> curr, final BitsKey v, final int d) {
 
 		// if (I'm null) return null
 		if (curr == null)
@@ -98,11 +98,11 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		// else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
 		else if (v.bit(d) == 0)
-			curr.left = deleteR(curr.left, v, d + 1);
+			curr.left = delete(curr.left, v, d + 1);
 
 		// else rightchild = deleteR(rightchild, ..)
 		else
-			curr.right = deleteR(curr.right, v, d + 1);
+			curr.right = delete(curr.right, v, d + 1);
 		
 		// if there is only one child AND the child is a leaf, then return the child (either curr.left or curr.right). Otherwise return curr.
 		if (children(curr) == 1 || children(curr) == 2) { // has a single child
@@ -141,14 +141,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 		}
 
 		return res;
-	}
-
-	private boolean hasSingleChild(final Node<BitsKey> node) {
-		return (node.left != null && node.right == null) || (node.left == null && node.right != null);
-	}
-
-	private boolean isALeaf(final Node<BitsKey> node) {
-		return node.left == null && node.right == null;
 	}
 
 	@Override
