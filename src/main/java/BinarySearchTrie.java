@@ -71,16 +71,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 	@Override
 	public Long delete(final long x) {
 
-		// Holger:
-		// It sounds like a normal delete procedure in binary search trees:
-		// Since you implemented this using a Node class with explicit left and right
-		// children,
-		// you need to delete the leaf and then fix the parent.
-		// If the parent had only one child, the parent should be deleted entirely and
-		// the parent's parent needs to be
-		// fixed recursively. Otherwise the parent should be deleted and the sibling
-		// should be reattached one level higher.
-
 		final BitsKey delete = new BitsKey(x);
 
 		head = deleteR(head, delete, 0);
@@ -113,19 +103,52 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 		// else rightchild = deleteR(rightchild, ..)
 		else
 			curr.right = deleteR(curr.right, v, d + 1);
-
-		// if both ("new") children are not null, return the current node.
-		//
-		// Otherwise one child is null, in that case return the other child.
-
-		// if (curr.left != null && curr.right != null) return curr;
-		// else {
-		// if (curr.left == null) return curr.right;
-		// else return curr.left;
-		// }
+		
+		// if there is only one child AND the child is a leaf, then return the child (either curr.left or curr.right). Otherwise return curr.
+		if (children(curr) == 1 || children(curr) == 2) { // has a single child
+			if (children(curr) == 1 && children(curr.left) == 0) return curr.left; // has a single child and that child is a leaf
+			else if (children(curr) == 2 && children(curr.right) == 0) return curr.right;
+		}
 
 		return curr;
 
+	}
+
+	/**
+	 * Returns:
+	 * 	*  0 if it is a leaf node
+	 *  *  1 if it has a single left child
+	 *  *  2 if it has a single right child
+	 *  *  3 if it has 2 children
+	 * @param node
+	 * @return
+	 */
+	private int children (final Node<BitsKey> node) {
+		int res = -1;
+		switch ((node.left == null ? 0 : 1) + 2 * (node.right == null ? 0 : 1)) {
+			case 0:
+				res = 0;
+				break;
+			case 1:
+				res = 1;	
+				break;
+			case 2:
+				res = 2;
+				break;
+			case 3:
+				res = 3;
+				break;
+		}
+
+		return res;
+	}
+
+	private boolean hasSingleChild(final Node<BitsKey> node) {
+		return (node.left != null && node.right == null) || (node.left == null && node.right != null);
+	}
+
+	private boolean isALeaf(final Node<BitsKey> node) {
+		return node.left == null && node.right == null;
 	}
 
 	@Override
@@ -192,10 +215,10 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		t.insert(6917529027641081855L);
 		t.insert(4611686018427387903L);
-		System.out.println("10 is member =" + t.member(10));
+		System.out.println("10 is member = " + t.member(10));
 		System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
 		t.insert(Long.MAX_VALUE);
-		System.out.println("10 is member =" + t.member(10));
+		System.out.println("10 is member = " + t.member(10));
 		System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
 		t.delete(Long.MAX_VALUE);
 		System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
