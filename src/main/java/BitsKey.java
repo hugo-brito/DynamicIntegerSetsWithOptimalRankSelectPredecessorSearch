@@ -1,6 +1,9 @@
 import java.util.Random;
 
 class BitsKey {
+	/**
+	 * BitsKey class created to conveniently store keys at the nodes in the Binary Search Trie
+	 */
 
 	public final long val;
 	

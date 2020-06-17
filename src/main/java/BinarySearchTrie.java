@@ -1,10 +1,10 @@
-class BinarySearchTrie implements RankSelectPredecessorUpdate {
+class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
-	Node<BitsKey> head;
+	private Node<BitsKey> root;
 	private long N;
 
 	public BinarySearchTrie() {
-		head = null;
+		root = null;
 		N = 0;
 	}
 
@@ -15,10 +15,10 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		// We create the BitsKey at this stage because later we conveniently have access
 		// to the bit(d) method
-		head = insert(head, new BitsKey(x), 0);
+		root = insert(root, new BitsKey(x), 0);
 
 		// Upon successful insertion, we update the total number of keys in the set
-		N++;
+		N++; // problem here
 	}
 
 	private Node<BitsKey> insert(final Node<BitsKey> curr, final BitsKey v, final int d) {
@@ -26,7 +26,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 			return new Node<BitsKey>(v);
 
 		if (curr.left == null && curr.right == null) {
-			if (curr.key != null && curr.key.val == v.val)
+			if (curr.data != null && curr.data.val == v.val)
 				return curr;
 			return split(new Node<BitsKey>(v), curr, d);
 		}
@@ -41,7 +41,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 	private Node<BitsKey> split(final Node<BitsKey> p, final Node<BitsKey> q, final int d) {
 		final Node<BitsKey> t = new Node<BitsKey>(null);
-		final BitsKey v = p.key, w = q.key;
+		final BitsKey v = p.data, w = q.data;
 
 		/**
 		 * The switch statement in split converts the two bits that it is testing into a
@@ -71,7 +71,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 	@Override
 	public void delete(final long x) {
 		final BitsKey delete = new BitsKey(x);
-		head = delete(head, delete, 0);
+		root = delete(root, delete, 0);
 	}
 
 	private Node<BitsKey> delete(final Node<BitsKey> curr, final BitsKey v, final int d) {
@@ -81,8 +81,8 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 			return null;
 
 		// else if (key of current node is the one we want to delete) return null
-		else if (curr.key != null) {
-			if (curr.key.val == v.val) {
+		else if (curr.data != null) {
+			if (curr.data.val == v.val) {
 				N--;
 				return null;
 			}
@@ -141,8 +141,8 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 	@Override
 	public boolean member(final long x) {
-		final Node<BitsKey> res = search(head, new BitsKey(x), 0);
-		return res != null && res.key.val == x;
+		final Node<BitsKey> res = search(root, new BitsKey(x), 0);
+		return res != null && res.data.val == x;
 	}
 
 	private Node<BitsKey> search(final Node<BitsKey> curr, final BitsKey v, final int d) {
@@ -185,6 +185,22 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 		return 0;
 	}
 
+	/* Useful functions */
+
+	public int count() {
+		return count(root);
+	}
+
+	public int height() {
+		return height(root);
+	}
+
+	@Override
+	public void show() {
+		show(root, 0);
+
+	}
+
 	public static void main(final String[] args) {
 		// BitsKey v = new BitsKey(6917529027641081855L);
 		// BitsKey w = new BitsKey(Long.MAX_VALUE);
@@ -216,4 +232,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 
 	}
+
+
 }

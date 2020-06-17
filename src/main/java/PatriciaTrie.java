@@ -1,21 +1,38 @@
+class PatriciaKey {
+
+	/**
+	 * Encapsulating class for the Patricia trie.
+	 * The necessary bit for the nodes is stored in an
+	 * object that also holds the BitsKey.
+	 */
+	
+	final BitsKey key;
+	int bit;
+
+	public PatriciaKey(BitsKey key, int i) {
+		this.key = key;
+		this.bit = i;
+	}
+}
+
 class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
-	private Node head;
+	private Node<PatriciaKey> root;
 	private long N;
 
-	static class Node {
-		final BitsKey key;
-		Node left, right;
-		int bit;
-		public Node(BitsKey key, int i) {
-			this.key = key;
-			this.bit = i;
-		}
-	}
+	// static class Node {
+	// 	final BitsKey key;
+	// 	Node left, right;
+	// 	int bit;
+	// 	public Node(BitsKey key, int i) {
+	// 		this.key = key;
+	// 		this.bit = i;
+	// 	}
+	// }
 
 	public PatriciaTrie() {
-		head = new Node(null, -1);
-		head.left = head;
+		root = new Node<PatriciaKey>(new PatriciaKey(null, -1));
+		root.left = root;
 		N = 0;
 	}
 
@@ -26,31 +43,33 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 		int i = 0;
 		
 		BitsKey v = new BitsKey(x);
-		Node t = search(head.left, v, -1);
+		Node<PatriciaKey> t = search(root.left, v, -1);
 
-		BitsKey w = (t == null) ? null : t.key;
+		BitsKey w = (t == null) ? null : t.data.key;
 		if (v.val == w.val) return; // Perform an insertion only if key only is not present
 		
 		// Find the most significant digit where the keys differ
 		while (v.bit(i) == w.bit(i)) i++;
 
-		head.left = insertR(head.left, v, i, head);
+		root.left = insert(root.left, v, i, root);
 
 		// Upon successful insertion, we update the total number of keys in the set
-		N++;
+		N++; // problem here
 	}
 
-	private Node insertR(Node curr, BitsKey v, int i, Node prev) {
+	private Node<PatriciaKey> insert(Node<PatriciaKey> curr, BitsKey v, int i, Node<PatriciaKey> prev) {
 		// KEY v = x.key();
-		if ((curr.bit >= i) || (curr.bit <= prev.bit)) {
-			Node newNode = new Node(v, i);
-			newNode.left = v.bit(newNode.bit) == 0 ? newNode : curr;
-			newNode.right = v.bit(newNode.bit) == 0 ? curr : newNode;
+		if ((curr.data.bit >= i) || (curr.data.bit <= prev.data.bit)) {
+			Node<PatriciaKey> newNode = new Node<PatriciaKey>(new PatriciaKey(v, i));
+			newNode.left = v.bit(newNode.data.bit) == 0 ? newNode : curr;
+			newNode.right = v.bit(newNode.data.bit) == 0 ? curr : newNode;
 			return newNode;
 		}
 		
-		if (v.bit(curr.bit) == 0) curr.left = insertR(curr.left, v, i, curr);
-		else 					  curr.right = insertR(curr.right, v, i, curr);
+		if (v.bit(curr.data.bit) == 0)
+			curr.left = insert(curr.left, v, i, curr);
+		else
+			curr.right = insert(curr.right, v, i, curr);
 
 		return curr;
 	}
@@ -62,14 +81,17 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
 	@Override
 	public boolean member(long x) {
-		Node res = search(head.left, new BitsKey(x), -1);
-		return res != null && res.key.val == x;
+		Node<PatriciaKey> res = search(root.left, new BitsKey(x), -1);
+		return res != null && res.data.key.val == x;
 	}
 
-	private Node search(Node h, BitsKey v, int i) {
-		if (h.bit <= i) return h;
-		if (v.bit(h.bit) == 0)  return search(h.left, v, h.bit);
-		else 					return search(h.right, v, h.bit);
+	private Node<PatriciaKey> search(Node<PatriciaKey> curr, BitsKey v, int i) {
+		if (curr.data.bit <= i)
+			return curr;
+		if (v.bit(curr.data.bit) == 0)
+			return search(curr.left, v, curr.data.bit);
+		else
+			return search(curr.right, v, curr.data.bit);
 	}
 
 	@Override
@@ -96,24 +118,22 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 		return 0;
 	}
 
-	public String toString() {
-		return toStringR(head.left, -1); 
+	@Override
+	public int count() {
+		return count(root);
 	}
 
-	/**
-	 * This recursive procedure shows the records in a patricia trie in order of their keys. We imagine the items to be in (virtual) external nodes, which we can identify by testing when the bit index on the current node is not	larger than the bit index on its parent. Otherwise, this program is a standard inorder traversal.
-	 * @param h
-	 * @param i
-	 * @return
-	 */
-	private String toStringR(Node h, int i)	{
-		if (h == head) return "";
-		if (h.bit <= i) return h.key.val + "\n";
-		return toStringR(h.left, h.bit) + toStringR(h.right, h.bit);
+	@Override
+	public int height() {
+		return height(root);
+	}
+
+	@Override
+	public void show() {
+		show(root, 0);
 	}
 
 	public static void main(String[] args) {
 		
-	}
-	
+	}	
 }
