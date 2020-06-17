@@ -76,7 +76,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
 		BitsKey delete = new BitsKey(x);
 
-		head = deleteR(head, head, delete, 0);
+		head = deleteR(head, delete, 0);
 
 //		if (delete.bit(0) == 0) deleteR(head, head.left, delete, 1);
 //		else                       deleteR(head, head.right, delete, 1);
@@ -87,71 +87,36 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 		return x;
 	}
 
-	private Node<BitsKey> deleteR(Node<BitsKey> parent, Node<BitsKey> curr, BitsKey v, int d) {
+	private Node<BitsKey> deleteR(Node<BitsKey> curr, BitsKey v, int d) {
 
-		// Current node is null. Unsuccessful search.
+//		if (I'm null) return null
 		if (curr == null) return null;
 
-		boolean noLeftChild = (curr.left == null);
-		boolean noRightChild = (curr.right == null);
+//		else if (key of current node is the one we want to delete) return null
+		else if (curr.key != null) {
+			if (curr.key.val == v.val)  return null;
 
-//		if (noLeftChild ^ noRightChild) { // noLeftChild XOR noRightChild, we need to move the child node up
-//			System.out.println("Move up");
-//			return moveUp(parent, curr, d); // I was probably right here
-//		}
-
-		// Node with no children. We are at a leaf node.
-		if (noLeftChild & noRightChild) {
-			if (curr.key.val == v.val) { // the key matches
-				// here we need to delete and move the other node up the tree
-				if (v.bit(d-1) == 0) {
-					parent.left = null; // The key is located at the left child of the previous node
-					// FIX THE PARENT
-				}
-				else {
-					parent.right = null; // The key is located at the left child of the previous node
-					// FIX THE PARENT
-				}
-				// Upon successful deletion, we update the total number of keys in the set
-				N--;
-				return parent;
-			}
-			return curr;
+//		else if (current node has a different key [and thus is a leaf]) return curr
+			else                        return curr;
 		}
 
-		// Node with children, keep searching recursively.
-		if (v.bit(d) == 0)  curr = deleteR(curr, curr.left, v, d+1);
-		else                curr = deleteR(curr, curr.right, v, d+1);
+//		else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
+		else if (v.bit(d) == 0) curr.left = deleteR(curr.left, v, d+1);
 
-		noLeftChild = (curr.left == null);
-		noRightChild = (curr.right == null);
+//		else rightchild = deleteR(rightchild, ..)
+		else                    curr.right = deleteR(curr.right, v, d+1);
 
-		if (noLeftChild ^ noRightChild) { // need to fix this expression
-			Node<BitsKey> childNode = null; // the node to be moved up.
+		// if both ("new") children are not null, return the current node.
+		//
+		// Otherwise one child is null, in that case return the other child.
 
-			if (curr.left == null) childNode = curr.right;
-			else                   childNode = curr.left;
-
-			if (childNode.key.bit(d-1) == 0) parent.left = childNode;
-			else                                parent.right = childNode;
+		if (curr.left != null & curr.right != null) return curr;
+		else {
+			if (curr.left == null)  return curr.right;
+			else                    return curr.left;
 		}
 
-		return curr;
 	}
-
-	private Node<BitsKey> moveUp(Node<BitsKey> parent, Node<BitsKey> current, int d) {
-
-		Node<BitsKey> childNode = null; // the node to be moved up.
-
-		if (current.left == null) childNode = current.right;
-		else                      childNode = current.left;
-
-		if (childNode.key.bit(d-1) == 0) parent.left = childNode;
-		else                                parent.right = childNode;
-
-		return parent;
-	}
-
 
 	@Override
 	public boolean member(long x) {

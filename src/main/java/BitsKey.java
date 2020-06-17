@@ -3,28 +3,25 @@ import java.util.Random;
 class BitsKey {
 
 	public final long val;
-	public final String bin;
 	
-	public final static int bitsword = 63;
+	public final static int bitsword = 64;
 
 	public BitsKey (long val){
 		this.val = val;
-		this.bin = bin();
 	}
 	
 	/**
 	 * Helper function. Given a 64-bit word, val, return the
 	 * value (0 or 1) of the d-th digit. Digits are indexed
 	 * 0..64.
-	 * 
-	 * @param val the long value to have the digit extracted
+	 *
 	 * from
 	 * @param d the digit index
 	 * @return 0 or 1 depending on if it's 0 or 1 at the
 	 * specified index d.
 	 */
 	public int bit(int d){
-		return (int) (val >> (bitsword-d)) & 1;
+		return (int) (val >> (bitsword-d-1)) & 1;
 	}
 
 	/**
@@ -32,19 +29,18 @@ class BitsKey {
 	 * the long x in a String containing leading zeroes.
 	 * It uses the helper function bit to do so and the
 	 * StringBuilder for fast concatenation.
-	 * @param x
 	 * @return
 	 */
 	public String bin() {
-		StringBuilder res = new StringBuilder(64);
-		for (int i = 0; i < 64; i++){
+		StringBuilder res = new StringBuilder(bitsword);
+		for (int i = 0; i < bitsword; i++){
 			res.append(bit(i));
 		}
 		return res.toString();
 	}
 
 	public String toString() {
-		return "[Bin = " + bin + ", Val = " + val + "]";
+		return "[Bin = " + bin() + ", Val = " + val + "]";
 	}
 
 	public static void main(String[] args) {
@@ -52,9 +48,9 @@ class BitsKey {
 		System.out.println("Testing helper functions of BitsKey class:");
 		for (long i = Long.MIN_VALUE; i == Long.MAX_VALUE; i++){
 			BitsKey key = new BitsKey(i);
-			if (!Long.toBinaryString(i).equals(key.bin)){
+			if (!Long.toBinaryString(i).equals(key.bin())){
 				failed = true;
-				System.err.println("ERROR!\nFor "+i+" expected:\n	"+ Long.toBinaryString(i) + "\nbut got:\n	"+key.bin);
+				System.err.println("ERROR!\nFor "+i+" expected:\n	"+ Long.toBinaryString(i) + "\nbut got:\n	"+key.bin());
 			}
 		}
 		
