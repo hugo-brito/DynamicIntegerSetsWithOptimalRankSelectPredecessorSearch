@@ -222,9 +222,8 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
 	}
 
 	@Override
-	public Long delete(long x) {
+	public void delete(long x) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

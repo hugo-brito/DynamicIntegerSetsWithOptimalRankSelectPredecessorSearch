@@ -10,7 +10,7 @@ interface RankSelectPredecessorUpdate {
 	 * Sets S = S / {x}
 	 * @param x the integer to delete
 	 */
-	Long delete(long x);
+	void delete(long x);
 
 	/**
 	 * Returns to true iff the integer is in the set

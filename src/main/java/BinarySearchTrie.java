@@ -69,13 +69,9 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 	}
 
 	@Override
-	public Long delete(final long x) {
-
+	public void delete(final long x) {
 		final BitsKey delete = new BitsKey(x);
-
 		head = delete(head, delete, 0);
-
-		return x;
 	}
 
 	private Node<BitsKey> delete(final Node<BitsKey> curr, final BitsKey v, final int d) {

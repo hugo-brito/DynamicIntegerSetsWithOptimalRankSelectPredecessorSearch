@@ -56,9 +56,8 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 	}
 
 	@Override
-	public Long delete(long x) {
+	public void delete(long x) {
 		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
