@@ -8,7 +8,9 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     N = 0;
   }
 
-  public long size() {return N;}
+  public long size() {
+    return N;
+  }
 
   @Override
   public void insert(final long x) {
@@ -101,45 +103,16 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     }
         
     // if there is only one child AND the child is a leaf, then return the child (either curr.left or curr.right). Otherwise return curr.
-    if (children(curr) == 1 || children(curr) == 2) { // has a single child
-      if (children(curr) == 1 && children(curr.left) == 0) {
+    if (curr.children() == 1 || curr.children() == 2) { // has a single child
+      if (curr.children() == 1 && curr.left.children() == 0) {
         return curr.left; // has a single child and that child is a leaf
-      } else if (children(curr) == 2 && children(curr.right) == 0) {
+      } else if (curr.children() == 2 && curr.right.children() == 0) {
         return curr.right;
       }
     }
 
     return curr;
 
-  }
-
-  /** Returns:
-   *  *  0 if it is a leaf node
-   *  *  1 if it has a single left child
-   *  *  2 if it has a single right child
-   *  *  3 if it has 2 children
-   * @param node The node to be evaluated.
-   * @return
-   */
-  private int children (final Node<BitsKey> node) {
-    int res = -1;
-    switch ((node.left == null ? 0 : 1) + 2 * (node.right == null ? 0 : 1)) {
-      case 0:
-        res = 0;
-        break;
-      case 1:
-        res = 1;
-        break;
-      case 2:
-        res = 2;
-        break;
-      case 3:
-        res = 3;
-        break;
-      default:
-        break;
-    }
-    return res;
   }
 
   @Override
@@ -155,7 +128,7 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     }
 
     // Node with no children. We are at a leaf node. Return it for key comparison.
-    if (curr.left == null && curr.right == null) {
+    if (curr.children() == 0) {
       return curr;
     }
 
@@ -181,8 +154,31 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
   @Override
   public long rank(final long x) {
-    // TODO Auto-generated method stub
-    return 0;
+    return rank(root, new BitsKey(x), 0);
+  }
+
+  private long rank(Node<BitsKey> curr, BitsKey v, int d) {
+
+    if (curr == null) {
+      return 0;
+    }
+
+    if (curr.children() == 0) { // leaf node, there will be a key.
+      if (curr.data.val < v.val) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+
+    if (v.bit(d) == 0) {
+      // If the bit is zero go left, and don't do anything,
+      return rank(curr.left, v, d + 1);
+    } else {
+      // If the bit is one go right, we add the number of keys on the left subtree to a
+      // local counter.
+      return countLeafNodes(curr.left) + rank(curr.right, v, d + 1); 
+    }
   }
 
   @Override
@@ -218,18 +214,34 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     // [Bin = 0011111111111111111111111111111111111111111111111111111111111111, Val = 4611686018427387903]
 
     final BinarySearchTrie t = new BinarySearchTrie();
-    t.insert(6917529027641081855L);
-    t.insert(4611686018427387903L);
-    System.out.println("10 is member = " + t.member(10));
-    System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
-    t.insert(Long.MAX_VALUE);
-    System.out.println("10 is member = " + t.member(10));
-    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
-    t.delete(Long.MAX_VALUE);
-    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
-    System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
-    System.out.println("4611686018427387903 is member = " + t.member(4611686018427387903L));
-    t.show();
-    System.out.println(t.height());
+    // t.insert(6917529027641081855L);
+    // t.insert(4611686018427387903L);
+    // System.out.println("10 is member = " + t.member(10));
+    // System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
+    // t.insert(Long.MAX_VALUE);
+    // System.out.println("10 is member = " + t.member(10));
+    // System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
+    // t.delete(Long.MAX_VALUE);
+    // System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
+    // System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
+    // System.out.println("4611686018427387903 is member = " + t.member(4611686018427387903L));
+    // t.show();
+    // System.out.println(t.height());
+
+    t.insert(10);
+    t.insert(11);
+    t.insert(12);
+    System.out.println(t.rank(13) == 3);
+    
+    // t.insert(5764607523034234880L); // 01010 (10)
+    // t.insert(6341068275337658368L); // 01011 (11)
+    // t.insert(6917529027641081856L); // 01100 (12)
+    // t.insert(7493989779944505344L); // 01101 (13) 000....
+    System.err.println(t.rank(7493989779944505344L));
+  }
+
+  @Override
+  public int countLeafNodes() {
+    return countLeafNodes(root);
   }
 }

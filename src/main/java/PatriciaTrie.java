@@ -145,4 +145,10 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
   public static void main(final String[] args) {
     
   }
+
+  @Override
+  public int countLeafNodes() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

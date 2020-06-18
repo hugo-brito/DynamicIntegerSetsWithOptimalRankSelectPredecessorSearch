@@ -8,12 +8,41 @@ class Node<E> {
     // NB!: We allow the key to be null because internal node cannot hold values
     this.data = key;
   }
+
+  /** Returns the number of children, if any, and which.
+   * Returns:
+   *  *  0 if it is a leaf node
+   *  *  1 if it has a single left child
+   *  *  2 if it has a single right child
+   *  *  3 if it has 2 children
+   * @param node The node to be evaluated.
+   * @return
+   */
+  public int children() {
+    int res = -1;
+    switch ((left == null ? 0 : 1) + 2 * (right == null ? 0 : 1)) {
+      case 0:
+        res = 0;
+        break;
+      case 1:
+        res = 1;
+        break;
+      case 2:
+        res = 2;
+        break;
+      case 3:
+        res = 3;
+        break;
+      default:
+        break;
+    }
+    return res;
+  }
 }
 
 interface BinaryTree {
 
-  /**
-   * Counts and returns the total number of nodes in the tree.
+  /** Counts and returns the total number of nodes in the tree.
    * @return
    */
   int count();
@@ -24,6 +53,23 @@ interface BinaryTree {
     }
     
     return count(curr.left) + count(curr.right) + 1;
+  }
+
+  /** Counts and returns the total number of leaf nodes in the tree.
+   * @return the number of leaf nodes
+   */
+  int countLeafNodes();
+
+  default <E> int countLeafNodes(Node<E> curr) {
+    if (curr == null) {
+      return 0;
+    }
+
+    if (curr.children() == 0) {
+      return 1;
+    }
+
+    return countLeafNodes(curr.left) + countLeafNodes(curr.right);
   }
 
   /** Returns the height of the tree.
