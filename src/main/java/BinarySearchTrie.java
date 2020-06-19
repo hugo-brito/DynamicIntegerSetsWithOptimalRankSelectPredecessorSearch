@@ -107,7 +107,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       return null;
 
     } else if (curr.key != null) {
-      if (curr.key.val == v.val) {
+      if (curr.key.equals(v)) {
         return null;
       } else {
         return curr;
@@ -133,8 +133,9 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   @Override
   public boolean member(final long x) {
-    final BSTrieNode<BitsKey> res = search(root, new BitsKey(x), 0);
-    return res != null && res.key.val == x;
+    final BitsKey searchKey = new BitsKey(x);
+    final BSTrieNode<BitsKey> res = search(root, searchKey, 0);
+    return res != null && res.key.equals(searchKey);
   }
 
   private BSTrieNode<BitsKey> search(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
@@ -180,7 +181,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
 
     if (curr.children() == 0) { // leaf node, there will be a key.
-      if (curr.key.val < v.val) {
+      if (curr.key.compareTo(v) < 0) {
         return 1;
       } else {
         return 0;
@@ -200,37 +201,36 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   @Override
   public long select(final long i) {
-    return -1;
     // if (i > N || i < 0) {
     //   return -1; // invalid query
     // }
 
-    // if (i == 0) {
-    //   return 0; // convention
-    // }
+    if (i == 0) {
+      return 0; // convention
+    }
 
-    // long lowerBound = Long.MIN_VALUE; // the smallest key
-    // long upperBound = Long.MAX_VALUE; // the largest key.
-    // long candidate = -1;
+    long lowerBound = Long.MIN_VALUE; // the smallest key
+    long upperBound = Long.MAX_VALUE; // the largest key.
+    long candidate = -1;
 
-    // while (lowerBound <= upperBound) {
-    //   final long middle = (upperBound - lowerBound) / 2 + lowerBound;
+    while (lowerBound <= upperBound) {
+      final long middle = (upperBound - lowerBound) / 2 + lowerBound;
 
-    //   if (rank(middle) > i) {
-    //     upperBound = middle - 1;
-    //   }
+      if (rank(middle) > i) {
+        upperBound = middle - 1;
+      }
 
-    //   else if (rank(middle) == i) {
-    //     candidate = middle;
-    //     upperBound = middle - 1;
-    //   }
+      else if (rank(middle) == i) {
+        candidate = middle;
+        upperBound = middle - 1;
+      }
 
-    //   else {
-    //     lowerBound = middle + 1;
-    //   }
-    // }
+      else {
+        lowerBound = middle + 1;
+      }
+    }
     
-    // return candidate;
+    return candidate;
   }
 
   /* Useful functions */
