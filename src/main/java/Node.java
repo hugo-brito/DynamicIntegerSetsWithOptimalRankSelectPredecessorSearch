@@ -1,8 +1,8 @@
 class Node<E> {
 
   final E key;
-  Node<E> left;
-  Node<E> right;
+  private Node<E> left;
+  private Node<E> right;
 
   public Node(final E key) {
     // NB!: We allow the key to be null because internal node cannot hold values
@@ -29,7 +29,7 @@ class Node<E> {
     return count(this);
   }
 
-  private int count(final Node<E> curr) {
+  protected int count(final Node<E> curr) {
     if (curr == null) {
       return 0;
     }
@@ -44,7 +44,7 @@ class Node<E> {
     return height(this);
   }
 
-  private int height(final Node<E> node) {
+  protected int height(final Node<E> node) {
     if (node == null) {
       return -1;
     }
@@ -65,7 +65,7 @@ class Node<E> {
     show(this, 0);
   }
 
-  private void show(final Node<E> t, final int h) {
+  protected void show(final Node<E> t, final int h) {
     if (t == null) {
       printnode(null, h);
       return;
@@ -80,6 +80,5 @@ class Node<E> {
       System.out.print("	");
     }
     System.out.println("[" + x + "]");
-  }
-  
+  } 
 }

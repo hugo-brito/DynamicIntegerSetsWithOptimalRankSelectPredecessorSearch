@@ -6,9 +6,29 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     BSTrieNode<BitsKey> right;
     int leavesBelow;
 
-    public BSTrieNode (final E key) {
+    public BSTrieNode(final E key){
       super(key);
-      leavesBelow = 0;
+      leavesBelow = 1;
+    }
+
+    @Override
+    public int children() {
+      return ((left == null ? 0 : 1) + 2 * (right == null ? 0 : 1));
+    }
+
+    @Override
+    public int count() {
+      return super.count(this);
+    }
+
+    @Override
+    public int height() {
+      return super.height(this);
+    }
+
+    @Override
+    public void show() {
+      super.show(this, 0);
     }
 
   }
@@ -37,19 +57,16 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   private BSTrieNode<BitsKey> insert(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
     if (curr == null) {
-      return new BSTrieNode<BitsKey>(v);
+      BSTrieNode<BitsKey> newNode = new BSTrieNode(v);
+      return newNode;
     }
 
-    if (curr.left == null && curr.right == null) {
+    if (curr.children() == 0) {
       if (curr.key != null && curr.key.equals(v)) {
         return curr;
       }
-      // the a new node is inserted here
-      return split(new BSTrieNode<BitsKey>(v), curr, d);
+      return split(new BSTrieNode(v), curr, d);
     }
-
-    // TODO:
-    // store the current number of leaves below
 
     if (v.bit(d) == 0) {
       curr.left = insert(curr.left, v, d + 1);
@@ -57,14 +74,12 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       curr.right = insert(curr.right, v, d + 1);
     }
 
-    // TODO:
-    // if the number of leaves below has increased, then increase the number of leaves below as well.
-
     return curr;
   }
 
   private BSTrieNode<BitsKey> split(final BSTrieNode<BitsKey> p, final BSTrieNode<BitsKey> q, final int d) {
-    final BSTrieNode<BitsKey> t = new BSTrieNode<BitsKey>(null);
+    final BSTrieNode<BitsKey> t = new BSTrieNode(null);
+    t.leavesBelow = 2;
     final BitsKey v = p.key;
     final BitsKey w = q.key;
 
@@ -209,28 +224,30 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       return 0; // convention
     }
 
-    long lowerBound = Long.MIN_VALUE; // the smallest key
-    long upperBound = Long.MAX_VALUE; // the largest key.
-    long candidate = -1;
+    // long lowerBound = Long.MIN_VALUE; // the smallest key
+    // long upperBound = Long.MAX_VALUE; // the largest key.
+    // long candidate = -1;
 
-    while (lowerBound <= upperBound) {
-      final long middle = (upperBound - lowerBound) / 2 + lowerBound;
+    // while (lowerBound <= upperBound) {
+    //   final long middle = (upperBound - lowerBound) / 2 + lowerBound;
 
-      if (rank(middle) > i) {
-        upperBound = middle - 1;
-      }
+    //   if (rank(middle) > i) {
+    //     upperBound = middle - 1;
+    //   }
 
-      else if (rank(middle) == i) {
-        candidate = middle;
-        upperBound = middle - 1;
-      }
+    //   else if (rank(middle) == i) {
+    //     candidate = middle;
+    //     upperBound = middle - 1;
+    //   }
 
-      else {
-        lowerBound = middle + 1;
-      }
-    }
+    //   else {
+    //     lowerBound = middle + 1;
+    //   }
+    // }
     
-    return candidate;
+    // return candidate;
+    
+    return -1;
   }
 
   /* Useful functions */
@@ -254,7 +271,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     return countLeafNodes(root);
   }
 
-  private <E> int countLeafNodes(final Node<E> curr) {
+  private int countLeafNodes(final BSTrieNode curr) {
     if (curr == null) {
       return 0;
     }
@@ -296,19 +313,19 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     t.insert(11);
     t.insert(12);
 
-    System.out.println(t.rank(13) == 3);
-    System.out.println(t.select(3));
+//    System.out.println(t.rank(13) == 3);
+//    System.out.println(t.select(3));
     
-    // t.insert(5764607523034234880L); // 01010 (10)
-    // t.insert(6341068275337658368L); // 01011 (11)
-    // t.insert(6917529027641081856L); // 01100 (12)
-    // t.insert(7493989779944505344L); // 01101 (13) 000....
-    System.err.println(t.rank(7493989779944505344L));
+     t.insert(5764607523034234880L); // 01010 (10)
+     t.insert(6341068275337658368L); // 01011 (11)
+     t.insert(6917529027641081856L); // 01100 (12)
+     t.insert(7493989779944505344L); // 01101 (13) 000....
+//    System.err.println(t.rank(7493989779944505344L));
     
-    System.out.println("Inserting Long.MAX_VALUE");
-    t.insert(Long.MAX_VALUE);
-    t.insert(Long.MAX_VALUE - 1);
-    System.out.println(t.rank(-1));
+//    System.out.println("Inserting Long.MAX_VALUE");
+//    t.insert(Long.MAX_VALUE);
+//    t.insert(Long.MAX_VALUE - 1);
+//    System.out.println(t.rank(-1));
 
     
   }
