@@ -1,15 +1,29 @@
-class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
+class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
-  private Node<BitsKey> root;
-  private long N;
+  static class BSTrieNode<E> extends Node<E> {
+
+    BSTrieNode<BitsKey> left;
+    BSTrieNode<BitsKey> right;
+    int leavesBelow;
+
+    public BSTrieNode (final E key) {
+      super(key);
+      leavesBelow = 0;
+    }
+
+  }
+
+  private BSTrieNode<BitsKey> root;
 
   public BinarySearchTrie() {
     root = null;
-    N = 0;
   }
 
   public long size() {
-    return N;
+    if (root != null) {
+      return root.leavesBelow;
+    }
+    return 0;
   }
 
   @Override
@@ -19,21 +33,23 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     // to the bit(d) method
     root = insert(root, new BitsKey(x), 0);
 
-    // Upon successful insertion, we update the total number of keys in the set
-    N++; // problem here
   }
 
-  private Node<BitsKey> insert(final Node<BitsKey> curr, final BitsKey v, final int d) {
+  private BSTrieNode<BitsKey> insert(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
     if (curr == null) {
-      return new Node<BitsKey>(v);
+      return new BSTrieNode<BitsKey>(v);
     }
 
     if (curr.left == null && curr.right == null) {
-      if (curr.data != null && curr.data.val == v.val) {
+      if (curr.key != null && curr.key.equals(v)) {
         return curr;
       }
-      return split(new Node<BitsKey>(v), curr, d);
+      // the a new node is inserted here
+      return split(new BSTrieNode<BitsKey>(v), curr, d);
     }
+
+    // TODO:
+    // store the current number of leaves below
 
     if (v.bit(d) == 0) {
       curr.left = insert(curr.left, v, d + 1);
@@ -41,13 +57,16 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
       curr.right = insert(curr.right, v, d + 1);
     }
 
+    // TODO:
+    // if the number of leaves below has increased, then increase the number of leaves below as well.
+
     return curr;
   }
 
-  private Node<BitsKey> split(final Node<BitsKey> p, final Node<BitsKey> q, final int d) {
-    final Node<BitsKey> t = new Node<BitsKey>(null);
-    final BitsKey v = p.data;
-    final BitsKey w = q.data;
+  private BSTrieNode<BitsKey> split(final BSTrieNode<BitsKey> p, final BSTrieNode<BitsKey> q, final int d) {
+    final BSTrieNode<BitsKey> t = new BSTrieNode<BitsKey>(null);
+    final BitsKey v = p.key;
+    final BitsKey w = q.key;
 
     /* The switch statement in split converts the two bits that it is testing into a
      * number to handle the four possible cases. If the bits are the same (case 00 =
@@ -81,29 +100,26 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     root = delete(root, delete, 0);
   }
 
-  private Node<BitsKey> delete(final Node<BitsKey> curr, final BitsKey v, final int d) {
+  private BSTrieNode<BitsKey> delete(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
 
     // if (I'm null) return null
     if (curr == null) {
       return null;
-    } else if (curr.data != null) {
-      if (curr.data.val == v.val) {
-        N--;
+
+    } else if (curr.key != null) {
+      if (curr.key.val == v.val) {
         return null;
       } else {
         return curr;
       }
-    }
 
-    // else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
-    else if (v.bit(d) == 0) {
+    } else if (v.bit(d) == 0) { // else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
       curr.left = delete(curr.left, v, d + 1);
     } else {
       curr.right = delete(curr.right, v, d + 1);
-    }
         
     // if there is only one child AND the child is a leaf, then return the child (either curr.left or curr.right). Otherwise return curr.
-    if (curr.children() == 1 || curr.children() == 2) { // has a single child
+    } if (curr.children() == 1 || curr.children() == 2) { // has a single child
       if (curr.children() == 1 && curr.left.children() == 0) {
         return curr.left; // has a single child and that child is a leaf
       } else if (curr.children() == 2 && curr.right.children() == 0) {
@@ -117,11 +133,11 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
   @Override
   public boolean member(final long x) {
-    final Node<BitsKey> res = search(root, new BitsKey(x), 0);
-    return res != null && res.data.val == x;
+    final BSTrieNode<BitsKey> res = search(root, new BitsKey(x), 0);
+    return res != null && res.key.val == x;
   }
 
-  private Node<BitsKey> search(final Node<BitsKey> curr, final BitsKey v, final int d) {
+  private BSTrieNode<BitsKey> search(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
     // Current node is null. Unsuccessful search.
     if (curr == null) {
       return null;
@@ -157,14 +173,14 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     return rank(root, new BitsKey(x), 0);
   }
 
-  private long rank(Node<BitsKey> curr, BitsKey v, int d) {
+  private long rank(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
 
     if (curr == null) {
       return 0;
     }
 
     if (curr.children() == 0) { // leaf node, there will be a key.
-      if (curr.data.val < v.val) {
+      if (curr.key.val < v.val) {
         return 1;
       } else {
         return 0;
@@ -175,31 +191,79 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
       // If the bit is zero go left, and don't do anything,
       return rank(curr.left, v, d + 1);
     } else {
-      // If the bit is one go right, we add the number of keys on the left subtree to a
+      // If the bit is one go right, we add the number of keys on the left subtree to
+      // a
       // local counter.
-      return countLeafNodes(curr.left) + rank(curr.right, v, d + 1); 
+      return countLeafNodes(curr.left) + rank(curr.right, v, d + 1);
     }
   }
 
   @Override
   public long select(final long i) {
-    // TODO Auto-generated method stub
-    return 0;
+    return -1;
+    // if (i > N || i < 0) {
+    //   return -1; // invalid query
+    // }
+
+    // if (i == 0) {
+    //   return 0; // convention
+    // }
+
+    // long lowerBound = Long.MIN_VALUE; // the smallest key
+    // long upperBound = Long.MAX_VALUE; // the largest key.
+    // long candidate = -1;
+
+    // while (lowerBound <= upperBound) {
+    //   final long middle = (upperBound - lowerBound) / 2 + lowerBound;
+
+    //   if (rank(middle) > i) {
+    //     upperBound = middle - 1;
+    //   }
+
+    //   else if (rank(middle) == i) {
+    //     candidate = middle;
+    //     upperBound = middle - 1;
+    //   }
+
+    //   else {
+    //     lowerBound = middle + 1;
+    //   }
+    // }
+    
+    // return candidate;
   }
 
   /* Useful functions */
 
   public int count() {
-    return count(root);
+    return root.count();
   }
 
   public int height() {
-    return height(root);
+    return root.height();
   }
 
-  @Override
   public void show() {
-    show(root, 0);
+    root.show();
+  }
+
+  /** Counts and returns the total number of leaf nodes in the tree.
+   * @return the number of leaf nodes
+   */
+  public int countLeafNodes() {
+    return countLeafNodes(root);
+  }
+
+  private <E> int countLeafNodes(final Node<E> curr) {
+    if (curr == null) {
+      return 0;
+    }
+
+    if (curr.children() == 0) {
+      return 1;
+    }
+
+    return countLeafNodes(curr.left) + countLeafNodes(curr.right);
   }
 
   public static void main(final String[] args) {
@@ -231,17 +295,21 @@ class BinarySearchTrie implements BinaryTree, RankSelectPredecessorUpdate {
     t.insert(10);
     t.insert(11);
     t.insert(12);
+
     System.out.println(t.rank(13) == 3);
+    System.out.println(t.select(3));
     
     // t.insert(5764607523034234880L); // 01010 (10)
     // t.insert(6341068275337658368L); // 01011 (11)
     // t.insert(6917529027641081856L); // 01100 (12)
     // t.insert(7493989779944505344L); // 01101 (13) 000....
     System.err.println(t.rank(7493989779944505344L));
-  }
+    
+    System.out.println("Inserting Long.MAX_VALUE");
+    t.insert(Long.MAX_VALUE);
+    t.insert(Long.MAX_VALUE - 1);
+    System.out.println(t.rank(-1));
 
-  @Override
-  public int countLeafNodes() {
-    return countLeafNodes(root);
+    
   }
 }

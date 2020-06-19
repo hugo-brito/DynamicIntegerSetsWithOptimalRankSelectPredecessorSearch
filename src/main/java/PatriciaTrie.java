@@ -1,23 +1,18 @@
-class PatriciaKey {
+class PatriciaTrie implements RankSelectPredecessorUpdate {
 
-  /** Encapsulating class for the Patricia trie.
-   * The necessary bit for the nodes is stored in an
-   * object that also holds the BitsKey.
-   */
-  
-  final BitsKey key;
-  int bit;
+  static class PTrieNode<E> extends Node<E> {
 
-  public PatriciaKey(final BitsKey key, final int i) {
-    this.key = key;
-    this.bit = i;
+    PTrieNode<BitsKey> left;
+    PTrieNode<BitsKey> right;
+    int bit;
+
+    public PTrieNode(final E key, final int bit) {
+      super(key);
+
+    }
   }
-}
 
-class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
-
-  private final Node<PatriciaKey> root;
-  private long N;
+  private final PTrieNode<BitsKey> root;
 
   // static class Node {
   // final BitsKey key;
@@ -30,13 +25,8 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
   // }
 
   public PatriciaTrie() {
-    root = new Node<PatriciaKey>(new PatriciaKey(null, -1));
+    root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
-    N = 0;
-  }
-
-  public long size() {
-    return N;
   }
 
   @Override
@@ -44,9 +34,9 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
     int i = 0;
 
     final BitsKey v = new BitsKey(x);
-    final Node<PatriciaKey> t = search(root.left, v, -1);
+    final PTrieNode<BitsKey> t = search(root.left, v, -1);
 
-    final BitsKey w = (t == null) ? null : t.data.key;
+    final BitsKey w = (t == null) ? null : t.key;
     if (v.val == w.val) {
       return; // Perform an insertion only if key only is not present
     }
@@ -57,22 +47,19 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
     }
 
     root.left = insert(root.left, v, i, root);
-
-    // Upon successful insertion, we update the total number of keys in the set
-    N++; // problem here
   }
 
-  private Node<PatriciaKey> insert(final Node<PatriciaKey> curr, final BitsKey v, final int i,
-      final Node<PatriciaKey> prev) {
+  private PTrieNode<BitsKey> insert(final PTrieNode<BitsKey> curr, final BitsKey v, final int i,
+      final PTrieNode<BitsKey> prev) {
     // KEY v = x.key();
-    if ((curr.data.bit >= i) || (curr.data.bit <= prev.data.bit)) {
-      final Node<PatriciaKey> newNode = new Node<PatriciaKey>(new PatriciaKey(v, i));
-      newNode.left = v.bit(newNode.data.bit) == 0 ? newNode : curr;
-      newNode.right = v.bit(newNode.data.bit) == 0 ? curr : newNode;
+    if ((curr.bit >= i) || (curr.bit <= prev.bit)) {
+      final PTrieNode<BitsKey> newNode = new PTrieNode<BitsKey>(v, i);
+      newNode.left = v.bit(newNode.bit) == 0 ? newNode : curr;
+      newNode.right = v.bit(newNode.bit) == 0 ? curr : newNode;
       return newNode;
     }
 
-    if (v.bit(curr.data.bit) == 0) {
+    if (v.bit(curr.bit) == 0) {
       curr.left = insert(curr.left, v, i, curr);
     } else {
       curr.right = insert(curr.right, v, i, curr);
@@ -88,18 +75,19 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
 
   @Override
   public boolean member(final long x) {
-    final Node<PatriciaKey> res = search(root.left, new BitsKey(x), -1);
-    return res != null && res.data.key.val == x;
+    final BitsKey searchKey = new BitsKey(x);
+    final PTrieNode<BitsKey> res = search(root.left, searchKey, -1);
+    return res != null && res.key.equals(searchKey);
   }
 
-  private Node<PatriciaKey> search(final Node<PatriciaKey> curr, final BitsKey v, final int i) {
-    if (curr.data.bit <= i) {
+  private PTrieNode<BitsKey> search(final PTrieNode<BitsKey> curr, final BitsKey v, final int i) {
+    if (curr.bit <= i) {
       return curr;
     }
-    if (v.bit(curr.data.bit) == 0) {
-      return search(curr.left, v, curr.data.bit);
+    if (v.bit(curr.bit) == 0) {
+      return search(curr.left, v, curr.bit);
     } else {
-      return search(curr.right, v, curr.data.bit);
+      return search(curr.right, v, curr.bit);
     }
   }
 
@@ -127,28 +115,21 @@ class PatriciaTrie implements BinaryTree, RankSelectPredecessorUpdate {
     return 0;
   }
 
-  @Override
+  /* Useful functions */
+
   public int count() {
-    return count(root);
+    return root.count();
   }
 
-  @Override
   public int height() {
-    return height(root);
+    return root.height();
   }
 
-  @Override
   public void show() {
-    show(root, 0);
+    root.left.show();
   }
 
   public static void main(final String[] args) {
     
-  }
-
-  @Override
-  public int countLeafNodes() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }
