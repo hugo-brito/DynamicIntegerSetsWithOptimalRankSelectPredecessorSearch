@@ -25,13 +25,15 @@ class BitsKey implements Comparable<BitsKey> {
 
   @Override
   public int compareTo(final BitsKey that) {
-    int i = 0;
-    while (i < bitsword && this.bit(i) == that.bit(i)) {
-      i++;
-    }
-    if (i == 64) {
+    if (this.equals(that)) {
       return 0;
     }
+    
+    int i = 0;
+    while (this.bit(i) == that.bit(i)) {
+      i++;
+    }
+    
     if (this.bit(i) > that.bit(i)) {
       return 1;
     }
@@ -39,7 +41,7 @@ class BitsKey implements Comparable<BitsKey> {
   }
 
   public boolean equals(final BitsKey that) {
-    return that.compareTo(that) == 0;
+    return ((val ^ that.val) == 0);
   }
 
   /**
