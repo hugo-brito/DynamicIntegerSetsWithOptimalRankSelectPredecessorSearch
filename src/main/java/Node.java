@@ -9,6 +9,10 @@ class Node<E> {
     this.key = key;
   }
 
+  public int children() {
+    return children(this);
+  }
+
   /** Returns the number of children, if any, and which.
    * Returns:
    *  *  0 if it is a leaf node
@@ -18,8 +22,8 @@ class Node<E> {
    * @param node The node to be evaluated.
    * @return
    */
-  public int children() {
-    return ((left == null ? 0 : 1) + 2 * (right == null ? 0 : 1));
+  protected static int children(final Node node) {
+    return ((node.left == null ? 0 : 1) + 2 * (node.right == null ? 0 : 1));
   }
 
   /** Counts and returns the total number of nodes in this sub-tree including self.
@@ -29,7 +33,7 @@ class Node<E> {
     return count(this);
   }
 
-  protected int count(final Node<E> curr) {
+  protected static int count(final Node curr) {
     if (curr == null) {
       return 0;
     }
@@ -44,7 +48,7 @@ class Node<E> {
     return height(this);
   }
 
-  protected int height(final Node<E> node) {
+  protected static int height(final Node node) {
     if (node == null) {
       return -1;
     }
@@ -65,7 +69,7 @@ class Node<E> {
     show(this, 0);
   }
 
-  protected void show(final Node<E> t, final int h) {
+  protected static <E> void show(final Node<E> t, final int h) {
     if (t == null) {
       printnode(null, h);
       return;
@@ -75,7 +79,7 @@ class Node<E> {
     show(t.left, h + 1);
   }
 
-  private void printnode(final E x, final int h) {
+  private static <E> void printnode(final E x, final int h) {
     for (int i = 0; i < h; i++) {
       System.out.print("	");
     }

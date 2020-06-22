@@ -11,26 +11,48 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       leavesBelow = 1;
     }
 
+    /**
+     * Returns the number of children, if any, and which.
+     * Returns:
+     * *  0 if it is a leaf node
+     * *  1 if it has a single left child
+     * *  2 if it has a single right child
+     * *  3 if it has 2 children
+     *
+     * @return an integer that can be interpreted as the number of children and which
+     */
     @Override
     public int children() {
-      return ((left == null ? 0 : 1) + 2 * (right == null ? 0 : 1));
+      return children(this);
     }
 
+    /**
+     * Counts and returns the total number of nodes in this sub-tree including self.
+     *
+     * @return the total number of nodes in this sub-tree including self.
+     */
     @Override
     public int count() {
-      return super.count(this);
+      return count(this);
     }
 
+    /**
+     * Returns the height of the sub-tree rooted at this node.
+     *
+     * @return the height of the sub-tree rooted at this node.
+     */
     @Override
     public int height() {
-      return super.height(this);
+      return height(this);
     }
 
+    /**
+     * Pretty prints the contents of the sub tree rooted at this node.
+     */
     @Override
     public void show() {
-      super.show(this, 0);
+      show(this, 0);
     }
-
   }
 
   private BSTrieNode<BitsKey> root;
@@ -295,31 +317,31 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     // [Bin = 0011111111111111111111111111111111111111111111111111111111111111, Val = 4611686018427387903]
 
     final BinarySearchTrie t = new BinarySearchTrie();
-    // t.insert(6917529027641081855L);
-    // t.insert(4611686018427387903L);
-    // System.out.println("10 is member = " + t.member(10));
-    // System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
-    // t.insert(Long.MAX_VALUE);
-    // System.out.println("10 is member = " + t.member(10));
-    // System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
-    // t.delete(Long.MAX_VALUE);
-    // System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
-    // System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
-    // System.out.println("4611686018427387903 is member = " + t.member(4611686018427387903L));
-    // t.show();
+    t.insert(6917529027641081855L);
+    t.insert(4611686018427387903L);
+    System.out.println("10 is member = " + t.member(10));
+    System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
+//    t.insert(Long.MAX_VALUE);
+//    System.out.println("10 is member = " + t.member(10));
+//    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
+//    t.delete(Long.MAX_VALUE);
+//    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
+//    System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
+//    System.out.println("4611686018427387903 is member = " + t.member(4611686018427387903L));
+//    t.show();
     // System.out.println(t.height());
 
-    t.insert(10);
-    t.insert(11);
-    t.insert(12);
+//    t.insert(10);
+//    t.insert(11);
+//    t.insert(12);
 
 //    System.out.println(t.rank(13) == 3);
 //    System.out.println(t.select(3));
     
-     t.insert(5764607523034234880L); // 01010 (10)
-     t.insert(6341068275337658368L); // 01011 (11)
-     t.insert(6917529027641081856L); // 01100 (12)
-     t.insert(7493989779944505344L); // 01101 (13) 000....
+//     t.insert(5764607523034234880L); // 01010 (10)
+//     t.insert(6341068275337658368L); // 01011 (11)
+//     t.insert(6917529027641081856L); // 01100 (12)
+//     t.insert(7493989779944505344L); // 01101 (13) 000....
 //    System.err.println(t.rank(7493989779944505344L));
     
 //    System.out.println("Inserting Long.MAX_VALUE");
