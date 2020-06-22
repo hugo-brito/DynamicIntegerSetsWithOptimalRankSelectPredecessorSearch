@@ -2,11 +2,11 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   static class BSTrieNode<E> extends Node<E> {
 
-    BSTrieNode<BitsKey> left;
-    BSTrieNode<BitsKey> right;
+    BSTrieNode<E> left;
+    BSTrieNode<E> right;
     int leavesBelow;
 
-    public BSTrieNode(final E key){
+    public BSTrieNode(final E key) {
       super(key);
       leavesBelow = 1;
     }
