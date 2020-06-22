@@ -11,47 +11,14 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       leavesBelow = 1;
     }
 
-    /**
-     * Returns the number of children, if any, and which.
-     * Returns:
-     * *  0 if it is a leaf node
-     * *  1 if it has a single left child
-     * *  2 if it has a single right child
-     * *  3 if it has 2 children
-     *
-     * @return an integer that can be interpreted as the number of children and which
-     */
     @Override
-    public int children() {
-      return children(this);
+    Node<E> left() {
+      return left;
     }
 
-    /**
-     * Counts and returns the total number of nodes in this sub-tree including self.
-     *
-     * @return the total number of nodes in this sub-tree including self.
-     */
     @Override
-    public int count() {
-      return count(this);
-    }
-
-    /**
-     * Returns the height of the sub-tree rooted at this node.
-     *
-     * @return the height of the sub-tree rooted at this node.
-     */
-    @Override
-    public int height() {
-      return height(this);
-    }
-
-    /**
-     * Pretty prints the contents of the sub tree rooted at this node.
-     */
-    @Override
-    public void show() {
-      show(this, 0);
+    Node<E> right() {
+      return right;
     }
   }
 

@@ -1,15 +1,23 @@
-class Node<E> {
+abstract class Node<E> {
 
   final E key;
-  private Node<E> left;
-  private Node<E> right;
+//  Node<E> left;
+//  Node<E> right;
 
   public Node(final E key) {
     // NB!: We allow the key to be null because internal node cannot hold values
     this.key = key;
   }
 
-  public int children() {
+  abstract Node<E> left();
+
+  abstract Node<E> right();
+
+//  abstract void left(Node<E> left);
+//
+//  abstract void right(Node<E> right);
+
+  int children() {
     return children(this);
   }
 
@@ -22,23 +30,23 @@ class Node<E> {
    * @param node The node to be evaluated.
    * @return
    */
-  protected static int children(final Node node) {
-    return ((node.left == null ? 0 : 1) + 2 * (node.right == null ? 0 : 1));
+  public final int children(final Node<E> node) {
+    return ((node.left() == null ? 0 : 1) + 2 * (node.right() == null ? 0 : 1));
   }
 
   /** Counts and returns the total number of nodes in this sub-tree including self.
    * @return
    */
-  public int count() {
+  public final int count() {
     return count(this);
   }
 
-  protected static int count(final Node curr) {
+  private int count(final Node<E> curr) {
     if (curr == null) {
       return 0;
     }
     
-    return count(curr.left) + count(curr.right) + 1;
+    return count(curr.left()) + count(curr.right()) + 1;
   }
 
   /** Returns the height of the sub-tree rooted at this node.
@@ -48,13 +56,13 @@ class Node<E> {
     return height(this);
   }
 
-  protected static int height(final Node node) {
+  protected int height(final Node<E> node) {
     if (node == null) {
       return -1;
     }
     
-    final int u = height(node.left);
-    final int v = height(node.right);
+    final int u = height(left());
+    final int v = height(right());
     
     if (u > v) {
       return u + 1;
@@ -69,17 +77,17 @@ class Node<E> {
     show(this, 0);
   }
 
-  protected static <E> void show(final Node<E> t, final int h) {
+  protected <E> void show(final Node<E> t, final int h) {
     if (t == null) {
       printnode(null, h);
       return;
     }
-    show(t.right, h + 1);
+    show(t.right(), h + 1);
     printnode(t.key, h);
-    show(t.left, h + 1);
+    show(t.left(), h + 1);
   }
 
-  private static <E> void printnode(final E x, final int h) {
+  protected <E> void printnode(final E x, final int h) {
     for (int i = 0; i < h; i++) {
       System.out.print("	");
     }

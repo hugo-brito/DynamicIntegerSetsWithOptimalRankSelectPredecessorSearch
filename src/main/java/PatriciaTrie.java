@@ -2,13 +2,23 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   static class PTrieNode<E> extends Node<E> {
 
-    PTrieNode<BitsKey> left;
-    PTrieNode<BitsKey> right;
+    PTrieNode<E> left;
+    PTrieNode<E> right;
     int bit;
 
     public PTrieNode(final E key, final int bit) {
       super(key);
 
+    }
+
+    @Override
+    Node<E> left() {
+      return left;
+    }
+
+    @Override
+    Node<E> right() {
+      return right;
     }
   }
 
