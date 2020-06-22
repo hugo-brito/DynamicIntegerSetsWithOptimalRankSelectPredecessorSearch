@@ -17,10 +17,15 @@ class RankSelectPredecessorUpdateTest {
   }
 
   static void allRange(RankSelectPredecessorUpdate S) {
-    for (long i = Long.MIN_VALUE; i == Long.MAX_VALUE; i++) {
+    for (long i = Long.MIN_VALUE; i <= Long.MAX_VALUE; i++) {
       assert (!S.member(i));
       S.insert(i);
       assert (S.member(i));
+      if (i % 1000 == 0) {
+        for (long j = i-1000; j <= i; j++) {
+          S.delete(j);
+        }
+      }
     }
   }
 

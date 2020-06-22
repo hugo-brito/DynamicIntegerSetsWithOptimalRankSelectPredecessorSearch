@@ -23,13 +23,13 @@ class BinarySearchTrieTest {
     RankSelectPredecessorUpdateTest.insertAndMemberTest(t);
   }
 
-  @Test
-  void allRange() {
-    RankSelectPredecessorUpdateTest.allRange(t);
-  }
+//  @Test
+//  void allRange() {
+//    RankSelectPredecessorUpdateTest.allRange(t);
+//  }
 
   @Test
-  void RandomKeys() {
+  void randomKeys() {
     RankSelectPredecessorUpdateTest.RandomKeys(t);
   }
 }
