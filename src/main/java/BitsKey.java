@@ -20,7 +20,7 @@ class BitsKey implements Comparable<BitsKey> {
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
   public int bit(final int d) {
-    return (int) (val >> (bitsword - d - 1)) & 1;
+    return (int) (val >>> (bitsword - d - 1)) & 1;
   }
 
   @Override
