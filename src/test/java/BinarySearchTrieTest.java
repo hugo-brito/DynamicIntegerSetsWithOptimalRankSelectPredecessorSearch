@@ -19,48 +19,17 @@ class BinarySearchTrieTest {
   }
 
   @Test
-  void size() {
-    assert (t == null);
-    assertFalse(2 == 2);
+  void insertAndMemberTest() {
+    RankSelectPredecessorUpdateTest.insertAndMemberTest(t);
   }
 
   @Test
-  void insert() {
+  void allRange() {
+    RankSelectPredecessorUpdateTest.allRange(t);
   }
 
   @Test
-  void delete() {
-  }
-
-  @Test
-  void member() {
-  }
-
-  @Test
-  void predecessor() {
-  }
-
-  @Test
-  void successor() {
-  }
-
-  @Test
-  void rank() {
-  }
-
-  @Test
-  void select() {
-  }
-
-  @Test
-  void count() {
-  }
-
-  @Test
-  void height() {
-  }
-
-  @Test
-  void countLeafNodes() {
+  void RandomKeys() {
+    RankSelectPredecessorUpdateTest.RandomKeys(t);
   }
 }
