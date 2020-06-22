@@ -80,6 +80,15 @@ class MsbLsb {
     return Integer.numberOfLeadingZeros(x);
   }
 
+  public static int msbDouble(long x){
+    // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+    // 1 - Convert to double,
+    // 2 - Get the binary representation of the double
+    // 3 - Mask and Shift
+    // 4 - Get the integer value (a number between 0 and 63)
+    return (int) (Double.doubleToRawLongBits(x) << 1 >>> 53);
+  }
+
   /** Using msb, we can also easily find the least significant bit of x as lsb(x) = msb((x − 1) ⊕ x).
    * @param x
    * @return
@@ -139,6 +148,8 @@ class MsbLsb {
     System.out.println("LSB using the MSB naive: " + lsbNaive(i));
     System.out.println("LSB using the same loop as in MSB naive: " + lsbNaiver(i));
     System.out.println("LSB using MSB standard library: " + lsb(i));
+    System.out.println(new BitsKey(Double.doubleToRawLongBits(1)).bin());
+    System.out.println(msbDouble(1)); 
 
   }
 }
