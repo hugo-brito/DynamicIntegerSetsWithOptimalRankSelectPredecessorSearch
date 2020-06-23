@@ -6,6 +6,13 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CodeLens (Launch) - MSB",
+			"request": "launch",
+			"mainClass": "MSB",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
 			"name": "Debug (Launch) - Current File",
 			"request": "launch",
 			"mainClass": "${file}"
