@@ -88,10 +88,7 @@ class MSBTest {
 
   @Test
   void splitMerge() {
-    for (long i = -100_000_000_000L; i <= 0; i++) {
-      // if (i != MSB.mergeInts(MSB.splitLong(i))) {
-      //   System.err.println("Failed for i = " + i);
-      // }
+    for (long i = -100_000_000_000L; i <= 100_000_000_000L; i++) {
       assertEquals(i, MSB.mergeInts(MSB.splitLong(i)));
     }
   }
