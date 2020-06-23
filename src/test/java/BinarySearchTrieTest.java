@@ -4,6 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Random;
+
 class BinarySearchTrieTest {
 
   BinarySearchTrie t;
@@ -30,6 +34,42 @@ class BinarySearchTrieTest {
 
   @Test
   void randomKeys() {
-    RankSelectPredecessorUpdateTest.RandomKeys(t);
+    RankSelectPredecessorUpdateTest.randomKeys(t);
   }
+
+  @Test
+  void sizeTest() {
+
+    long seed = 42;
+    int numKeys = 5_000_000;
+
+    Random rand = new Random(seed);
+    HashSet<Long> keySet = new HashSet<>();
+    while (keySet.size() < numKeys) {
+      keySet.add(rand.nextLong());
+    }
+
+    // add all keys to the set
+    int keysInTheTree = 0;
+    for (Long key: keySet) {
+      t.insert(key);
+      keysInTheTree++;
+      assertEquals(keysInTheTree, t.size());
+    }
+
+    assertEquals(numKeys, t.size());
+
+    // ArrayList<Long> keyList = new ArrayList<>(keySet);
+
+    // // use generated keys to test the set
+    // while (keyList.size() > 0) {
+    //   long key = keyList.remove(rand.nextInt(keyList.size()));
+    //   t.delete(key);
+    //   keysInTheTree--;
+    //   assertEquals(keysInTheTree, t.size());
+    // }
+
+  }
+
+
 }

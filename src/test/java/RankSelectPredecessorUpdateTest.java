@@ -1,8 +1,25 @@
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 class RankSelectPredecessorUpdateTest {
+
+  static long seed = 42;
+  static int numKeys = 500_000;
+  static Random rand;
+  static Set<Long> keys;
+
+  static void generateKeys() {
+    rand = new Random(seed);
+    HashSet<Long> keySet = new HashSet<>();
+    while (keySet.size() < numKeys) {
+      keySet.add(rand.nextLong());
+    }
+  }
+
 
   static void insertAndMemberTest(RankSelectPredecessorUpdate S) {
     S.insert(6917529027641081855L);
@@ -29,22 +46,19 @@ class RankSelectPredecessorUpdateTest {
     }
   }
 
-  static void RandomKeys(RankSelectPredecessorUpdate S) {
 
-    // generate 500_000 keys
-    Random rand = new Random(42);
-    HashSet<Long> keySet = new HashSet<>();
-    while (keySet.size() < 500_000) {
-      keySet.add(rand.nextLong());
-    }
+
+  static void randomKeys(RankSelectPredecessorUpdate S) {
+
+    generateKeys();
 
     // add all keys to the set
-    for (Long key: keySet) {
+    for (Long key: keys) {
       S.insert(key);
     }
 
     // put the generated keys
-    ArrayList<Long> keyList = new ArrayList<>(keySet);
+    ArrayList<Long> keyList = new ArrayList<>(keys);
 
     // use generated keys to test the set
     while (keyList.size() > 0) {
