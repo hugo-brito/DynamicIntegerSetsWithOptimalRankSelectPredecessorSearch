@@ -23,8 +23,7 @@ class BitsKey implements Comparable<BitsKey> {
     return (int) (val >>> (bitsword - d - 1)) & 1;
   }
 
-  @Override
-  public int compareTo(final BitsKey that) {
+  public int compareToNaive(final BitsKey that) {
     if (this.equals(that)) {
       return 0;
     }
@@ -38,6 +37,26 @@ class BitsKey implements Comparable<BitsKey> {
       return 1;
     }
     return -1;
+  }
+
+  @Override
+  public int compareTo(final BitsKey that) {
+    // To find if an unsigned long is larger than another:
+    // - XOR the keys,
+    // - msb of that result
+    // - check which key is one at that position.
+    long aux = val ^ that.val;
+
+    if (aux == 0) { // same value
+      return 0;
+    }
+
+    if (this.bit(MSB.msb64LookupDistributedInput(aux)) == 0) {
+      return -1;
+    }
+
+    return 1;
+
   }
 
   public boolean equals(final BitsKey that) {
