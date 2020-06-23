@@ -6,8 +6,8 @@ class MSBTest {
 
   int intLowerBound = -100_000_000;
   int intUpperBound = 100_000_000;
-  long longLowerBound = Integer.MIN_VALUE - 100_000_000;
-  long longUpperBound = Integer.MAX_VALUE + 100_000_000;
+  long longLowerBound = -10_000_000L + Integer.MIN_VALUE;
+  long longUpperBound = 10_000_000L + Integer.MAX_VALUE;
 
   @Test
   void msb32Obvious() {
