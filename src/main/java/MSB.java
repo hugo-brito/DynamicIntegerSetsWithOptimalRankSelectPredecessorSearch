@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class MSB {
 
   /** Finding the most and least significant bits in constant time.
@@ -14,13 +16,13 @@ public class MSB {
       return -1; // convention
     }
 
-    int r = 0; // r will be lg(v)
+    int r = 32; // r will be lg(v)
 
     while (x != 0) {
       x >>>= 1;
-      r++;
+      r--;
     }
-    return 32 - r;
+    return r;
   }
 
   public static int msb64Obvious(long x) {
@@ -28,13 +30,13 @@ public class MSB {
       return -1;
     }
 
-    int r = 0; // r will be lg(v)
+    int r = 64; // r will be lg(v)
 
     while (x != 0) {
       x >>>= 1;
-      r++;
+      r--;
     }
-    return 64 - r;
+    return r;
   }
 
   public static int msb32double(int x) {
@@ -61,11 +63,10 @@ public class MSB {
     }
 
     int[] aux = splitLong(x);
-    int high = msb32LookupDistributedOutput(aux[0]) + 32;
-    int low = msb32LookupDistributedOutput(aux[1]);
+    int high = msb32LookupDistributedOutput(aux[0]);
 
     if (high == -1) {
-      return low;
+      return msb32LookupDistributedOutput(aux[1]) + 32;
     }
 
     return high;
@@ -77,11 +78,10 @@ public class MSB {
     }
 
     int[] aux = splitLong(x);
-    int high = msb32LookupDistributedInput(aux[0]) + 32;
-    int low = msb32LookupDistributedInput(aux[1]);
+    int high = msb32LookupDistributedInput(aux[0]);
 
     if (high == -1) {
-      return low;
+      return msb32LookupDistributedInput(aux[1]) + 32;
     }
 
     return high;
@@ -219,6 +219,24 @@ public class MSB {
     }
   }
 
+    /** Returns a binary representation of integer x in a String containing leading zeroes.
+   * @param x
+   * @return
+   */
+  public static String bin64(long x) {
+    String aux = Long.toBinaryString(x);
+    if (aux.length() < 64) {
+      StringBuilder res = new StringBuilder(64);
+      for (int i = 64 - aux.length(); i > 0; i--) {
+        res.append(0);
+      }
+      res.append(aux);
+      return res.toString();
+    } else {
+      return aux;
+    }
+  }
+
   public static void main(String[] args) {
     int i = Integer.MAX_VALUE;
     System.out.println("Binary representation: " + bin(i));
@@ -230,9 +248,12 @@ public class MSB {
     System.out.println("LSB using MSB standard library: " + lsb(i));
     // System.out.println(new BitsKey(Double.doubleToRawLongBits(1)).bin());
 
-
-    System.out.println(msb64Obvious(i));
-    System.out.println(msb64LookupDistributedInput(i));
+    long j = 77646464654L;
+    System.out.println(bin64(j));
+    System.out.println(Arrays.toString(new String[]{bin(splitLong(j)[0]),bin(splitLong(j)[1])}));
+    System.out.println(msb64Obvious(j));
+    System.out.println(msb64LookupDistributedInput(j));
+    System.out.println();
 
   }
 
