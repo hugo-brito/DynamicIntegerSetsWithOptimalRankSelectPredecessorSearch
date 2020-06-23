@@ -39,8 +39,32 @@ public class MSB {
     return r;
   }
 
+  /** Apparently the same 64 bits are interpreted by t.d as a double and by t.u
+   * as two 32-bit unsigned integers.
+   * Anyway "union" is just a short-hand, it can also be done by 
+   * - first defining u as unsigned int[2],
+   * - then interpreting (not converting!) it as a 64-bit double,
+   * - subtracting a number from it,
+   * - and then reinterpreting it as unsigned int[2].
+   * I suspect Java cannot do that, because there is no operation "interpret
+   * this memory cell as int[2] now, please". This is also related to the fact
+   * that Java does not have pointers. Unless you disagree with this, I would
+   * say simply ignore the float/double trick for now.
+   * 
+   * @param x
+   * @return
+   */
   public static int msb32double(int x) {
-    return (x >>> 20) - 0x3FF;
+    int v = x;
+    int r;
+
+    int u[] = {0x43300000, v};
+    long aux1 = mergeInts(u);
+    double aux2 = Double.longBitsToDouble(aux1);
+    double d = aux2 - 4503599627370496.0d;
+    long aux3 = Double.doubleToLongBits(d);
+    r = (int) (aux3 >> 20) - 0x3FF;
+    return r;
   }
 
   static int[] LogTable256;
@@ -98,6 +122,17 @@ public class MSB {
     res[0] = (int) (x >>> 32);
     res[1] = (int) (x << 32 >>> 32);
     return res;
+  }
+
+  /**
+   * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using the bits from those integers.
+   * Entry 0 of the 32-bit int array will be the most significant bits of resulting long.  
+   * @param x The 32-bit integers
+   * @return The resulting long
+   */
+  public static long mergeInts(int[] x) {
+    long res = x[0];
+    return (res << 32) | Integer.toUnsignedLong(x[1]);
   }
 
   public static int msb32LookupDistributedOutput(int x) {
@@ -248,12 +283,19 @@ public class MSB {
     System.out.println("LSB using MSB standard library: " + lsb(i));
     // System.out.println(new BitsKey(Double.doubleToRawLongBits(1)).bin());
 
-    long j = 77646464654L;
-    System.out.println(bin64(j));
+    long j = -6442450944L;
+    System.out.println("whole 64 bits:\n" + bin64(j));
+    System.out.println(bin(splitLong(j)[0]));
+    System.out.println(bin(splitLong(j)[1]));
+    System.out.println(bin64(mergeInts(splitLong(j))));
     System.out.println(Arrays.toString(new String[]{bin(splitLong(j)[0]),bin(splitLong(j)[1])}));
     System.out.println(msb64Obvious(j));
     System.out.println(msb64LookupDistributedInput(j));
-    System.out.println();
+
+    System.out.println(bin64(mergeInts(splitLong(j))));
+    System.out.println(mergeInts(splitLong(j)) == j);
+
+    System.out.println(bin64(-6442450944L));
 
   }
 

@@ -85,4 +85,14 @@ class MSBTest {
       assertEquals(Integer.numberOfLeadingZeros(i), MSB.msb32LookupDistributedInput(i));
     }
   }
+
+  @Test
+  void splitMerge() {
+    for (long i = -100_000_000_000L; i <= 0; i++) {
+      // if (i != MSB.mergeInts(MSB.splitLong(i))) {
+      //   System.err.println("Failed for i = " + i);
+      // }
+      assertEquals(i, MSB.mergeInts(MSB.splitLong(i)));
+    }
+  }
 }
