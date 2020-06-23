@@ -42,11 +42,13 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     // to the bit(d) method
     root = insert(root, new BitsKey(x), 0);
 
+    updateLeavesBelow(root);
+
   }
 
   private BSTrieNode<BitsKey> insert(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
     if (curr == null) {
-      BSTrieNode<BitsKey> newNode = new BSTrieNode(v);
+      final BSTrieNode<BitsKey> newNode = new BSTrieNode(v);
       return newNode;
     }
 
@@ -62,6 +64,9 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     } else {
       curr.right = insert(curr.right, v, d + 1);
     }
+
+    // after insertion checking the number of leaves before insertion
+    updateLeavesBelow(curr);
 
     return curr;
   }
@@ -96,6 +101,22 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
         break;
     }
     return t;
+  }
+
+  private void updateLeavesBelow(final BSTrieNode node) {
+    switch (node.children()) {
+      case 1:
+        node.leavesBelow = node.left.leavesBelow;
+        break;
+      case 2:
+        node.leavesBelow = node.right.leavesBelow;
+        break;
+      case 3:
+        node.leavesBelow = node.left.leavesBelow + node.right.leavesBelow;
+        break;
+      default:
+        break;
+    }
   }
 
   @Override
@@ -284,8 +305,11 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     // [Bin = 0011111111111111111111111111111111111111111111111111111111111111, Val = 4611686018427387903]
 
     final BinarySearchTrie t = new BinarySearchTrie();
-    t.insert(6917529027641081855L);
-    t.insert(4611686018427387903L);
+    t.insert(6917529027641081855L); // 01011
+    t.insert(4611686018427387903L); // 00111
+    t.insert(9223372036854775807L); // 01111
+    t.insert(9223372036854775807L); // 01111
+    t.insert(9223372036854775807L); // 01111
     System.out.println("10 is member = " + t.member(10));
     System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
 //    t.insert(Long.MAX_VALUE);
