@@ -196,6 +196,10 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     return 0;
   }
 
+  /** Returns the number of integers in the set up to position x.
+   * @param x the position in the set to be queried
+   * @return the number of integers in the set up to position x
+   */
   @Override
   public long rank(final long x) {
     return rank(root, new BitsKey(x), 0);
@@ -219,10 +223,12 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       // If the bit is zero go left, and don't do anything,
       return rank(curr.left, v, d + 1);
     } else {
-      // If the bit is one go right, we add the number of keys on the left subtree to
-      // a
-      // local counter.
-      return countLeafNodes(curr.left) + rank(curr.right, v, d + 1);
+      // If the bit is one go right, we add the number of keys on the left subtree to a local counter.
+      if (curr.children() == 1 || curr.children() == 3) {
+        return curr.left.leavesBelow + rank(curr.right, v, d + 1);
+      } else {
+        return rank(curr.right, v, d + 1);
+      }
     }
   }
 
@@ -307,13 +313,13 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     // [Bin = 0011111111111111111111111111111111111111111111111111111111111111, Val = 4611686018427387903]
 
     final BinarySearchTrie t = new BinarySearchTrie();
-    t.insert(6917529027641081855L); // 01011
-    t.insert(4611686018427387903L); // 00111
-    t.insert(9223372036854775807L); // 01111
-    t.insert(9223372036854775807L); // 01111
-    t.insert(9223372036854775807L); // 01111
-    System.out.println("10 is member = " + t.member(10));
-    System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
+    // t.insert(6917529027641081855L); // 01011
+    // t.insert(4611686018427387903L); // 00111
+    // t.insert(9223372036854775807L); // 01111
+    // t.insert(9223372036854775807L); // 01111
+    // t.insert(9223372036854775807L); // 01111
+    // System.out.println("10 is member = " + t.member(10));
+    // System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
 //    t.insert(Long.MAX_VALUE);
 //    System.out.println("10 is member = " + t.member(10));
 //    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
@@ -324,11 +330,15 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 //    t.show();
     // System.out.println(t.height());
 
-//    t.insert(10);
-//    t.insert(11);
-//    t.insert(12);
+   t.insert(10);
+   t.insert(11);
+   t.insert(12);
+   t.insert(13);
+   t.insert(-1);
+   System.out.println(Long.toBinaryString(-1));
 
-//    System.out.println(t.rank(13) == 3);
+   System.out.println(t.rank(13) == 3);
+   System.out.println(t.rank(-1));
 //    System.out.println(t.select(3));
     
 //     t.insert(5764607523034234880L); // 01010 (10)

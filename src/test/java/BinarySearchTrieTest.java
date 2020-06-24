@@ -1,12 +1,10 @@
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BinarySearchTrieTest {
 
@@ -27,14 +25,19 @@ class BinarySearchTrieTest {
     RankSelectPredecessorUpdateTest.insertAndMemberTest(t);
   }
 
-//  @Test
-//  void allRange() {
-//    RankSelectPredecessorUpdateTest.allRange(t);
-//  }
+  @Test
+  void allRange() {
+    RankSelectPredecessorUpdateTest.allRange(t);
+  }
 
   @Test
   void randomKeys() {
     RankSelectPredecessorUpdateTest.randomKeys(t);
+  }
+
+  @Test
+  void rankTest() {
+    RankSelectPredecessorUpdateTest.rankTest(t);
   }
 
   @Test
@@ -68,6 +71,4 @@ class BinarySearchTrieTest {
     }
 
   }
-
-
 }
