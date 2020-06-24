@@ -125,6 +125,12 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
     return 0;
   }
 
+  @Override
+  public long size() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
   /* Useful functions */
 
   public int count() {

@@ -168,6 +168,12 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
     return KEY[getINDEX(i)];
   }
 
+  @Override
+  public long size() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
   /** Helper function.
    * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit.
    * Digits are indexed 0..63.

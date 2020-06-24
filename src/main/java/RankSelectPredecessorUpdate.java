@@ -46,4 +46,10 @@ interface RankSelectPredecessorUpdate {
    * @return
    */
   long select(long i);
+
+  /** Returns the number of keys present in the set.
+   * 
+   * @return the number of keys present in the set.
+   */
+  long size();
 }
