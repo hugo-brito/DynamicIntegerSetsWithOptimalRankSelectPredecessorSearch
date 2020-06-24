@@ -21,54 +21,37 @@ class BinarySearchTrieTest {
   }
 
   @Test
-  void insertAndMemberTest() {
-    RankSelectPredecessorUpdateTest.insertAndMemberTest(t);
+  void insertAndMemberSmallTest() {
+    RankSelectPredecessorUpdateTest.insertAndMemberSmallTest(t);
   }
 
   @Test
-  void allRange() {
-    RankSelectPredecessorUpdateTest.allRange(t);
+  void insertThenDeleteRangeOfKeysTest() {
+    RankSelectPredecessorUpdateTest.insertThenDeleteRangeOfKeysTest(t);
   }
 
   @Test
-  void randomKeys() {
-    RankSelectPredecessorUpdateTest.randomKeys(t);
+  void insertThenDeleteRandomKeysTest() {
+    RankSelectPredecessorUpdateTest.insertThenDeleteRandomKeysTest(t);
   }
 
   @Test
-  void rankTest() {
-    RankSelectPredecessorUpdateTest.rankTest(t);
+  void growingRankTest() {
+    RankSelectPredecessorUpdateTest.growingRankTest(t);
   }
 
   @Test
   void sizeTest() {
+    RankSelectPredecessorUpdateTest.sizeTest(t);
+  }
 
-    long seed = 42;
-    int numKeys = 1_000_000;
+  @Test
+  void rankSelectTest() {
+    RankSelectPredecessorUpdateTest.rankSelect(t);
+  }
 
-    Random rand = new Random(seed);
-    HashSet<Long> keySet = new HashSet<>();
-    while (keySet.size() < numKeys) {
-      keySet.add(rand.nextLong());
-    }
-
-    // add all keys to the set
-    int keysInTheTree = 0;
-    for (Long key: keySet) {
-      t.insert(key);
-      keysInTheTree++;
-      assertEquals(keysInTheTree, t.size());
-    }
-
-    ArrayList<Long> keyList = new ArrayList<>(keySet);
-
-    // use generated keys to test the set
-    while (keyList.size() > 0) {
-      long key = keyList.remove(rand.nextInt(keyList.size()));
-      t.delete(key);
-      keysInTheTree--;
-      assertEquals(keysInTheTree, t.size());
-    }
-
+  @Test
+  void selectRankTest() {
+    RankSelectPredecessorUpdateTest.selectRank(t);
   }
 }
