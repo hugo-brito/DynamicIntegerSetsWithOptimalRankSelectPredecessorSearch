@@ -107,15 +107,15 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     switch (node.children()) {
       case 1:
         node.leavesBelow = node.left.leavesBelow;
-        break;
+        return;
       case 2:
         node.leavesBelow = node.right.leavesBelow;
-        break;
+        return;
       case 3:
         node.leavesBelow = node.left.leavesBelow + node.right.leavesBelow;
-        break;
+        return;
       default:
-        break;
+        return;
     }
   }
 
@@ -233,41 +233,36 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long select(final long i) {
-    // if (i > N || i < 0) {
-    //   return -1; // invalid query
-    // }
-
-    if (i == 0) {
-      return 0; // convention
+  public long select(final long rank) {
+    if (rank > size() || rank <= 0) {
+      System.err.println("INVALID QUERY"); // invalid query
+      return -1;
     }
 
-    // long lowerBound = Long.MIN_VALUE; // the smallest key
-    // long upperBound = Long.MAX_VALUE; // the largest key.
-    // long candidate = -1;
-
-    // while (lowerBound <= upperBound) {
-    //   final long middle = (upperBound - lowerBound) / 2 + lowerBound;
-
-    //   if (rank(middle) > i) {
-    //     upperBound = middle - 1;
-    //   }
-
-    //   else if (rank(middle) == i) {
-    //     candidate = middle;
-    //     upperBound = middle - 1;
-    //   }
-
-    //   else {
-    //     lowerBound = middle + 1;
-    //   }
-    // }
-    
-    // return candidate;
-    
-    return -1;
+    return select(root, rank, 0).key.val;   
   }
 
+  private BSTrieNode<BitsKey> select(final BSTrieNode<BitsKey> curr, final long rank, final long keySoFar) {
+
+    switch (curr.children()) {
+      case 1:
+        return select(curr.left, rank, keySoFar);
+
+      case 2:
+        return select(curr.right, rank, keySoFar);
+
+      case 3:
+        if (curr.left.leavesBelow + keySoFar < rank) {
+          return select(curr.right, rank, keySoFar + curr.left.leavesBelow);
+        } else {
+          return select(curr.left, rank, keySoFar);
+        }
+      default:
+        return curr;
+
+    }
+  }
+  
   /* Useful functions */
 
   public int count() {
@@ -330,15 +325,22 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 //    t.show();
     // System.out.println(t.height());
 
-   t.insert(10);
-   t.insert(11);
-   t.insert(12);
-   t.insert(13);
-   t.insert(-1);
-   System.out.println(Long.toBinaryString(-1));
+    t.insert(10);
+    t.insert(11);
+    t.insert(12);
+    t.insert(13);
+    t.insert(-1);
 
-   System.out.println(t.rank(13) == 3);
-   System.out.println(t.rank(-1));
+    System.out.println("The first key is " + t.select(1));
+    System.out.println("The second key is " + t.select(2));
+    System.out.println("The third key is " + t.select(3));
+    System.out.println("The forth key is " + t.select(4));
+    System.out.println("The fifth key is " + t.select(5));
+
+    // System.out.println(Long.toBinaryString(-1));
+
+    // System.out.println(t.rank(13) == 3);
+    // System.out.println(t.rank(-1));
 //    System.out.println(t.select(3));
     
 //     t.insert(5764607523034234880L); // 01010 (10)
