@@ -28,6 +28,10 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     root = null;
   }
 
+  /** Returns the number of keys present in the set.
+   * 
+   */
+  @Override
   public long size() {
     if (root != null) {
       return root.leavesBelow;
@@ -48,7 +52,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   private BSTrieNode<BitsKey> insert(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
     if (curr == null) {
-      final BSTrieNode<BitsKey> newNode = new BSTrieNode(v);
+      final BSTrieNode<BitsKey> newNode = new BSTrieNode<BitsKey>(v);
       return newNode;
     }
 
@@ -56,7 +60,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       if (curr.key != null && curr.key.equals(v)) {
         return curr;
       }
-      return split(new BSTrieNode(v), curr, d);
+      return split(new BSTrieNode<BitsKey>(v), curr, d);
     }
 
     if (v.bit(d) == 0) {
@@ -71,8 +75,9 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     return curr;
   }
 
-  private BSTrieNode<BitsKey> split(final BSTrieNode<BitsKey> p, final BSTrieNode<BitsKey> q, final int d) {
-    final BSTrieNode<BitsKey> t = new BSTrieNode(null);
+  private BSTrieNode<BitsKey> split(final BSTrieNode<BitsKey> p, final BSTrieNode<BitsKey> q,
+      final int d) {
+    final BSTrieNode<BitsKey> t = new BSTrieNode<BitsKey>(null);
     t.leavesBelow = 2;
     final BitsKey v = p.key;
     final BitsKey w = q.key;
@@ -103,7 +108,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     return t;
   }
 
-  private void updateLeavesBelow(final BSTrieNode node) {
+  private void updateLeavesBelow(final BSTrieNode<BitsKey> node) {
     switch (node.children()) {
       case 1:
         node.leavesBelow = node.left.leavesBelow;
@@ -138,13 +143,17 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
         return curr;
       }
 
-    } else if (v.bit(d) == 0) { // else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
+    } else if (v.bit(d) == 0) {
+      // else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
       curr.left = delete(curr.left, v, d + 1);
     } else {
       curr.right = delete(curr.right, v, d + 1);
-        
-    // if there is only one child AND the child is a leaf, then return the child (either curr.left or curr.right). Otherwise return curr.
-    } if (curr.children() == 1 || curr.children() == 2) { // has a single child
+    }
+
+    // if there is only one child AND the child is a leaf,
+    // then return the child (either curr.left or curr.right).
+    // Otherwise return curr.
+    if (curr.children() == 1 || curr.children() == 2) { // has a single child
       if (curr.children() == 1 && curr.left.children() == 0) {
         return curr.left; // has a single child and that child is a leaf
       } else if (curr.children() == 2 && curr.right.children() == 0) {
@@ -155,7 +164,6 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     updateLeavesBelow(curr);
 
     return curr;
-
   }
 
   @Override
@@ -186,14 +194,12 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   @Override
   public long predecessor(final long x) {
-    // TODO Auto-generated method stub
-    return 0;
+    return select(rank(x) - 1);
   }
 
   @Override
   public long successor(final long x) {
-    // TODO Auto-generated method stub
-    return 0;
+    return select(rank(x) + 1);
   }
 
   /** Returns the number of integers in the set up to position x.
@@ -212,7 +218,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
 
     if (curr.children() == 0) { // leaf node, there will be a key.
-      if (curr.key.compareTo(v) < 0) {
+      if (curr.key.compareTo(v) <= 0) {
         return 1;
       } else {
         return 0;
@@ -223,7 +229,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       // If the bit is zero go left, and don't do anything,
       return rank(curr.left, v, d + 1);
     } else {
-      // If the bit is one go right, we add the number of keys on the left subtree to a local counter.
+      // If the bit is one go right, we add the number of keys on the left subtree rank.
       if (curr.children() == 1 || curr.children() == 3) {
         return curr.left.leavesBelow + rank(curr.right, v, d + 1);
       } else {
@@ -235,14 +241,15 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
   @Override
   public long select(final long rank) {
     if (rank > size() || rank <= 0) {
-      System.err.println("INVALID QUERY"); // invalid query
+      System.err.println("INVALID QUERY: " + rank); // invalid query
       return -1;
     }
 
     return select(root, rank, 0).key.val;   
   }
 
-  private BSTrieNode<BitsKey> select(final BSTrieNode<BitsKey> curr, final long rank, final long keySoFar) {
+  private BSTrieNode<BitsKey> select(final BSTrieNode<BitsKey> curr,
+      final long rank, final long keySoFar) {
 
     switch (curr.children()) {
       case 1:
@@ -284,7 +291,7 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     return countLeafNodes(root);
   }
 
-  private int countLeafNodes(final BSTrieNode curr) {
+  private int countLeafNodes(final BSTrieNode<BitsKey> curr) {
     if (curr == null) {
       return 0;
     }
@@ -330,14 +337,28 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
     t.insert(12);
     t.insert(13);
     t.insert(-1);
+    t.insert(8575393074845429264L);
 
     System.out.println("The first key is " + t.select(1));
     System.out.println("The second key is " + t.select(2));
     System.out.println("The third key is " + t.select(3));
     System.out.println("The forth key is " + t.select(4));
     System.out.println("The fifth key is " + t.select(5));
+    System.out.println("The sixth key is " + t.select(6));
+    System.out.println(t.select(t.rank(8575393074845429264L)));
+    System.out.println(t.select(5));
+    System.out.println(t.rank(12));
 
-    // System.out.println(Long.toBinaryString(-1));
+    System.out.println(String.format("%64s",
+        Long.toBinaryString(10)).replace(" ", "0"));
+    System.out.println(String.format("%64s",
+        Long.toBinaryString(11)).replace(" ", "0"));
+    System.out.println(String.format("%64s",
+        Long.toBinaryString(12)).replace(" ", "0"));
+    System.out.println(String.format("%64s",
+        Long.toBinaryString(13)).replace(" ", "0"));
+    System.out.println(String.format("%64s",
+        Long.toBinaryString(8575393074845429264L)).replace(" ", "0"));
 
     // System.out.println(t.rank(13) == 3);
     // System.out.println(t.rank(-1));
