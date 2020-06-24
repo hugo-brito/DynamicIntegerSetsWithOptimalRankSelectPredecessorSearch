@@ -41,7 +41,7 @@ class BinarySearchTrieTest {
   void sizeTest() {
 
     long seed = 42;
-    int numKeys = 5_000_000;
+    int numKeys = 1_000_000;
 
     Random rand = new Random(seed);
     HashSet<Long> keySet = new HashSet<>();
@@ -57,17 +57,15 @@ class BinarySearchTrieTest {
       assertEquals(keysInTheTree, t.size());
     }
 
-    assertEquals(numKeys, t.size());
+    ArrayList<Long> keyList = new ArrayList<>(keySet);
 
-    // ArrayList<Long> keyList = new ArrayList<>(keySet);
-
-    // // use generated keys to test the set
-    // while (keyList.size() > 0) {
-    //   long key = keyList.remove(rand.nextInt(keyList.size()));
-    //   t.delete(key);
-    //   keysInTheTree--;
-    //   assertEquals(keysInTheTree, t.size());
-    // }
+    // use generated keys to test the set
+    while (keyList.size() > 0) {
+      long key = keyList.remove(rand.nextInt(keyList.size()));
+      t.delete(key);
+      keysInTheTree--;
+      assertEquals(keysInTheTree, t.size());
+    }
 
   }
 

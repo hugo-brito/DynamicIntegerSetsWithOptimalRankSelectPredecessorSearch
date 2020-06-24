@@ -152,6 +152,8 @@ class BinarySearchTrie implements RankSelectPredecessorUpdate {
       }
     }
 
+    updateLeavesBelow(curr);
+
     return curr;
 
   }
