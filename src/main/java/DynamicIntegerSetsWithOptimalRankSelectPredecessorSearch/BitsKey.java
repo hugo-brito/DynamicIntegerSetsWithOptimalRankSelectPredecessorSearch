@@ -59,7 +59,15 @@ public class BitsKey implements Comparable<BitsKey> {
 
   }
 
+  /** Returns true iff this key and that key hold the same val.
+   * 
+   * @param that the other key
+   * @return boolean value, true when they are equal. False otherwise.
+   */
   public boolean equals(final BitsKey that) {
+    if (that == null) {
+      return false;
+    }
     return ((val ^ that.val) == 0);
   }
 
