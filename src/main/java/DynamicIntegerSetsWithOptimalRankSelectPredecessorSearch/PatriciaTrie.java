@@ -10,7 +10,7 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
 
     public PTrieNode(final E key, final int bit) {
       super(key);
-
+      this.bit = bit;
     }
 
     @Override
@@ -25,10 +25,12 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
   }
 
   private final PTrieNode<BitsKey> root;
+  private long N;
 
   public PatriciaTrie() {
     root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
+    N = 0;
   }
 
   /** Returns the number of keys present in the set.
@@ -36,35 +38,33 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
    */
   @Override
   public long size() {
-    // TODO Auto-generated method stub
-    return 0;
+    return N;
   }
 
   @Override
   public void insert(final long x) {
-    int i = 0;
-
-    final BitsKey v = new BitsKey(x);
-    final PTrieNode<BitsKey> t = search(root.left, v, -1);
-
-    final BitsKey w = (t == null) ? null : t.key;
-    if (w != null && v.equals(w)) {
-      return; // Perform an insertion only if key only is not present
+    BitsKey v = new BitsKey(x);
+    BitsKey w = search(root.left, v, -1);
+    if (v.equals(w)) {
+      return;
     }
 
-    // Find the most significant digit where the keys differ
-    while (v.bit(i) == w.bit(i)) {
-      i++;
+    int i = 0;
+    if (w != null) {
+      while (v.bit(i) == w.bit(i)) {
+        i++;
+      }
     }
 
     root.left = insert(root.left, v, i, root);
+    N++;
   }
 
   private PTrieNode<BitsKey> insert(final PTrieNode<BitsKey> curr, final BitsKey v, final int i,
       final PTrieNode<BitsKey> prev) {
     // KEY v = x.key();
     if ((curr.bit >= i) || (curr.bit <= prev.bit)) {
-      final PTrieNode<BitsKey> newNode = new PTrieNode<BitsKey>(v, i);
+      final PTrieNode<BitsKey> newNode = new PTrieNode(v, i);
       newNode.left = v.bit(newNode.bit) == 0 ? newNode : curr;
       newNode.right = v.bit(newNode.bit) == 0 ? curr : newNode;
       return newNode;
@@ -81,22 +81,25 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   @Override
   public void delete(final long x) {
-    int i = 0;
 
     final BitsKey v = new BitsKey(x);
-    final PTrieNode<BitsKey> t = search(root.left, v, -1);
+    final BitsKey w = search(root.left, v, -1);
 
-    final BitsKey w = (t == null) ? null : t.key;
-    if (v.equals(w)) {
+    if (!v.equals(w)) {
       return; // Perform a deletion only if key only is not present
     }
 
-    // Find the most significant digit where the keys differ
-    while (v.bit(i) == w.bit(i)) {
-      i++;
+    int i = 0;
+    if (w != null) {
+      // Find the most significant digit where the keys differ
+      while (v.bit(i) == w.bit(i)) {
+        i++;
+      }
     }
 
     root.left = delete(root.left, v, i, root);
+
+    N--;
   }
 
   private PTrieNode<BitsKey> delete(final PTrieNode<BitsKey> curr, final BitsKey v, final int i, final PTrieNode<BitsKey> prev) {
@@ -128,13 +131,13 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
   @Override
   public boolean member(final long x) {
     final BitsKey searchKey = new BitsKey(x);
-    final PTrieNode<BitsKey> res = search(root.left, searchKey, -1);
-    return res != null && res.key.equals(searchKey);
+    final BitsKey res = search(root.left, searchKey, -1);
+    return res != null && res.equals(searchKey);
   }
 
-  private PTrieNode<BitsKey> search(final PTrieNode<BitsKey> curr, final BitsKey v, final int i) {
+  private BitsKey search(final PTrieNode<BitsKey> curr, final BitsKey v, final int i) {
     if (curr.bit <= i) {
-      return curr;
+      return curr.key;
     }
     if (v.bit(curr.bit) == 0) {
       return search(curr.left, v, curr.bit);
@@ -167,25 +170,21 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
     return 0;
   }
 
-  /* Useful functions */
-
-  public int count() {
-    return root.count();
-  }
-
-  public int height() {
-    return root.height();
-  }
-
-  public void show() {
-    root.left.show();
-  }
-
   public static void main(final String[] args) {
     PatriciaTrie t = new PatriciaTrie();
+    System.out.println(t.member(1));
     t.insert(1);
-    t.insert(-1);
-    t.insert(10);
-    t.insert(20);
+    System.out.println(t.member(1));
+    t.insert(2);
+    System.out.println(t.member(2));
+    t.insert(732493);
+    System.out.println(t.member(732493));
+//    t.insert(-1);
+//    t.insert(10);
+//    t.insert(20);
+    System.out.println(t.member(6046118547395480652L));
+    t.insert(6046118547395480652L);
+    System.out.println(t.member(6046118547395480652L));
+    System.out.println(new BitsKey(6046118547395480652L).bin());
   }
 }
