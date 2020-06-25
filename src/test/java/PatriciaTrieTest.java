@@ -23,6 +23,11 @@ class PatriciaTrieTest {
   }
 
   @Test
+  void insertThenMemberTest() {
+    RankSelectPredecessorUpdateTest.insertThenMemberTest(t);
+  }
+
+  @Test
   void insertThenDeleteRangeOfKeysTest() {
     RankSelectPredecessorUpdateTest.insertThenDeleteRangeOfKeysTest(t);
   }

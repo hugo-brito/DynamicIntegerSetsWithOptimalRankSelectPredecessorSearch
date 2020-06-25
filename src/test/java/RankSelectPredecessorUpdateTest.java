@@ -71,8 +71,20 @@ class RankSelectPredecessorUpdateTest {
     assert (!S.member(Long.MAX_VALUE));
     S.insert(Long.MAX_VALUE);
     assert (S.member(Long.MAX_VALUE));
-    S.delete(Long.MAX_VALUE);
-    assert (!S.member(Long.MAX_VALUE));
+  }
+
+  static void insertThenMemberTest(RankSelectPredecessorUpdate S) {
+    S = generateAndInsertKeys(S);
+    while (orderedKeyList.size() > 0) {
+      final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
+      boolean failed = !S.member(key);
+      if (failed) {
+        System.err.println("insertThenMemberTest iteration "
+            + (numKeys - orderedKeyList.size()) + "/" + numKeys + "\n"
+            + key + " should be member, but it's not.");
+      }
+      assert (!failed);
+    }
   }
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate S) {
@@ -90,15 +102,11 @@ class RankSelectPredecessorUpdateTest {
   }
 
   static void insertThenDeleteRandomKeysTest(RankSelectPredecessorUpdate S) {
-
     S = generateAndInsertKeys(S);
 
-    // put the generated keys
-    final ArrayList<Long> keyList = new ArrayList<>(keySet);
-
     // use generated keys to test the set
-    while (keyList.size() > 0) {
-      final long key = keyList.remove(rand.nextInt(keyList.size()));
+    while (orderedKeyList.size() > 0) {
+      final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
       assert (S.member(key));
       S.delete(key);
       assert (!S.member(key));
