@@ -3,8 +3,6 @@ package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 abstract class Node<E> {
 
   final E key;
-//  Node<E> left;
-//  Node<E> right;
 
   public Node(final E key) {
     // NB!: We allow the key to be null because internal node cannot hold values
@@ -14,10 +12,6 @@ abstract class Node<E> {
   abstract Node<E> left();
 
   abstract Node<E> right();
-
-//  abstract void left(Node<E> left);
-//
-//  abstract void right(Node<E> right);
 
   int children() {
     return children(this);
@@ -79,7 +73,7 @@ abstract class Node<E> {
     show(this, 0);
   }
 
-  protected <E> void show(final Node<E> t, final int h) {
+  protected void show(final Node<E> t, final int h) {
     if (t == null) {
       printnode(null, h);
       return;
@@ -89,9 +83,9 @@ abstract class Node<E> {
     show(t.left(), h + 1);
   }
 
-  protected <E> void printnode(final E x, final int h) {
+  protected void printnode(final E x, final int h) {
     for (int i = 0; i < h; i++) {
-      System.out.print("	");
+      System.out.print("  ");
     }
     System.out.println("[" + x + "]");
   } 
