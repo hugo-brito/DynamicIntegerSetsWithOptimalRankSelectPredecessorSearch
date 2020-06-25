@@ -1,3 +1,5 @@
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+
 /** Often we view words as divided into fields of some length f. We then use x(i)_f to denote the
  * ith field, starting from the right with x(0)_f the right most field. Thus x represents the
  * integer E^(w−1)_(i=0) 2^i x(i)1.

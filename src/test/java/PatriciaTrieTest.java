@@ -1,15 +1,15 @@
-import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.BinarySearchTrie;
+import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.PatriciaTrie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class BinarySearchTrieTest {
+class PatriciaTrieTest {
 
-  BinarySearchTrie t;
+  PatriciaTrie t;
 
   @BeforeEach
   void setUp() {
-    t = new BinarySearchTrie();
+    t = new PatriciaTrie();
   }
 
   @AfterEach

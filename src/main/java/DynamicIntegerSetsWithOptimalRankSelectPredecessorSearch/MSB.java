@@ -1,3 +1,5 @@
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+
 import java.util.Arrays;
 
 public class MSB {
@@ -54,15 +56,15 @@ public class MSB {
    * @param x
    * @return
    */
-  public static int msb32double(int x) {
-    int v = x;
+  public static int msb32double(final int x) {
+    final int v = x;
     int r;
 
-    int u[] = {0x43300000, v};
-    long aux1 = mergeInts(u);
-    double aux2 = Double.longBitsToDouble(aux1);
-    double d = aux2 - 4503599627370496.0d;
-    long aux3 = Double.doubleToLongBits(d);
+    final int u[] = { 0x43300000, v };
+    final long aux1 = mergeInts(u);
+    final double aux2 = Double.longBitsToDouble(aux1);
+    final double d = aux2 - 4503599627370496.0d;
+    final long aux3 = Double.doubleToLongBits(d);
     r = (int) (aux3 >> 20) - 0x3FF;
     return r;
   }
@@ -75,19 +77,19 @@ public class MSB {
       LogTable256 = new int[256];
       LogTable256[0] = -1; // if you want log(0) to return -1
       LogTable256[1] = 0;
-      for (int i = 2; i < 256; i++){
+      for (int i = 2; i < 256; i++) {
         LogTable256[i] = 1 + LogTable256[i / 2];
       }
     }
   }
 
-  public static int msb64LookupDistributedOutput(long x) {
+  public static int msb64LookupDistributedOutput(final long x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
 
-    int[] aux = splitLong(x);
-    int high = msb32LookupDistributedOutput(aux[0]);
+    final int[] aux = splitLong(x);
+    final int high = msb32LookupDistributedOutput(aux[0]);
 
     if (high == -1) {
       return msb32LookupDistributedOutput(aux[1]) + 32;
@@ -96,13 +98,13 @@ public class MSB {
     return high;
   }
 
-  public static int msb64LookupDistributedInput(long x) {
+  public static int msb64LookupDistributedInput(final long x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
 
-    int[] aux = splitLong(x);
-    int high = msb32LookupDistributedInput(aux[0]);
+    final int[] aux = splitLong(x);
+    final int high = msb32LookupDistributedInput(aux[0]);
 
     if (high == -1) {
       return msb32LookupDistributedInput(aux[1]) + 32;
@@ -112,37 +114,41 @@ public class MSB {
   }
 
   /**
-   * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array.
-   * The most significant bits of x will be at position 0 of the array, whereas the least significant bits will be at position 1.
+   * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array. The
+   * most significant bits of x will be at position 0 of the array, whereas the
+   * least significant bits will be at position 1.
+   * 
    * @param x the long to be split
    * @return the array containing 2 32-bit integers.
    */
-  public static int[] splitLong(long x) {
-    int[] res = new int[2];
+  public static int[] splitLong(final long x) {
+    final int[] res = new int[2];
     res[0] = (int) (x >>> 32);
     res[1] = (int) (x << 32 >>> 32);
     return res;
   }
 
   /**
-   * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using the bits from those integers.
-   * Entry 0 of the 32-bit int array will be the most significant bits of resulting long.  
+   * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using
+   * the bits from those integers. Entry 0 of the 32-bit int array will be the
+   * most significant bits of resulting long.
+   * 
    * @param x The 32-bit integers
    * @return The resulting long
    */
-  public static long mergeInts(int[] x) {
-    long res = x[0];
+  public static long mergeInts(final int[] x) {
+    final long res = x[0];
     return (res << 32) | Integer.toUnsignedLong(x[1]);
   }
 
-  public static int msb32LookupDistributedOutput(int x) {
+  public static int msb32LookupDistributedOutput(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
 
     generateLookupTable();
     int r;
-    int tt = x >>> 16;
+    final int tt = x >>> 16;
     int t;
     if (tt != 0) {
       t = tt >>> 8;
@@ -154,7 +160,7 @@ public class MSB {
     return 31 - r;
   }
 
-  public static int msb32LookupDistributedInput(int x) {
+  public static int msb32LookupDistributedInput(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
@@ -177,25 +183,26 @@ public class MSB {
     return 31 - r;
   }
 
-
-  public static int msbNaive(int x) {
+  public static int msbNaive(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
-    String bin = bin(x);
+    final String bin = bin(x);
     for (int i = 0; i < 32; i++) {
       // System.out.println(bin.charAt(i));
-      if (bin.charAt(i) == '1') return i;
+      if (bin.charAt(i) == '1')
+        return i;
     }
     return -1;
   }
 
-  public static int msb(int x) {
-    if (x == 0) return -1; // because 0 has no 1 bits
+  public static int msb(final int x) {
+    if (x == 0)
+      return -1; // because 0 has no 1 bits
     return Integer.numberOfLeadingZeros(x);
   }
 
-  public static int msbDouble(long x){
+  public static int msbDouble(final long x) {
     // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
     // 1 - Convert to double,
     // 2 - Get the binary representation of the double
@@ -204,29 +211,32 @@ public class MSB {
     return (int) (Double.doubleToRawLongBits(x) << 1 >>> 53) - 0x3FF;
   }
 
-  /** Using msb, we can also easily find the least significant bit of x as lsb(x) = msb((x − 1) ⊕ x).
+  /**
+   * Using msb, we can also easily find the least significant bit of x as lsb(x) =
+   * msb((x − 1) ⊕ x).
+   * 
    * @param x
    * @return
    */
-  public static int lsb(int x) {
+  public static int lsb(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
     return msb((x - 1) ^ x);
   }
 
-  public static int lsbNaive(int x) {
+  public static int lsbNaive(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
     return msbNaive((x - 1) ^ x);
   }
 
-  public static int lsbNaiver(int x) {
+  public static int lsbNaiver(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
-    String bin = bin(x);
+    final String bin = bin(x);
     for (int i = 31; i > -1; i--) {
       // System.out.println(bin.charAt(i));
       if (bin.charAt(i) == '1') {
@@ -236,14 +246,17 @@ public class MSB {
     return -1;
   }
 
-  /** Returns a binary representation of integer x in a String containing leading zeroes.
+  /**
+   * Returns a binary representation of integer x in a String containing leading
+   * zeroes.
+   * 
    * @param x
    * @return
    */
-  public static String bin(int x) {
-    String aux = Integer.toBinaryString(x);
+  public static String bin(final int x) {
+    final String aux = Integer.toBinaryString(x);
     if (aux.length() < 32) {
-      StringBuilder res = new StringBuilder(32);
+      final StringBuilder res = new StringBuilder(32);
       for (int i = 32 - aux.length(); i > 0; i--) {
         res.append(0);
       }
@@ -254,14 +267,17 @@ public class MSB {
     }
   }
 
-    /** Returns a binary representation of integer x in a String containing leading zeroes.
+  /**
+   * Returns a binary representation of integer x in a String containing leading
+   * zeroes.
+   * 
    * @param x
    * @return
    */
-  public static String bin64(long x) {
-    String aux = Long.toBinaryString(x);
+  public static String bin64(final long x) {
+    final String aux = Long.toBinaryString(x);
     if (aux.length() < 64) {
-      StringBuilder res = new StringBuilder(64);
+      final StringBuilder res = new StringBuilder(64);
       for (int i = 64 - aux.length(); i > 0; i--) {
         res.append(0);
       }
@@ -272,8 +288,8 @@ public class MSB {
     }
   }
 
-  public static void main(String[] args) {
-    int i = Integer.MAX_VALUE;
+  public static void main(final String[] args) {
+    final int i = Integer.MAX_VALUE;
     System.out.println("Binary representation: " + bin(i));
     System.out.println("Indices go from 0 .. 31. If it returns -1 then there is no 1-bit");
     System.out.println("MSB Naive: " + msbNaive(i));
@@ -283,7 +299,7 @@ public class MSB {
     System.out.println("LSB using MSB standard library: " + lsb(i));
     // System.out.println(new BitsKey(Double.doubleToRawLongBits(1)).bin());
 
-    long j = -6442450944L;
+    final long j = -6442450944L;
     System.out.println("whole 64 bits:\n" + bin64(j));
     System.out.println(bin(splitLong(j)[0]));
     System.out.println(bin(splitLong(j)[1]));

@@ -1,4 +1,6 @@
-class PatriciaTrie implements RankSelectPredecessorUpdate {
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+
+public class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   static class PTrieNode<E> extends Node<E> {
 
@@ -24,19 +26,18 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   private final PTrieNode<BitsKey> root;
 
-  // static class Node {
-  // final BitsKey key;
-  // Node left, right;
-  // int bit;
-  // public Node(BitsKey key, int i) {
-  // this.key = key;
-  // this.bit = i;
-  // }
-  // }
-
   public PatriciaTrie() {
     root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
+  }
+
+  /** Returns the number of keys present in the set.
+   * 
+   */
+  @Override
+  public long size() {
+    // TODO Auto-generated method stub
+    return 0;
   }
 
   @Override
@@ -47,7 +48,7 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
     final PTrieNode<BitsKey> t = search(root.left, v, -1);
 
     final BitsKey w = (t == null) ? null : t.key;
-    if (v.val == w.val) {
+    if (w != null && v.equals(w)) {
       return; // Perform an insertion only if key only is not present
     }
 
@@ -80,7 +81,48 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   @Override
   public void delete(final long x) {
-    // TODO Auto-generated method stub
+    int i = 0;
+
+    final BitsKey v = new BitsKey(x);
+    final PTrieNode<BitsKey> t = search(root.left, v, -1);
+
+    final BitsKey w = (t == null) ? null : t.key;
+    if (v.equals(w)) {
+      return; // Perform a deletion only if key only is not present
+    }
+
+    // Find the most significant digit where the keys differ
+    while (v.bit(i) == w.bit(i)) {
+      i++;
+    }
+
+    root.left = delete(root.left, v, i, root);
+  }
+
+  private PTrieNode<BitsKey> delete(final PTrieNode<BitsKey> curr, final BitsKey v, final int i, final PTrieNode<BitsKey> prev) {
+    if ((curr.bit >= i) || (curr.bit <= prev.bit)) {
+      // if (v.equals(curr.key)) {
+      //   if (prev.left == curr) {
+
+      //   } else {
+
+      //   }
+      // }
+      // do the deletion here!
+      final PTrieNode<BitsKey> newNode = new PTrieNode<BitsKey>(v, i);
+      newNode.left = v.bit(newNode.bit) == 0 ? newNode : curr;
+      newNode.right = v.bit(newNode.bit) == 0 ? curr : newNode;
+      return newNode;
+    }
+
+    if (v.bit(curr.bit) == 0) {
+      curr.left = delete(curr.left, v, i, curr);
+    } else {
+      curr.right = delete(curr.right, v, i, curr);
+    }
+
+    return curr;
+
   }
 
   @Override
@@ -125,12 +167,6 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
     return 0;
   }
 
-  @Override
-  public long size() {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
   /* Useful functions */
 
   public int count() {
@@ -146,6 +182,10 @@ class PatriciaTrie implements RankSelectPredecessorUpdate {
   }
 
   public static void main(final String[] args) {
-    
+    PatriciaTrie t = new PatriciaTrie();
+    t.insert(1);
+    t.insert(-1);
+    t.insert(10);
+    t.insert(20);
   }
 }

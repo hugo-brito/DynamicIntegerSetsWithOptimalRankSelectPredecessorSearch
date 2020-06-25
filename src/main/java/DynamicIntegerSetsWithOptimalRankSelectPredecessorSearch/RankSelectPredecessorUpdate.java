@@ -1,4 +1,6 @@
-interface RankSelectPredecessorUpdate {
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+
+public interface RankSelectPredecessorUpdate {
 
   /** Sets S = S union {x}.
    * @param x the integer to insert

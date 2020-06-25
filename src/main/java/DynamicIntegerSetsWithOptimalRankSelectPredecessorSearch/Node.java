@@ -1,3 +1,5 @@
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+
 abstract class Node<E> {
 
   final E key;

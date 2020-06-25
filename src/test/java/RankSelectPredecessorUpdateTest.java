@@ -1,6 +1,5 @@
+import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.RankSelectPredecessorUpdate;
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

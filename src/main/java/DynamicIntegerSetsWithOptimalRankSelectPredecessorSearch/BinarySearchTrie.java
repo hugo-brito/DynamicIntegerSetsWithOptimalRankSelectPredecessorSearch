@@ -1,4 +1,6 @@
-class BinarySearchTrie implements RankSelectPredecessorUpdate {
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+
+public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   static class BSTrieNode<E> extends Node<E> {
 

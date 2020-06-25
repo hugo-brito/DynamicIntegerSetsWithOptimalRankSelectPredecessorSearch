@@ -1,6 +1,6 @@
-import java.util.Random;
+package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
-class BitsKey implements Comparable<BitsKey> {
+public class BitsKey implements Comparable<BitsKey> {
   /** BitsKey class created to conveniently store keys at the nodes in the Binary Search Trie.
    */
 
