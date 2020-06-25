@@ -6,6 +6,13 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CodeLens (Launch) - PatriciaTrie",
+			"request": "launch",
+			"mainClass": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.PatriciaTrie",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
 			"name": "CodeLens (Launch) - MSB",
 			"request": "launch",
 			"mainClass": "MSB",
@@ -51,12 +58,6 @@
 			"request": "launch",
 			"mainClass": "PatriciaTrie",
 			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
-		},
-		{
-			"type": "java",
-			"name": "Debug (Launch)-PatriciaTrie",
-			"request": "launch",
-			"mainClass": "org.ardverk.collection.sedgewick.PatriciaTrie"
 		}
 	]
 }

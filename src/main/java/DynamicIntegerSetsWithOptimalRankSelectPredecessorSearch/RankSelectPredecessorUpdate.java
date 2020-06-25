@@ -22,8 +22,8 @@ public interface RankSelectPredecessorUpdate {
    * queried.
    * It follows the rule predecessor(x) = select(rank(x)-1)
    * @param x the integer queried
-   * @return the largest integer that is in the set but that is still smaller than the integer
-   * queried.
+   * @return the largest integer that is in the set but that is still smaller than the
+   * integer queried.
    */
   long predecessor(long x);
 
