@@ -6,6 +6,13 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CodeLens (Launch) - NonRecursivePatriciaTrie",
+			"request": "launch",
+			"mainClass": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.NonRecursivePatriciaTrie",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
 			"name": "CodeLens (Launch) - PatriciaTrie",
 			"request": "launch",
 			"mainClass": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.PatriciaTrie",

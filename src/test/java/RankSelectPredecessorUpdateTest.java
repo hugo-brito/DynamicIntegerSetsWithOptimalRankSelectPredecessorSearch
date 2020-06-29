@@ -11,7 +11,7 @@ import java.util.Set;
 
 class RankSelectPredecessorUpdateTest {
 
-  static long seed = 1337;
+  static long seed = 42;
   static int numKeys = 1_000_000;
   static Random rand;
   static Set<Long> keySet;
@@ -90,10 +90,27 @@ class RankSelectPredecessorUpdateTest {
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate S) {
     long lowerBound = numKeys * (-1);
+    int iteration = 0;
     for (long i = lowerBound; i <= numKeys; i++) {
-      assert (!S.member(i));
+      iteration++;
+      boolean failed = false;
+      if (S.member(i)) {
+        failed = true;
+        System.err.println("insertThenDeleteRangeOfKeysTest iteration "
+            + iteration + "/" + (2 * numKeys)
+            + "\nExpected " + i + " not to be member, but it was!");
+      }
       S.insert(i);
-      assert (S.member(i));
+
+      if (!S.member(i)) {
+        failed = true;
+        System.err.println("insertThenDeleteRangeOfKeysTest iteration "
+            + iteration + "/" + (2 * numKeys)
+            + "\nExpected " + i + " to be member, but it wasn't!");
+      }
+
+      assert (!failed);
+
       if (i % 1000 == 0) {
         for (long j = i - 1000; j <= i; j++) {
           S.delete(j);
@@ -107,10 +124,27 @@ class RankSelectPredecessorUpdateTest {
 
     // use generated keys to test the set
     while (orderedKeyList.size() > 0) {
+      boolean failed = false;
+
       final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-      assert (S.member(key));
+
+      if (!S.member(key)) {
+        failed = true;
+        System.err.println("insertThenDeleteRandomKeysTest iteration "
+            + (numKeys - orderedKeyList.size()) + "/" + numKeys
+            + "\nExpected " + key + " to be member, but it wasn't!");
+      }
+
       S.delete(key);
-      assert (!S.member(key));
+
+      if (S.member(key)) {
+        failed = true;
+        System.err.println("insertThenDeleteRandomKeysTest iteration "
+            + (numKeys - orderedKeyList.size()) + "/" + numKeys
+            + "\nExpected " + key + " not to be member, but it was!");
+      }
+
+      assert (!failed);
     }
   }
 
@@ -118,7 +152,7 @@ class RankSelectPredecessorUpdateTest {
     S = generateAndInsertKeys(S);
 
     for (int i = 0; i < orderedKeyList.size(); i++) {
-      assertEquals(i+1, S.rank(orderedKeyList.get(i)));
+      assertEquals(i + 1, S.rank(orderedKeyList.get(i)));
     }
   }
 
