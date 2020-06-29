@@ -1,6 +1,7 @@
+import static org.junit.jupiter.api.Assertions.*;
+
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.MSB;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 class MSBTest {
 
