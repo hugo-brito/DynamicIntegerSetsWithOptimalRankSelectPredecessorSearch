@@ -1,6 +1,11 @@
-\section*{Thesis Project Agreement}
+\chapter{Introduction}
 
-\subsection*{Problem Definition} % To identify, define and delimit a problem within information technology.
+\section{Abstract}
+This is an example subchapter.
+
+\section{Thesis Project Agreement}
+
+\subsection{Problem Definition} % To identify, define and delimit a problem within information technology.
 % A Binary search tree dictionary is a data structure that is used to store key-value pairs. It has several advantages in usage compared to other implementations of key-value pair data structures (fx hash table) like memory efficiency and ordered elements. A full implementation of concurrent hash table exists natively in both Java and C# but that is not the case for concurrent trees. Building a concurrent version of the binary search tree dictionary is thus interesting but also challenging as all operations on the tree have to be started from the root node.
 % Nowadays the need for parallel processing is rising and a concurrent version in Java should be developed. This thesis project will contribute to that by building a data structure that will be optimized for concurrent using purposes.
 % Our implementation will be based on available implementation of concurrent trees, as we start by testing different implementations from current literature. Based on that, we will evaluate the performance of each of them and choose the best candidate for further development.
@@ -42,16 +47,16 @@
 
 % Data optimization is much easier when we can sit back and do it off-line. I have therefore restricted my attention to static data structures. Extending the work I present to dynamic structures (where possible) would be the subject of another thesis.
 
-\subsubsection*{Problem Domain}
+\subsubsection{Problem Domain}
 
 Since their inception, roughly 30 years ago, succinct data structures have helped encoding large chunks of data while allowing operations on that data efficiently. The pioneer of this idea, Guy Jacobson, states that while one could compress data such that it takes less space, this is less than optimal since once compressed, the data cannot be queried efficiently. On the other hand, succinct data structures are more suited since they combine size reduction with data accessibility \cite{jacobson1988succinct}. They accomplish so by encoding data efficiently. This means that everything is accessed in-place, by reading bits at various positions in the data.
 
 This idea has been proven useful: the world is full of data, which grows by the day, and the convenience of querying such data is vitally important. Practical applications range from areas such as database management systems (DBMS), text indexing, bioinformatics, big data and data mining applications and beyond.
 
-\subsubsection*{Domain overview}
+\subsubsection{Domain overview}
 Despite the numerous applications and the obvious advantages, for the particular problem \textit{Rank}, \textit{Select}, \textit{Update}, according to a preliminary literature search, there has not been found a public record of an implementation that achieves optimality regarding the running times of the stated operations. This means that, once the original piece of data which the data structure maps to is altered, it becomes void since it might not necessarily represent its non-encoded counterpart accurately. In order to be usable once more, it has to be re-encoded to reflect the changes, which in practice translates to a trade-off: the gains attained by building and having available a data structure that allows fast queries become less optimal when it has to be re-computed several times due to changes in the original data counterpart.
 
-\subsubsection*{Problem Formulation}
+\subsubsection{Problem Formulation}
 % - I would expand 1.3 a bit more to explain each query.
 This original idea proposed by Guy Jacobson has branched in different directions:
 \begin{itemize}
@@ -79,7 +84,7 @@ This last publication also establishes that:
 
 This thesis is aimed at finding to which extend the claim from Patrascu and Thorup [FOCS 2014] is supported by practical evidence.
 
-\subsection*{Method} 
+\subsection{Method} 
 
 \textbf{Please state which activities you plan to implement to carry out the project, for instance study of literature, collecting and working up empirical data, development and test of prototype or production etc.}
 
@@ -94,10 +99,10 @@ The paper \textit{Dynamic Integer Sets with Optimal Rank, Select, and Predecesso
     \item Evaluation and reflection of all the previous points.
 \end{itemize}
 
-\subsubsection*{Disclaimer}
+\subsubsection{Disclaimer}
 This proposal is to be perceived as a plan, not as a promise. Since a large part of the project will consist of researching and experimenting with new concepts, the need to diverge from what is stated here might arise.
 
-\subsection*{Deliverables}
+\subsection{Deliverables}
 \textbf{Please state what you plan to submit: Report, production etc., expected number of pages, form (for instance CD or paper). If you are writing as a group, i.e. 2 persons or more, please note the type of examination you are planning. You have the following options: Mixed exam 1, Mixed exam 2, Mixed exam 3, Group exam. Check Study Guide for more information.}
 
 \textit{Describe what you intend to upload.
@@ -109,7 +114,7 @@ NB. If you are writing a group project (two or more participants), please state 
 \end{itemize}
 
 
-\subsection*{Relevant Qualifications}
+\subsection{Relevant Qualifications}
 \textbf{Please state relevant qualifications for the project, for instance your educational background, practical experience, passed courses/projects, progression in your studies etc.}
 
 The work to be developed in this paper will have its foundation in the learning outcomes of the following courses:
@@ -120,3 +125,5 @@ The work to be developed in this paper will have its foundation in the learning 
     \item Applied Algorithms.
 \end{itemize}
 In particular, the final project that was object of evaluation for the Applied Algorithms course exam featured a lesser version of the data structure I will present by the end of the project, which will be focused on the data structure introduced in the \textit{Dynamic Integer Sets with Optimal \textit{Rank}, \textit{Select}, and Predecessor Search} paper by Patrascu and Thorup.
+
+\section{Introduction}
