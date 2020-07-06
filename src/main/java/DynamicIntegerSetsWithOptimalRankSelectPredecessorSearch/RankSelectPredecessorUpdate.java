@@ -18,40 +18,43 @@ public interface RankSelectPredecessorUpdate {
    */
   boolean member(long x);
 
-  /** Returns the largest integer that is in the set but that is still smaller than the integer
-   * queried.
+  /** Returns the largest key in the subset of keys that are strictly smaller than x.
+   * pred(x) = max{y in S | y < x}
    * It follows the rule predecessor(x) = select(rank(x)-1)
    * @param x the integer queried
    * @return the largest integer that is in the set but that is still smaller than the
-   * integer queried.
+  integer queried.
    */
-  long predecessor(long x);
+  default long predecessor(long x) {
+    return select(rank(x) - 1);
+  }
 
-  /** Returns x if it is in the set or the smallest integer that is in the set that is larger than
-   * x.
+  /** Returns the smallest key in the subset of keys that are larger or equal to x.
+   * succ(x) = min{y in S | y >= x}
    * It follows the rule successor(x) = select(rank(x))
-   * @param x the integer queried
-   * @return x if it is in the set or the smallest integer that is in the set that is larger than x
+   * @param x the key
+   * @return x if it is in the set, or the smallest integer that is in the set that is larger than x
    */
-  long successor(long x);
+  default long successor(long x) {
+    return select(rank(x));
+  }
 
-  /** Returns the number of integers in the set up to position x.
+  /** Returns the number of keys in the set that are strictly smaller than x.
+   * rank(x) = #{y in S | y < x}
    * @param x the position in the set to be queried
    * @return the number of integers in the set up to position x
    */
   long rank(long x);
 
-  /** Returns the position in the set of the i-th element if any. It follows the rule:
-   * - predecessor(x) = select(rank(x)-1)
-   * - successor(x) = select(rank(x))
-   * @param i the element.
-   * @return
+  /** Assuming the natural ordering of keys, returns the key in position i.
+   * @param i the position
+   * @return the key at position i
    */
   long select(long i);
 
   /** Returns the number of keys present in the set.
    * 
-   * @return the number of keys present in the set.
+   * @return the number of keys present in the set
    */
   long size();
 }
