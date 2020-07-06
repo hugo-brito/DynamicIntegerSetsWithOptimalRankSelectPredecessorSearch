@@ -1,138 +1,132 @@
-\documentclass{article}
+%%% File encoding is ISO-8859-1 (also known as Latin-1)
+%%% You can use special characters just like �,� and �
+%%% LaTeX template by Manuel Kuehner, 2015
 
-% Paper properties
-\usepackage[a4paper, portrait, margin=1in]{geometry}
+%%% If you use this template then please give credit like this:
+%%% ----------------------------
+% LaTeX code inspired by the LaTeX Thesis Template by Manuel Kuehner 
+% www.bedienhaptik.de/latex-template/
+%%% ----------------------------
 
-% No indentation on paragraphs
-\setlength\parindent{0pt}
-\setlength{\parskip}{0.5em}
+% ##############################################
+% Start: Template Preamble
+% ##############################################
+%
 
-\usepackage[fleqn]{amsmath}
-\usepackage{booktabs}
-\usepackage{microtype}
+% Documentclass definition
+\input{01_Preamble/documentclass.tex}
 
-% Clickable links
-\usepackage{hyperref}
+% Loading additional packages from the KOMA-Script family
+\input{01_Preamble/KOMA-Script-Packages.tex}
 
-% % Text in columns
-% \usepackage{multicol}
-% \setlength{\columnsep}{0.5cm}
+% Page layout definition
+\input{01_Preamble/PageLayout.tex}
 
-% Highlight something
-\usepackage{tcolorbox}
+% Standard packages
+\input{01_Preamble/CommonPackages.tex}
 
-% Graphics
-\usepackage{graphicx}
-\usepackage{subfig}
-\usepackage{wrapfig}
+% ####-Important-####
+%
+% Definition of the two main colors
+% -----------------------
+% The corresponding xcolor package ist loaded in the file 
+% 01_Preamble/StandardPackages.tex
+%
+% ####-Important-####
+\definecolor[named]{myColorMainA}{RGB}{0,26,153}
+\definecolor[named]{myColorMainB}{RGB}{174,49,54}
 
-% ttfamily font (also needed for the aspect of the code snippets)
-\usepackage[scaled=.85]{sourcecodepro}
-\usepackage[T1]{fontenc}
+% Customization of 
+% - Floating Objects (Caption) 
+% - Table of Contents (TOC)
+% - List of Figures
+% - List of Tables
+% - Headings (like chapter, section, etc.)
+\input{01_Preamble/Floating-AND-TOC-AND-ListOf-AND-Headings.tex}
 
-% default document font (Helvetica)
-\usepackage[scaled]{helvet}
-\renewcommand\familydefault{\sfdefault} 
+% Customization of the header, footer and teh margin note
+\input{01_Preamble/HeaderFooterMarginnote.tex}
 
-% Code formatting
-\usepackage{listings}
-\lstset{
-  language=java,
-  extendedchars=true,
-  basicstyle=\small\ttfamily,
-  showstringspaces=false,
-  showspaces=false,
-  numbers=left,
-  numberstyle=\footnotesize,
-  numbersep=9pt,
-  tabsize=4,
-  breaklines=true,
-  showtabs=false,
-  frame=single,
-  extendedchars=false,
-  inputencoding=utf8,
-  captionpos=b
-}
+% Optimize paragraphs (avoid overfull... warnings)
+\input{01_Preamble/ParagraphOptimization.tex}
 
-%------------------------------------------------------------------
-% CHAPTERS AND SECTIONS
-%------------------------------------------------------------------
-\usepackage{titlesec}
-\titleformat{\section}
-  {\normalfont\Large\bfseries}
-  {Chapter \thesection \hspace*{0.1em} --- }
-  {0pt}
-  {}
+% PDF related packages
+\input{01_Preamble/PDF-Related.tex}
 
-%------------------------------------------------------------------
-% HEADERS AND FOOTERS
-%------------------------------------------------------------------
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhf{}
-\rhead{Hugo de Brito}
-% \chead{An Implementation and Evaluation of Theoretically Optimal Dynamic Rank, Select, and Predecessor Data Structure}
-\lhead{Thesis Report}
-\lfoot{IT University of Copenhagen}
-\cfoot{\thepage}
-\rfoot{June 2020}
-\renewcommand{\footrulewidth}{0.25pt}
+% PDF related packages
+\input{01_Preamble/RandomTextPackage.tex}
 
+%
+% #######################
+% Ende: Template Preamble
+% #######################
 
-%------------------------------------------------------------------
-% TITLE
-%------------------------------------------------------------------
-\title{
-    \vspace{2 cm}
-    \centerline{\includegraphics[width=120mm]{src/tex/images/logo_en.png}}
-    \vspace{3 cm}
-    \large Thesis Project\\Spring 2020\\
-    \vspace{1 cm}
-    \LARGE{An Implementation and Evaluation of Theoretically Optimal Dynamic Rank, Select, and Predecessor Data Structure}
-    \vspace{1 cm}
-    \large{\\
-    MSc Software Development\\}
-    \vspace{2 cm}
-    \small{IT-Universitetet i København\\ Rued Langgaards Vej 7\\ 2300 København S, Danmark\\}
-    \vspace{4 cm}
-    \scriptsize{
-        Supervisor\\
-        Holger Dell\\
-        \href{mailto:hold@itu.dk}{{\tt hold@itu.dk}}\\
-    }
-}
-
-\author{
-    Hugo de Brito\\
-    \href{mailto:hubr@itu.dk}{{\tt hubr@itu.dk}}
-}
-
-\date{2. Jun 2020}
-
-%------------------------------------------------------------------
-% DOCUMENT STARTS HERE
-%------------------------------------------------------------------
+% ##############################################
+% Start: Document
+% ##############################################
+%
+% ------------------------------------------------------------------
 \begin{document}
-\maketitle
 
-% No page number, header or footer
-\thispagestyle{empty}
+% Title page
+\input{02_Chapters/00_TitlePage.tex}
+% Empty page after title page
+\cleardoublepage
 
-% \vspace{2cm}
-% \begin{tcolorbox}
-% \centerline{\small{I hereby declare that I have answered these exam questions myself without any outside help.}}
-% \end{tcolorbox}
+% Activate header and footer defined in the file:
+% 01_Preamble/HeaderFooterMarginnote.tex
+\pagestyle{scrheadings}
 
-\newpage
+% Activate roman numbering (e. g. xii)	
+\pagenumbering{roman}
 
-\input{src/tex/00_intro.tex}
-\newpage
-\tableofcontents
-\newpage
-\input{src/tex/chapters/001.tex}
-\newpage
+% Start with page 1 (I)
+\setcounter{page}{1}
+
+% Prologue
+\input{02_Chapters/01_Prologue.tex}
+
+% Abstract
+\input{02_Chapters/02_Abstract.tex}
+
+% Table of Contents and Lost of Figures/Tables
+\input{02_Chapters/03_TOC-AND-ListOf.tex}
+
+% Activate arabic numbering (e. g. 12)	
+\pagenumbering{arabic}
+
+% Start with page 1
+\setcounter{page}{1}
+
+% Introduction
+\input{02_Chapters/10_Introduction.tex}
+
+% Main Part
+\input{02_Chapters/11_Implementation.tex}
+
+% Main Part
+\input{02_Chapters/12_Evaluation.tex}
+
+
+% Final Thoughts
+\input{02_Chapters/13_FinalThoughts.tex}
+
+% Start appendix
+\appendix
+
+% Appendix A
+\input{02_Chapters/90_AppendixExampleChapterA.tex}
+
+% Appendix B
+\input{02_Chapters/91_AppendixExampleChapterB.tex}
 
 % References
 \bibliographystyle{apalike}
-\bibliography{src/tex/references}
+\bibliography{05_Bibliography/references.bib}
+
 \end{document}
+% ------------------------------------------------------------------
+%
+% #######################
+% End: Document
+% #######################
