@@ -116,6 +116,8 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
 
     N = 0;
 
+    bKEY = -1; // because -1 in java binary is 1111..11
+
   }
 
   /** Sets the i-th ceil(log_2 k) of index with the least significant 4 digits of j. Index
@@ -123,7 +125,7 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
    * @param i
    */
   private void setINDEX(int i, int v){
-    v = v << (32 - ceil_log_2_k); 
+    v = v << (32 - ceil_log_2_k);
     INDEX = INDEX ^ v;
   }
 
@@ -155,14 +157,13 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
 
   @Override
   public long successor(long x) {
-    // TODO Auto-generated method stub
-    return 0;
+    return select(rank(x));
   }
 
   @Override
-  public long rank(long x) {
-    // TODO Auto-generated method stub
-    return 0;
+  public long rank(long x) {  
+    // return getINDEX(i);
+    return -1;
   }
 
   @Override
@@ -184,7 +185,7 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
    * @param d the digit index
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
-  public static int bit(long val, int d){
+  public static int bit(long val, int d) {
     return (int) (val >> (63 - d)) & 1;
   }
 
@@ -203,13 +204,15 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
   }
 
   public static void main(String[] args) {
-    new Indexing64bit();
+    // new Indexing64bit();
 
-    for (long i = Long.MIN_VALUE; i == Long.MAX_VALUE; i++){
-      if (!Long.toBinaryString(i).equals(bin(i))) {
-        System.err.println("ERROR!\nFor " + i + " expected:\n	" + Long.toBinaryString(i) + "\nbut got:\n	" + bin(i));
-      }
-    }
-    System.out.println("bin(x) works for the full range of long!");
+    // for (long i = Long.MIN_VALUE; i == Long.MAX_VALUE; i++){
+    //   if (!Long.toBinaryString(i).equals(bin(i))) {
+    //     System.err.println("ERROR!\nFor " + i + " expected:\n	" + Long.toBinaryString(i) + "\nbut got:\n	" + bin(i));
+    //   }
+    // }
+    // System.out.println("bin(x) works for the full range of long!");
+
+    // System.out.println(Long.toBinaryString(-1));
   }
 }
