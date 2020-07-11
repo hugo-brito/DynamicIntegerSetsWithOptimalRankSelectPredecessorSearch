@@ -1,0 +1,11 @@
+﻿Data Structure;;;;Space
+;;Update;Query;
+(Naïve) Array;;$O(1)$;$O(n)$;$O(n)$ 
+Red-Black BST \cite{sedgewick2011algorithms};;$O(log_2 n)$;$O(log_2 n)$;$O(n)$ 
+Binary Search Trie \cite{sedgewick2002algorithms};Average;$O(log_2 n)$;;$O(n)$ 
+;Worst;$O(log_2 w)$;$O(log_2 w)$;
+Patricia Trie  \cite{sedgewick2002algorithms};;$O(log_2 n)$;$O(log_2 n)$;$O(n)$ 
+van Emde Boas Tree\cite{scribelecture1};;$\Theta(log_2 w)$;$\Theta(log_2 w)$;$\Theta(u)$
+Fusion trees\cite{scribes6};Static;N/A;$O(log_w n)$;$O(n)$ 
+;Dynamic via Hashing;$O(log_w n)$;;
+Patrascu Optimal\cite{patrascu2014dynamic};;;;
