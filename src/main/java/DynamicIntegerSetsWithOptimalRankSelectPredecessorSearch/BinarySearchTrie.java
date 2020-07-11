@@ -194,16 +194,6 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
   }
 
-  @Override
-  public long predecessor(final long x) {
-    return select(rank(x) - 1);
-  }
-
-  @Override
-  public long successor(final long x) {
-    return select(rank(x) + 1);
-  }
-
   /** Returns the number of integers in the set up to position x.
    * @param x the position in the set to be queried
    * @return the number of integers in the set up to position x

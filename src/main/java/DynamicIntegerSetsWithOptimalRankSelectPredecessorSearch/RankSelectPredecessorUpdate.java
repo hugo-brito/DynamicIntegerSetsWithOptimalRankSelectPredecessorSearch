@@ -47,10 +47,10 @@ public interface RankSelectPredecessorUpdate {
   long rank(long x);
 
   /** Assuming the natural ordering of keys, returns the key in position i.
-   * @param i the position
+   * @param rank the position
    * @return the key at position i
    */
-  long select(long i);
+  long select(long rank);
 
   /** Returns the number of keys present in the set.
    * 

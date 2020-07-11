@@ -147,25 +147,13 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long predecessor(final long x) {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  @Override
-  public long successor(final long x) {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  @Override
   public long rank(final long x) {
     // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
-  public long select(final long i) {
+  public long select(final long rank) {
     // TODO Auto-generated method stub
     return 0;
   }
