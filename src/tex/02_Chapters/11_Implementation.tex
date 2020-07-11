@@ -8,27 +8,124 @@
 % \paragraph{Forth level}
 % \subparagraph{Fifth level}
 
+% \subsection{Dummy subsection}
+
+% This is some text to showcase the features of this thesis template. For example, it is possible to add a side note with\myMarginnote{I am a side note!}.
+
+% In this paragraph, I will add an image as a template:
+% \begin{figure}[H]
+% \centering
+% 	\includegraphics[width=0.9\textwidth]%
+% 	{03_GraphicFiles/CowLickingNose.jpg}%
+% \caption[A cow]{A cow licking its nose. Usage with permission of the photographer \textsc{Nicole Barth}, taken from \url{www.flickr.com/photos/46311827@N07/14885545396}.}
+% \label{fig:CowLickingNose}
+% \end{figure}
+
+% In \figurename~\ref{fig:CowLickingNose}\myMarginnote{Reference to a figure} you see a cow that is licking its nose. The picture was taken by Nicole Barth on 11.08.2014 using a Canon EOS 500D. The original file has a resolution of $4247 \times 2831$ pixels.
+% Note that the image is also referenced.
+
 \section{Background}
 
-This is some text to showcase the features of this thesis template. For example, it is possible to add a side note with\myMarginnote{I am a side note!}.
+In this section, a series of data structures, techniques and other relevant aspects are presented in order to lay the foundation for the implementation that is presented in this report. The following subsections aim at providing some background and to frame the state of the art up to the point where the  \cite{patrascu2014dynamic} paper was presented.
 
-In this paragraph, I will add an image as a template:
-\begin{figure}[H]
+The \cite{patrascu2014dynamic} paper presents a dynamic data structure for storing integers and claims that its running times are optimal. We start by looking at what has been done in that research area.
+
+\subsection{Basic Concepts}
+
+\subsubsection{Word}
+A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$.
+
+\subsubsection{Universe}
+The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$. 
+
+\subsubsection{The Predecessor Problem}
+Data structures that maintain a set, $S$ of (integer) keys and enable the following operations are said to solve the static predecessor problem \cite{beame1999optimal}:
+\begin{itemize}
+    \item
+    $member(x)$ returns $[x \in S]$.
+    \item
+    $predecessor(x)$ returns $max\{y\in S\ |\ y < x\}$.
+    \item
+    $successor(x)$ returns $min\{y\in S\ |\ y \geq x\}$.
+\end{itemize}
+
+The predecessor problem can also be dynamic \cite{beame1999optimal} if the said data structure allows:
+\begin{itemize}
+    \item
+    $insert(x)$ sets $S=S \cup \{x\}$.
+    \item
+    $delete(x)$ sets $S=S \setminus \{x\}$.
+\end{itemize}
+
+In this context, the following operations might also be relevant:
+\begin{itemize}
+    \item
+    $rank(x)$ returns $\#\{ y \in S\ |\ y < x\}$.
+    \item
+    $select(i)$ returns $y \in S$ with $rank(y) = i$, if any.
+\end{itemize}
+
+In particular, the data structure presented in \cite{patrascu2014dynamic} not only implements all of the above, and claims that the running times are optimal for all of them are optimal, it also establishes that, by having the operations defined in this manner \cite{patrascu2014dynamic}:
+\begin{itemize}
+    \item
+    $predecessor(x) = select(rank(x - 1))$
+    \item
+    $successor(x) = select(rank(x))$
+\end{itemize}
+
+Given this set of standard operations, this data structure solves the dynamic predecessor problem \cite{beame1999optimal}.
+
+\subsubsection{Models of Computation}\label{sec:modelsofcomputation}
+
+In order to analyze and describe running times, authors resort to models of computation. Each model states which operations have an associated cost, and which ones do not.
+These models provide no unit of cost, and the given operations either have one unit of cost, or none.
+
+Despite their theoretical relevance, when having a data structure and its operations measured against wall clock, one might be surprised with the results.
+This is because theoretical bounds have the potential to hide big constants, which are brought to light when wall clock measurements are performed.
+Nevertheless, we will enumerate some models of computation, as many of the data structures here presented have their running times described in terms of a given model and therefore it is of interest to provide this context.
+
+The models are presented in descending order from strongest to the least strong. This means that a less restrictive model, such as the cell-probe model is more suited to describe the theoretical \emph{lower} bounds of a data structure than the least stronger ones \cite{erikdemainelec11}.
+
+\paragraph{The Cell-Probe Model}
+In the cell-probe model memory is divided into cells of size $w$, a parameter of the model. Every computation is free.
+The only operations that come with an associated cost are reading or writing to memory, which are basically the memory accesses.
+Due to its simplicity, as stated in \ref{sec:modelsofcomputation}, it is widely used to prove lower bounds \cite{erikdemainelec11}.
+
+\paragraph{Trans-dichotomous RAM}
+In the trans-dichotomous RAM model, memory consists of an array of size $S$ of $w$-bit words.
+Reading or writing to one of the memory cells costs $O(1)$.
+Additionally, memory cells can be used as pointers to other cells, e.g. a single $w$-bit word can be used to access another cell.
+This implies that, the word length $w$ has to be large enough in order be able to index all to access all cells in the memory.
+Let the problem size be $n$:
+\begin{equation}\label{eq:problemSize}
+    w \ge \log_2(S) \implies w \ge \log_2(n)
+\end{equation}
+The name is due to expression~\ref{eq:problemSize}, which relates two dichotomies: problem size $n$; and the model of computation with words of size $w$ \cite{erikdemainelec11}. 
+
+\paragraph{Word RAM}
+Similarly to the trans-dichotomous RAM model, the word RAM also operates with fixed size $w$-bit words. Additionally, the following operations have an associated cost \cite{nelsonjelanilec1}:
+\begin{itemize}
+    \item Integer arithmetic (addition $+$, subtraction $-$, multiplication $\times$, division $\div$ and remainder of division (modulo) $\bmod$);
+    \item Bitwise operations (negation $\neg$, and $\wedge$, or $\vee$, exclusive or $\oplus$);
+    \item Bitshift operations (right bitshift $\gg$, left bitshift $\ll$).
+\end{itemize}
+
+\subsection{Integer Data Structures}
+
+Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data structures that, in incremental steps, led to the data structure presented in this project.
+
+\begin{table}[H]
 \centering
-	\includegraphics[width=0.9\textwidth]%
-	{03_GraphicFiles/CowLickingNose.jpg}%
-\caption[A cow]{A cow licking its nose. Usage with permission of the photographer \textsc{Nicole Barth}, taken from \url{www.flickr.com/photos/46311827@N07/14885545396}.}
-\label{fig:CowLickingNose}
-\end{figure}
+\input{src/tex/04_Tables/001_DataStructuresComparison.tex}
+\caption[Data structure comparison]{Data structures used to solve the predecessor problem and their respective theoretical running times.}
+\label{tab:dataStructComparison}
+\end{table}
 
-In \figurename~\ref{fig:CowLickingNose}\myMarginnote{Reference to a figure} you see a cow that is licking its nose. The picture was taken by Nicole Barth on 11.08.2014 using a Canon EOS 500D. The original file has a resolution of $4247 \times 2831$ pixels.
-Note that the image is also referenced.
+\subsubsection{Binary Search Tries}
 
-\subsection{Binary Search Tries}
+\subsubsection{Patricia Tries}
 
-\subsection{Patricia Tries}
-
-\subsection{Fusion Trees}
+\subsubsection{Fusion Trees}
 
 \subsection{Summary of techniques used in the present implementation}
 
