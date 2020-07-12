@@ -194,9 +194,9 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
   }
 
-  /** Returns the number of integers in the set up to position x.
-   * @param x the position in the set to be queried
-   * @return the number of integers in the set up to position x
+  /** Returns the number of keys in the set up that are strictly smaller than x.
+   * @param x the key to be ranked
+   * @return the number of keys that are strictly smaller than x
    */
   @Override
   public long rank(final long x) {
@@ -210,7 +210,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
 
     if (curr.children() == 0) { // leaf node, there will be a key.
-      if (curr.key.compareTo(v) <= 0) {
+      if (curr.key.compareTo(v) < 0) {
         return 1;
       } else {
         return 0;
@@ -331,26 +331,35 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     t.insert(-1);
     t.insert(8575393074845429264L);
 
-    System.out.println("The first key is " + t.select(1));
-    System.out.println("The second key is " + t.select(2));
-    System.out.println("The third key is " + t.select(3));
-    System.out.println("The forth key is " + t.select(4));
-    System.out.println("The fifth key is " + t.select(5));
-    System.out.println("The sixth key is " + t.select(6));
-    System.out.println(t.select(t.rank(8575393074845429264L)));
-    System.out.println(t.select(5));
-    System.out.println(t.rank(12));
+    long pred = 14;
+    long rank = 10;
+    long succ = 8575393074845429264L;
+    System.out.println("the predecessor of " + pred + " is " + t.predecessor(pred));
+    System.out.println("the successor of " + succ + " is " + t.successor(succ));
+    System.out.println("the rank of " + rank + " is " + t.rank(rank));
 
-    System.out.println(String.format("%64s",
-        Long.toBinaryString(10)).replace(" ", "0"));
-    System.out.println(String.format("%64s",
-        Long.toBinaryString(11)).replace(" ", "0"));
-    System.out.println(String.format("%64s",
-        Long.toBinaryString(12)).replace(" ", "0"));
-    System.out.println(String.format("%64s",
-        Long.toBinaryString(13)).replace(" ", "0"));
-    System.out.println(String.format("%64s",
-        Long.toBinaryString(8575393074845429264L)).replace(" ", "0"));
+    System.out.println();
+
+    // System.out.println("The first key is " + t.select(1));
+    // System.out.println("The second key is " + t.select(2));
+    // System.out.println("The third key is " + t.select(3));
+    // System.out.println("The forth key is " + t.select(4));
+    // System.out.println("The fifth key is " + t.select(5));
+    // System.out.println("The sixth key is " + t.select(6));
+    // System.out.println(t.select(t.rank(8575393074845429264L)));
+    // System.out.println(t.select(5));
+    // System.out.println(t.rank(12));
+
+    // System.out.println(String.format("%64s",
+    //     Long.toBinaryString(10)).replace(" ", "0"));
+    // System.out.println(String.format("%64s",
+    //     Long.toBinaryString(11)).replace(" ", "0"));
+    // System.out.println(String.format("%64s",
+    //     Long.toBinaryString(12)).replace(" ", "0"));
+    // System.out.println(String.format("%64s",
+    //     Long.toBinaryString(13)).replace(" ", "0"));
+    // System.out.println(String.format("%64s",
+    //     Long.toBinaryString(8575393074845429264L)).replace(" ", "0"));
 
     // System.out.println(t.rank(13) == 3);
     // System.out.println(t.rank(-1));

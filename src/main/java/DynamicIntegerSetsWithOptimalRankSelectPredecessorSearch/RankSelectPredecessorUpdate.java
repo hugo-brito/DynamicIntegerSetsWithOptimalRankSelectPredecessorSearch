@@ -26,7 +26,7 @@ public interface RankSelectPredecessorUpdate {
   integer queried.
    */
   default long predecessor(long x) {
-    return select(rank(x) - 1);
+    return select(rank(x));
   }
 
   /** Returns the smallest key in the subset of keys that are larger or equal to x.
@@ -36,7 +36,7 @@ public interface RankSelectPredecessorUpdate {
    * @return x if it is in the set, or the smallest integer that is in the set that is larger than x
    */
   default long successor(long x) {
-    return select(rank(x));
+    return select(rank(x) + 1);
   }
 
   /** Returns the number of keys in the set that are strictly smaller than x.
