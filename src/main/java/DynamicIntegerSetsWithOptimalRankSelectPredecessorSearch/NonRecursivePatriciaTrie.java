@@ -38,7 +38,15 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
    * zero-length string.
    */
   public NonRecursivePatriciaTrie() {
-    root = new PTrieNode(null, 0);
+    empty();
+  }
+
+  /**
+   * Resets the data strucutre, removing all items.
+   */
+  @Override
+  public void empty() {
+    root = new PTrieNode<BitsKey>(null, 0);
     root.left = root;
     root.right = root;
     count = 0;
@@ -249,15 +257,6 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
   @Override
   public long size() {
     return count;
-  }
-
-    /**
-   * Is the set empty?
-   * 
-   * @return {@code true} if the set is empty, and {@code false} otherwise
-   */
-  boolean isEmpty() {
-    return count == 0;
   }
 
   /**

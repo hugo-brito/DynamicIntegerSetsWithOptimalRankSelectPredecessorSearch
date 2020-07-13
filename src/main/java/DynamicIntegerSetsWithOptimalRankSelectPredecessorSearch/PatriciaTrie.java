@@ -24,13 +24,18 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
     }
   }
 
-  private final PTrieNode<BitsKey> root;
-  private long N;
+  private PTrieNode<BitsKey> root;
+  private long count;
 
   public PatriciaTrie() {
+    empty();
+  }
+
+  @Override
+  public void empty() {
     root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
-    N = 0;
+    count = 0;
   }
 
   /** Returns the number of keys present in the set.
@@ -38,8 +43,10 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
    */
   @Override
   public long size() {
-    return N;
+    return count;
   }
+
+
 
   @Override
   public void insert(final long x) {
@@ -57,7 +64,7 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
     }
 
     root.left = insert(root.left, v, i, root);
-    N++;
+    count++;
   }
 
   private PTrieNode<BitsKey> insert(final PTrieNode<BitsKey> curr, final BitsKey v, final int i,
@@ -99,7 +106,7 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
 
     root.left = delete(root.left, v, i, root);
 
-    N--;
+    count--;
   }
 
   private PTrieNode<BitsKey> delete(final PTrieNode<BitsKey> curr, final BitsKey v, final int i, final PTrieNode<BitsKey> prev) {

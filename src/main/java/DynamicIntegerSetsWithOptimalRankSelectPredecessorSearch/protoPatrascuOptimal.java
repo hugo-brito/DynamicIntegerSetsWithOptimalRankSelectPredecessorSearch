@@ -4,8 +4,6 @@ public class protoPatrascuOptimal implements RankSelectPredecessorUpdate {
 
   static class helperClass { // this will potentially be a node
 
-    
-
   }
 
   @Override
@@ -35,13 +33,19 @@ public class protoPatrascuOptimal implements RankSelectPredecessorUpdate {
   @Override
   public Long select(long rank) {
     // TODO Auto-generated method stub
-    return 0L;
+    return null;
   }
 
   @Override
   public long size() {
     // TODO Auto-generated method stub
     return 0;
+  }
+
+  @Override
+  public void empty() {
+    // TODO Auto-generated method stub
+
   }
 
 }

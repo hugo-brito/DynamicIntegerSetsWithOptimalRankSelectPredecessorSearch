@@ -57,4 +57,16 @@ public interface RankSelectPredecessorUpdate {
    * @return the number of keys present in the set
    */
   long size();
+
+  /** Returns true if the set if empty.
+   * 
+   * @return {@code true} if the set is empty, and {@code false} otherwise
+   */
+  default boolean isEmpty() {
+    return size() == 0;
+  }
+
+  /** Resets the data structure, removing all elements.
+   */
+  void empty();
 }
