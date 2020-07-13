@@ -1,0 +1,12 @@
+\begin{tabular}{@{}clllll@{}}
+\toprule
+\multicolumn{1}{l}{Key} & Member           & Rank                        & Select                        & Predecessor                     & Successor                       \\ \midrule
+$10$                    & \ttfamily{true}  & \ttfamily{rank(10) == 0}    & \ttfamily{select(0) == 10}    & \ttfamily{pred(10) == null}     & \ttfamily{succ(10) == 10}       \\
+$11$                    & \ttfamily{false} & \ttfamily{rank(11) == 1}    & \ttfamily{select(1) == 12}    & \ttfamily{pred(11) == 10}       & \ttfamily{succ(11) == 12}       \\
+$12$                    & \ttfamily{true}  & \ttfamily{rank(12) == 1}    & \ttfamily{select(1) == 12}    & \ttfamily{pred(12) == 10}       & \ttfamily{succ(12) == 12}       \\
+$42$                    & \ttfamily{true}  & \ttfamily{rank(42) == 2}    & \ttfamily{select(2) == 42}    & \ttfamily{pred(42) == 12}       & \ttfamily{succ(42) == 42}       \\
+$-1337$                 & \ttfamily{true}  & \ttfamily{rank(-1337) == 3} & \ttfamily{select(3) == -1337} & \ttfamily{pred(-1337) == 42}    & \ttfamily{succ(-1337) == -1337} \\
+$-1000$                 & \ttfamily{false} & \ttfamily{rank(-1000) == 4} & \ttfamily{select(4) == -42}   & \ttfamily{pred(-1000) == -1337} & \ttfamily{succ(-1000) == -42}   \\
+$-42$                   & \ttfamily{true}  & \ttfamily{rank(-42) == 4}   & \ttfamily{select(4) == -42}   & \ttfamily{pred(-42) == -1337}   & \ttfamily{succ(-42) == -42}     \\
+$-1$                    & \ttfamily{false} & \ttfamily{rank(-1) == 5}    & \ttfamily{select(5) == null}  & \ttfamily{pred(-1) == -42}      & \ttfamily{succ(-1) == null}     \\ \bottomrule
+\end{tabular}
