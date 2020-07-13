@@ -14,17 +14,18 @@ import java.util.Set;
 class RankSelectPredecessorUpdateTest {
 
   static long seed = 42;
-  static int numKeys = 1_000_000;
-  static Random rand;
+  static int passes = 2;
+  static int numKeys = 100;
+  static Random rand = new Random(seed);
   static Set<Long> keySet;
   static List<Long> orderedKeyList;
 
   static RankSelectPredecessorUpdate generateAndInsertKeys(
       final RankSelectPredecessorUpdate testSet) {
-    rand = new Random(seed);
+    Random random = new Random(rand.nextLong());
     keySet = new HashSet<>();
     while (keySet.size() < numKeys) {
-      keySet.add(rand.nextLong());
+      keySet.add(random.nextLong());
     }
 
     // produce a list of keys in ascending order using the unsigned comparator
@@ -47,10 +48,10 @@ class RankSelectPredecessorUpdateTest {
   }
 
   static void generateKeys() {
-    rand = new Random(seed);
+    Random random = new Random(rand.nextLong());
     keySet = new HashSet<>();
     while (keySet.size() < numKeys) {
-      keySet.add(rand.nextLong());
+      keySet.add(random.nextLong());
     }
 
     // produce a list of keys in ascending order using the unsigned comparator
@@ -69,12 +70,21 @@ class RankSelectPredecessorUpdateTest {
   static void insertAndMemberSmallTest(final RankSelectPredecessorUpdate testSet) {
     testSet.insert(6917529027641081855L);
     testSet.insert(4611686018427387903L);
-    assert (!testSet.member(10));
-    assert (testSet.member(6917529027641081855L));
-    assert (testSet.member(4611686018427387903L));
-    assert (!testSet.member(Long.MAX_VALUE));
+    
+    assertFalse("Expected member(10) == false\n", testSet.member(10));
+    
+    assertTrue("Expected member(6917529027641081855L) == true\n",
+        testSet.member(6917529027641081855L));
+    assertTrue("Expected member(4611686018427387903L) == true\n",
+        testSet.member(4611686018427387903L));
+    
+    assertFalse("Expected member(" + Long.MAX_VALUE + ") == false\n",
+        testSet.member(Long.MAX_VALUE));
+
     testSet.insert(Long.MAX_VALUE);
-    assert (testSet.member(Long.MAX_VALUE));
+
+    assertTrue("Expected member(" + Long.MAX_VALUE + ") == true\n",
+        testSet.member(Long.MAX_VALUE));
   }
 
   static void smallCorrectnessTest(final RankSelectPredecessorUpdate testSet) {
@@ -180,133 +190,161 @@ class RankSelectPredecessorUpdateTest {
       final Long successor) {
 
     // Member
-    assertEquals("Expected member(" + key + ") == " + member + "\n", member, testSet.member(key));
+    assertEquals("Key " + key + " | Test 1/5: expected member(" + key + ") == " + member + "\n",
+        member, testSet.member(key));
 
     // Rank
-    assertEquals("Expected rank(" + key + ") == " + rank + "\n", rank, testSet.rank(key));
+    assertEquals("Key " + key + " | Test 2/5: expected rank(" + key + ") == " + rank + "\n",
+        rank, testSet.rank(key));
 
     // Select
-    assertEquals("Expected select(" + rank + ") == " + key + "\n", successor, testSet.select(rank));
+    assertEquals("Key " + key + " | Test 3/5: expected select(" + rank + ") == " + key + "\n",
+        successor, testSet.select(rank));
     
     // Predecessor
-    assertEquals("Expected predecessor(" + key + ") == " + predecessor + "\n",
-        predecessor, testSet.predecessor(key));
+    assertEquals("Key " + key + " | Test 4/5: expected predecessor(" + key + ") == " + predecessor
+        + "\n", predecessor, testSet.predecessor(key));
 
     // Successor
-    assertEquals("Expected successor(" + key + ") == " + successor + "\n",
-        successor, testSet.successor(key));
+    assertEquals("Key " + key + " | Test 5/5: expected successor(" + key + ") == " + successor
+        + "\n", successor, testSet.successor(key));
     
   }
 
   static void insertThenMemberTest(RankSelectPredecessorUpdate testSet) {
-    testSet = generateAndInsertKeys(testSet);
-    long i = 0;
-    while (orderedKeyList.size() > 0) {
-      i++;
-      final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-      assertTrue("Iteration " + i + "/" + numKeys, testSet.member(key));
+
+    for (int p = 0; p < passes; p++) {
+      testSet = generateAndInsertKeys(testSet);
+      long i = 0;
+      while (orderedKeyList.size() > 0) {
+        i++;
+        final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
+        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys,
+            testSet.member(key));
+      }
     }
   }
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
-    final long lowerBound = numKeys * (-1);
-    long i = 0;
-    for (long j = lowerBound; j <= numKeys; j++) {
-      i++;
 
-      assertFalse("Iteration " + i + "/" + (numKeys * 2) + " (before insertion)\n",
-          testSet.member(j));
-      testSet.insert(j);
-      assertTrue("Iteration " + i + "/" + (numKeys * 2) + " (after insertion)\n",
-          testSet.member(j));
+    for (int p = 0; p < passes; p++) {
+      final long lowerBound = numKeys * (-1);
+      long i = 0;
+      for (long j = lowerBound; j <= numKeys; j++) {
+        i++;
 
-      if (j % 1000 == 0) {
-        for (long k = j - 1000; k <= j; k++) {
-          testSet.delete(k);
+        assertFalse("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
+            + " (before insertion)\n", testSet.member(j));
+        testSet.insert(j);
+
+        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
+            + " (after insertion)\n", testSet.member(j));
+
+        if (j % 1000 == 0) {
+          for (long k = j - 1000; k <= j; k++) {
+            testSet.delete(k);
+          }
         }
       }
     }
   }
 
   static void insertThenDeleteRandomKeysTest(RankSelectPredecessorUpdate testSet) {
-    testSet = generateAndInsertKeys(testSet);
 
-    long i = 0;
+    for (int p = 0; p < passes; p++) {
 
-    // use generated keys to test the set
-    while (orderedKeyList.size() > 0) {
-      i++;
-      final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
+      testSet = generateAndInsertKeys(testSet);
 
-      assertTrue("Iteration " + i + "/" + numKeys + ": expected member(" + key
-          + ") == true\n", testSet.member(key));
+      long i = 0;
+  
+      // use generated keys to test the set
+      while (orderedKeyList.size() > 0) {
+        i++;
+        final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
+  
+        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
+            + ": expected member(" + key + ") == true\n", testSet.member(key));
+  
+        testSet.delete(key);
+  
+        assertFalse("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
+            + ": expected member(" + key + ") == false\n", testSet.member(key));
+      }
 
-      testSet.delete(key);
-
-      assertFalse("Iteration " + i + "/" + numKeys + ": expected member(" + key
-          + ") == false\n", testSet.member(key));
     }
+
   }
 
   static void growingRankTest(RankSelectPredecessorUpdate testSet) {
-    testSet = generateAndInsertKeys(testSet);
 
-    for (int i = 0; i < orderedKeyList.size(); i++) {
-      assertEquals("Iteration " + i + "/" + numKeys + ": expected rank of keys in sorted order"
-          + "to be monotone increasing function.\n", i, testSet.rank(orderedKeyList.get(i)));
+    for (int p = 0; p < passes; p++) {
+      testSet = generateAndInsertKeys(testSet);
+
+      for (int i = 0; i < orderedKeyList.size(); i++) {
+        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
+            + ": expected rank of keys in sorted order to be monotone increasing function.\n",
+            i, testSet.rank(orderedKeyList.get(i)));
+      }
     }
   }
 
   static void selectOfRankTest(RankSelectPredecessorUpdate testSet) {
 
-    testSet = generateAndInsertKeys(testSet);
+    for (int p = 0; p < passes; p++) {
+      testSet = generateAndInsertKeys(testSet);
 
-    long i = 0;
-    for (final Long key : keySet) {
-      i++;
-      assertEquals("Iteration " + i + "/" + numKeys + "\n", key, testSet.select(testSet.rank(key)));
+      long i = 0;
+      for (final Long key : keySet) {
+        i++;
+        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\n",
+            key, testSet.select(testSet.rank(key)));
+      }
     }
   }
 
   static void rankOfSelectTest(RankSelectPredecessorUpdate testSet) {
 
-    testSet = generateAndInsertKeys(testSet);
+    for (int p = 0; p < passes; p++) {
+      testSet = generateAndInsertKeys(testSet);
 
-    for (long i = 0; i < numKeys; i++) {
-      assertEquals("Iteration " + i + "/" + numKeys + "\n", i, testSet.rank(testSet.select(i)));
+      for (long i = 0; i < numKeys; i++) {
+        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\n",
+            i, testSet.rank(testSet.select(i)));
+      }
     }
   }
 
   static void sizeTest(final RankSelectPredecessorUpdate testSet) {
 
-    generateKeys();
+    for (int p = 0; p < passes; p++) {
 
-    long i = 0;
+      generateKeys();
 
-    // add all keys to the set
-    int keysInS = 0;
-    for (final Long key : keySet) {
-      i++;
-      testSet.insert(key);
-      keysInS++;
-      assertEquals("Iteration " + i + "/" + (numKeys * 2) + ": expected KeysInS == size()\n",
-          keysInS, testSet.size());
+      long i = 0;
+
+      // add all keys to the set
+      int keysInS = 0;
+      for (final Long key : keySet) {
+        i++;
+        testSet.insert(key);
+        keysInS++;
+        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
+            + ": expected KeysInS == size()\n", keysInS, testSet.size());
+      }
+
+      final ArrayList<Long> keyList = new ArrayList<>(keySet);
+
+
+      // use generated keys to test the set
+      while (keyList.size() > 0) {
+        i++;
+        final long key = keyList.remove(rand.nextInt(keyList.size()));
+        testSet.delete(key);
+        keysInS--;
+
+        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
+            + ": expected KeysInS == size()\n", keysInS, testSet.size());
+      }
     }
-
-    final ArrayList<Long> keyList = new ArrayList<>(keySet);
-
-
-    // use generated keys to test the set
-    while (keyList.size() > 0) {
-      i++;
-      final long key = keyList.remove(rand.nextInt(keyList.size()));
-      testSet.delete(key);
-      keysInS--;
-
-      assertEquals("Iteration " + i + "/" + (numKeys * 2) + ": expected KeysInS == size()\n",
-          keysInS, testSet.size());
-    }
-
   }
-
 }
