@@ -1,4 +1,6 @@
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.RankSelectPredecessorUpdate;
 import java.util.ArrayList;
@@ -198,42 +200,29 @@ class RankSelectPredecessorUpdateTest {
 
   static void insertThenMemberTest(RankSelectPredecessorUpdate testSet) {
     testSet = generateAndInsertKeys(testSet);
+    long i = 0;
     while (orderedKeyList.size() > 0) {
+      i++;
       final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-      final boolean failed = !testSet.member(key);
-      if (failed) {
-        System.err.println("insertThenMemberTest iteration "
-              + (numKeys - orderedKeyList.size()) + "/" + numKeys + "\n"
-              + key + " should be member, but it's not.");
-      }
-      assert (!failed);
+      assertTrue("Iteration " + i + "/" + numKeys, testSet.member(key));
     }
   }
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
     final long lowerBound = numKeys * (-1);
-    int iteration = 0;
-    for (long i = lowerBound; i <= numKeys; i++) {
-      iteration++;
-      boolean failed = false;
-      if (testSet.member(i)) {
-        failed = true;
-        System.err.println("insertThenDeleteRangeOfKeysTest iteration " + iteration + "/" + (2 * numKeys)
-            + "\nExpected " + i + " not to be member, but it was!");
-      }
-      testSet.insert(i);
+    long i = 0;
+    for (long j = lowerBound; j <= numKeys; j++) {
+      i++;
 
-      if (!testSet.member(i)) {
-        failed = true;
-        System.err.println("insertThenDeleteRangeOfKeysTest iteration " + iteration + "/" + (2 * numKeys)
-            + "\nExpected " + i + " to be member, but it wasn't!");
-      }
+      assertFalse("Iteration " + i + "/" + (numKeys * 2) + " (before insertion)\n",
+          testSet.member(j));
+      testSet.insert(j);
+      assertTrue("Iteration " + i + "/" + (numKeys * 2) + " (after insertion)\n",
+          testSet.member(j));
 
-      assert (!failed);
-
-      if (i % 1000 == 0) {
-        for (long j = i - 1000; j <= i; j++) {
-          testSet.delete(j);
+      if (j % 1000 == 0) {
+        for (long k = j - 1000; k <= j; k++) {
+          testSet.delete(k);
         }
       }
     }
@@ -247,25 +236,15 @@ class RankSelectPredecessorUpdateTest {
     // use generated keys to test the set
     while (orderedKeyList.size() > 0) {
       i++;
-      boolean failed = false;
-
       final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
 
-      if (!testSet.member(key)) {
-        failed = true;
-        System.err.println("insertThenDeleteRandomKeysTest iteration " + i + "/" + numKeys
-            + "\nExpected " + key + " to be member, but it wasn't!");
-      }
+      assertTrue("Iteration " + i + "/" + numKeys + ": expected member(" + key
+          + ") == true\n", testSet.member(key));
 
       testSet.delete(key);
 
-      if (testSet.member(key)) {
-        failed = true;
-        System.err.println("insertThenDeleteRandomKeysTest iteration " + i + "/" + numKeys
-            + "\nExpected " + key + " not to be member, but it was!");
-      }
-
-      assert (!failed);
+      assertFalse("Iteration " + i + "/" + numKeys + ": expected member(" + key
+          + ") == false\n", testSet.member(key));
     }
   }
 
@@ -273,16 +252,8 @@ class RankSelectPredecessorUpdateTest {
     testSet = generateAndInsertKeys(testSet);
 
     for (int i = 0; i < orderedKeyList.size(); i++) {
-      boolean failed = false;
-      final long res = testSet.rank(orderedKeyList.get(i));
-
-      if (i != res) {
-        failed = true;
-        System.err.println("selectOfRankTest iteration " + (i + 1) + "/" + numKeys
-            + "\nExpected rank of keys in sorted order"
-            + "to be monotone increasing function but it wasn't!");
-      }
-      assert (!failed);
+      assertEquals("Iteration " + i + "/" + numKeys + ": expected rank of keys in sorted order"
+          + "to be monotone increasing function.\n", i, testSet.rank(orderedKeyList.get(i)));
     }
   }
 
@@ -293,15 +264,7 @@ class RankSelectPredecessorUpdateTest {
     long i = 0;
     for (final Long key : keySet) {
       i++;
-      boolean failed = false;
-      final long res = testSet.select(testSet.rank(key));
-
-      if (key != res) {
-        failed = true;
-        System.err.println("selectOfRankTest iteration " + i + "/" + numKeys
-            + "\nExpected select(rank(" + key + ")) == " + key + " but it was " + res + "!");
-      }
-      assert (!failed);
+      assertEquals("Iteration " + i + "/" + numKeys + "\n", key, testSet.select(testSet.rank(key)));
     }
   }
 
@@ -310,16 +273,7 @@ class RankSelectPredecessorUpdateTest {
     testSet = generateAndInsertKeys(testSet);
 
     for (long i = 0; i < numKeys; i++) {
-      boolean failed = false;
-      final long res = testSet.rank(testSet.select(i));
-
-      if (i != res) {
-        failed = true;
-        System.err.println("rankOfSelectTest iteration " + i + "/" + numKeys
-            + "\nExpected rank(select(" + i + ")) == " + i + " but it was " + res + "!");
-      }
-      
-      assert (!failed);
+      assertEquals("Iteration " + i + "/" + numKeys + "\n", i, testSet.rank(testSet.select(i)));
     }
   }
 
@@ -327,31 +281,30 @@ class RankSelectPredecessorUpdateTest {
 
     generateKeys();
 
+    long i = 0;
+
     // add all keys to the set
     int keysInS = 0;
     for (final Long key : keySet) {
+      i++;
       testSet.insert(key);
       keysInS++;
-      assertEquals(keysInS, testSet.size());
+      assertEquals("Iteration " + i + "/" + (numKeys * 2) + ": expected KeysInS == size()\n",
+          keysInS, testSet.size());
     }
 
     final ArrayList<Long> keyList = new ArrayList<>(keySet);
 
-    long i = 1;
 
     // use generated keys to test the set
     while (keyList.size() > 0) {
+      i++;
       final long key = keyList.remove(rand.nextInt(keyList.size()));
       testSet.delete(key);
       keysInS--;
-      boolean failed = false;
-      if (keysInS != testSet.size()) {
-        failed = true;
-        System.err.println("sizeTest iteration " + i + "/" + numKeys
-            + "\nExpected " + keysInS + " in the set but there were " + testSet.size());
-      }
-      assert (!failed);
-      i++;
+
+      assertEquals("Iteration " + i + "/" + (numKeys * 2) + ": expected KeysInS == size()\n",
+          keysInS, testSet.size());
     }
 
   }
