@@ -231,10 +231,9 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long select(final long rank) {
-    if (rank > size() || rank <= 0) {
-      System.err.println("INVALID QUERY: " + rank); // invalid query
-      return -1;
+  public Long select(final long rank) {
+    if (rank < 0 || rank >= size()) {
+      return null;
     }
 
     return select(root, rank, 0).key.val;   
@@ -251,7 +250,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
         return select(curr.right, rank, keySoFar);
 
       case 3:
-        if (curr.left.leavesBelow + keySoFar < rank) {
+        if (curr.left.leavesBelow + keySoFar <= rank) {
           return select(curr.right, rank, keySoFar + curr.left.leavesBelow);
         } else {
           return select(curr.left, rank, keySoFar);
@@ -328,17 +327,22 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     t.insert(11);
     t.insert(12);
     t.insert(13);
-    t.insert(-1);
-    t.insert(8575393074845429264L);
+    // t.insert(-1);
+    // t.insert(8575393074845429264L);
 
-    long pred = 14;
-    long rank = 10;
-    long succ = 8575393074845429264L;
-    System.out.println("the predecessor of " + pred + " is " + t.predecessor(pred));
-    System.out.println("the successor of " + succ + " is " + t.successor(succ));
-    System.out.println("the rank of " + rank + " is " + t.rank(rank));
+    long pred = 12;
+    long rank = 13;
+    long succ = 12;
+    long select = 4;
+    long member = -1;
 
-    System.out.println();
+    // System.out.println("the predecessor of " + pred + " is " + t.predecessor(pred));
+    // System.out.println("the successor of " + succ + " is " + t.successor(succ));
+    // System.out.println("the rank of " + rank + " is " + t.rank(rank));
+    // System.out.println("the select of " + select + " is " + t.select(select));
+    System.out.println(member + " is member = " + t.member(member));
+
+    System.out.println(t.successor(member).equals(-1L));
 
     // System.out.println("The first key is " + t.select(1));
     // System.out.println("The second key is " + t.select(2));
