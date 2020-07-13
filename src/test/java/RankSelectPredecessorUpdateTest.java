@@ -13,16 +13,31 @@ import java.util.Set;
 
 class RankSelectPredecessorUpdateTest {
 
-  static long seed = 42;
-  static int passes = 2;
-  static int numKeys = 100;
-  static Random rand = new Random(seed);
+  static final long seed = 42;
+  static final int passes = 10;
+  static final int numKeys = 100_000;
+  
+  // static Random rand = new Random(seed);
+  static long[] seeds = null;
   static Set<Long> keySet;
   static List<Long> orderedKeyList;
 
-  static RankSelectPredecessorUpdate generateAndInsertKeys(
+  static void generateSeeds() {
+    if (seeds == null) {
+      Random rand = new Random(seed);
+      seeds = new long[passes];
+      for (int i = 0; i < passes; i++) {
+        seeds[i] = rand.nextLong();
+      }
+    }
+  }
+
+  static RankSelectPredecessorUpdate generateAndInsertKeys(int pass,
       final RankSelectPredecessorUpdate testSet) {
-    Random random = new Random(rand.nextLong());
+
+    testSet.empty(); // reset the data structure, just in case
+
+    Random random = new Random(seeds[pass]);
     keySet = new HashSet<>();
     while (keySet.size() < numKeys) {
       keySet.add(random.nextLong());
@@ -47,8 +62,8 @@ class RankSelectPredecessorUpdateTest {
     return testSet;
   }
 
-  static void generateKeys() {
-    Random random = new Random(rand.nextLong());
+  static void generateKeys(int pass) {
+    Random random = new Random(seeds[pass]);
     keySet = new HashSet<>();
     while (keySet.size() < numKeys) {
       keySet.add(random.nextLong());
@@ -213,8 +228,12 @@ class RankSelectPredecessorUpdateTest {
 
   static void insertThenMemberTest(RankSelectPredecessorUpdate testSet) {
 
+    generateSeeds();
+
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(testSet);
+      testSet = generateAndInsertKeys(p, testSet);
+      Random rand = new Random(seeds[p]);
+
       long i = 0;
       while (orderedKeyList.size() > 0) {
         i++;
@@ -226,6 +245,8 @@ class RankSelectPredecessorUpdateTest {
   }
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
+
+    generateSeeds();
 
     for (int p = 0; p < passes; p++) {
       final long lowerBound = numKeys * (-1);
@@ -245,15 +266,20 @@ class RankSelectPredecessorUpdateTest {
             testSet.delete(k);
           }
         }
+
       }
+
+      testSet.empty();
     }
   }
 
   static void insertThenDeleteRandomKeysTest(RankSelectPredecessorUpdate testSet) {
 
-    for (int p = 0; p < passes; p++) {
+    generateSeeds();
 
-      testSet = generateAndInsertKeys(testSet);
+    for (int p = 0; p < passes; p++) {
+      testSet = generateAndInsertKeys(p, testSet);
+      Random rand = new Random(seeds[p]);
 
       long i = 0;
   
@@ -277,8 +303,10 @@ class RankSelectPredecessorUpdateTest {
 
   static void growingRankTest(RankSelectPredecessorUpdate testSet) {
 
+    generateSeeds();
+
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(testSet);
+      testSet = generateAndInsertKeys(p, testSet);
 
       for (int i = 0; i < orderedKeyList.size(); i++) {
         assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
@@ -290,8 +318,10 @@ class RankSelectPredecessorUpdateTest {
 
   static void selectOfRankTest(RankSelectPredecessorUpdate testSet) {
 
+    generateSeeds();
+
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(testSet);
+      testSet = generateAndInsertKeys(p, testSet);
 
       long i = 0;
       for (final Long key : keySet) {
@@ -304,8 +334,10 @@ class RankSelectPredecessorUpdateTest {
 
   static void rankOfSelectTest(RankSelectPredecessorUpdate testSet) {
 
+    generateSeeds();
+
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(testSet);
+      testSet = generateAndInsertKeys(p, testSet);
 
       for (long i = 0; i < numKeys; i++) {
         assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\n",
@@ -316,10 +348,11 @@ class RankSelectPredecessorUpdateTest {
 
   static void sizeTest(final RankSelectPredecessorUpdate testSet) {
 
+    generateSeeds();
+
     for (int p = 0; p < passes; p++) {
 
-      generateKeys();
-
+      generateKeys(p);
       long i = 0;
 
       // add all keys to the set
@@ -334,8 +367,8 @@ class RankSelectPredecessorUpdateTest {
 
       final ArrayList<Long> keyList = new ArrayList<>(keySet);
 
-
       // use generated keys to test the set
+      Random rand = new Random(seeds[p]);
       while (keyList.size() > 0) {
         i++;
         final long key = keyList.remove(rand.nextInt(keyList.size()));
