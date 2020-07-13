@@ -5,55 +5,60 @@ import org.junit.jupiter.api.Test;
 
 class PatriciaTrieTest {
 
-  PatriciaTrie t;
+  PatriciaTrie set;
 
   @BeforeEach
   void setUp() {
-    t = new PatriciaTrie();
+    set = new PatriciaTrie();
   }
 
   @AfterEach
   void tearDown() {
-    t = null;
+    set = null;
   }
 
   @Test
   void insertAndMemberSmallTest() {
-    RankSelectPredecessorUpdateTest.insertAndMemberSmallTest(t);
+    RankSelectPredecessorUpdateTest.insertAndMemberSmallTest(set);
   }
 
   @Test
   void insertThenMemberTest() {
-    RankSelectPredecessorUpdateTest.insertThenMemberTest(t);
+    RankSelectPredecessorUpdateTest.insertThenMemberTest(set);
+  }
+
+  @Test
+  void smallCorrectnessTest() {
+    RankSelectPredecessorUpdateTest.smallCorrectnessTest(set);
   }
 
   @Test
   void insertThenDeleteRangeOfKeysTest() {
-    RankSelectPredecessorUpdateTest.insertThenDeleteRangeOfKeysTest(t);
+    RankSelectPredecessorUpdateTest.insertThenDeleteRangeOfKeysTest(set);
   }
 
   @Test
   void insertThenDeleteRandomKeysTest() {
-    RankSelectPredecessorUpdateTest.insertThenDeleteRandomKeysTest(t);
+    RankSelectPredecessorUpdateTest.insertThenDeleteRandomKeysTest(set);
   }
 
   @Test
   void growingRankTest() {
-    RankSelectPredecessorUpdateTest.growingRankTest(t);
+    RankSelectPredecessorUpdateTest.growingRankTest(set);
   }
 
   @Test
   void sizeTest() {
-    RankSelectPredecessorUpdateTest.sizeTest(t);
+    RankSelectPredecessorUpdateTest.sizeTest(set);
   }
 
   @Test
-  void rankSelectTest() {
-    RankSelectPredecessorUpdateTest.rankSelect(t);
+  void selectOfRankTest() {
+    RankSelectPredecessorUpdateTest.selectOfRankTest(set);
   }
 
   @Test
-  void selectRankTest() {
-    RankSelectPredecessorUpdateTest.selectRank(t);
+  void rankOfSelectTest() {
+    RankSelectPredecessorUpdateTest.rankOfSelectTest(set);
   }
 }
