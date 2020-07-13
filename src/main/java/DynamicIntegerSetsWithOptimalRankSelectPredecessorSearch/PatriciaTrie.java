@@ -153,9 +153,9 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long select(final long rank) {
+  public Long select(final long rank) {
     // TODO Auto-generated method stub
-    return 0;
+    return 0L;
   }
 
   public static void main(final String[] args) {

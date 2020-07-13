@@ -33,9 +33,9 @@ public class protoPatrascuOptimal implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long select(long rank) {
+  public Long select(long rank) {
     // TODO Auto-generated method stub
-    return 0;
+    return 0L;
   }
 
   @Override

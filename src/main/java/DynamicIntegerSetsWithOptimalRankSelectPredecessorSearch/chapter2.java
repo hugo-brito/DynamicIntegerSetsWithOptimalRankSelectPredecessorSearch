@@ -151,23 +151,13 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long predecessor(long x) {
-    return select(rank(x) - 1);
-  }
-
-  @Override
-  public long successor(long x) {
-    return select(rank(x));
-  }
-
-  @Override
   public long rank(long x) {  
     // return getINDEX(i);
     return -1;
   }
 
   @Override
-  public long select(long i) {
+  public Long select(long i) {
     return KEY[getINDEX(i)];
   }
 

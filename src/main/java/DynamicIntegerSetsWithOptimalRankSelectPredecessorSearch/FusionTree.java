@@ -42,27 +42,15 @@ public class FusionTree implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public long predecessor(long x) {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  @Override
-  public long successor(long x) {
-    // TODO Auto-generated method stub
-    return 0;
-  }
-
-  @Override
   public long rank(long x) {
     // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
-  public long select(long i) {
+  public Long select(long i) {
     // TODO Auto-generated method stub
-    return 0;
+    return 0L;
   }
 
   @Override
