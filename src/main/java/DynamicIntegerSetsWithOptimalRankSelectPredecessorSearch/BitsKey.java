@@ -51,7 +51,7 @@ public class BitsKey implements Comparable<BitsKey> {
       return 0;
     }
 
-    if (this.bit(MSB.msb64LookupDistributedInput(aux)) == 0) {
+    if (this.bit(Util.msb64LookupDistributedInput(aux)) == 0) {
       return -1;
     }
 

@@ -1,8 +1,10 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
 import java.util.Arrays;
-
-public class MSB {
+/**
+ * Utility class, containing many helful functions.
+ */
+public class Util {
 
   /** Finding the most and least significant bits in constant time.
    * We have an operation msb(x) that for an integer x computes the index of its most significant
@@ -286,6 +288,17 @@ public class MSB {
     } else {
       return aux;
     }
+  }
+
+  /**
+   * Sets bit at position {@code bit} to 1 and returns the key {@code key}
+   * @param key the key to have the bit altered
+   * @param bit the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static long setBit(long key, int bit) {
+    assert ((key >>> (63 - bit)) & 1) == 0; // checks if the bit at position bit is 0!
+    return key | (1L << (63 - bit));
   }
 
   public static void main(final String[] args) {
