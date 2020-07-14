@@ -77,7 +77,7 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
       } while (parent.bit < curr.bit);
 
       if (!curr.key.equals(insertionKey)) {
-        final int bit = MSB.msb64Obvious(curr.key.val ^ insertionKey.val);
+        final int bit = Util.msb64Obvious(curr.key.val ^ insertionKey.val);
         curr = root;
         do {
           parent = curr;
