@@ -1,7 +1,10 @@
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.BitsKey;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 class BitsKeyTest {
 
@@ -49,7 +52,7 @@ class BitsKeyTest {
       if (v != w) {
         assertFalse(new BitsKey(v).equals(new BitsKey(w)));
       } else {
-        assert (new BitsKey(v).equals(new BitsKey(w)));
+        assertTrue(new BitsKey(v).equals(new BitsKey(w)));
       }
     }
   }
@@ -57,8 +60,8 @@ class BitsKeyTest {
   @Test
   void bin() {
     for (long i = -10_000_000L; i <= 10_000_000L; i++) {
-      assertEquals(String.format("%64s", Long.toBinaryString(i)).replace(' ', '0'),
-      new BitsKey(i).bin());
+      assertEquals(String.format("%64s",
+          Long.toBinaryString(i)).replace(' ', '0'), new BitsKey(i).bin());
     }
   }
 }

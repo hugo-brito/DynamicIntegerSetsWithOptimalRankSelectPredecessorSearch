@@ -14,7 +14,7 @@ import java.util.Set;
 class RankSelectPredecessorUpdateTest {
 
   static final long seed = 42;
-  static final int passes = 10;
+  static final int passes = 20;
   static final int numKeys = 100_000;
   
   // static Random rand = new Random(seed);
@@ -26,8 +26,8 @@ class RankSelectPredecessorUpdateTest {
     if (seeds == null) {
       Random rand = new Random(seed);
       seeds = new long[passes];
-      for (int i = 0; i < passes; i++) {
-        seeds[i] = rand.nextLong();
+      for (int p = 0; p < passes; p++) {
+        seeds[p] = rand.nextLong();
       }
     }
   }
@@ -245,10 +245,9 @@ class RankSelectPredecessorUpdateTest {
   }
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
-
-    generateSeeds();
-
     for (int p = 0; p < passes; p++) {
+      testSet.empty(); // We reset the data structure as there could be keys from the last pass
+
       final long lowerBound = numKeys * (-1);
       long i = 0;
       for (long j = lowerBound; j <= numKeys; j++) {
@@ -266,10 +265,7 @@ class RankSelectPredecessorUpdateTest {
             testSet.delete(k);
           }
         }
-
       }
-
-      testSet.empty();
     }
   }
 
