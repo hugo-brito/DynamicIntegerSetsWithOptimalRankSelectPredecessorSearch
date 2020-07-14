@@ -4,7 +4,7 @@ public class ProtoPatrascuOptimal implements RankSelectPredecessorUpdate {
 
   static class DynamicFusionNode { // this will potentially be a node
 
-    // private static final int BITSWORD = 64; // how many bits are stored in a word
+    private static final int BITSWORD = 63; // how many bits are stored in a word
 
 
     private final int k; // capacity
@@ -16,7 +16,7 @@ public class ProtoPatrascuOptimal implements RankSelectPredecessorUpdate {
     private long INDEX;
     private final int ceil_log_2_k;
     
-    private final long bKEY; // a bit map containing the empty spots in KEY
+    private long bKEY; // a bit map containing the empty spots in KEY
   
     private int n; // the current number of elements in S
   
@@ -60,11 +60,19 @@ public class ProtoPatrascuOptimal implements RankSelectPredecessorUpdate {
       if (n == k) { // no empty spot
         return -1;
       }
-      return MSB.msb64LookupDistributedInput(bKEY);
+      return Util.msb64LookupDistributedInput(bKEY);
+    }
+
+    private void fillEmptySlot(int j) {
+      if (j > 0 && j < k) {
+        bKEY &= ~(1L << (BITSWORD - j));
+      } else {
+        throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
+      }
     }
 
     /**
-     * Gets the index of the key in KEY such that its rank is {@code rank}.
+     * Gets the index of the key x in KEY such that its rank is {@code rank}.
      * @param rank The rank of the key in the S
      * @return the index in KEY of rank {@code rank}
      */
@@ -80,9 +88,32 @@ public class ProtoPatrascuOptimal implements RankSelectPredecessorUpdate {
       return KEY[getINDEX(rank)];
     }
 
-    // public long rank(long x){
+    public void insert(long x) {
+      // 1. Find the rank of the key
+      long i = rank(x);
 
-    // }
+      // 2. Find a free slot
+      int j = firstEmptySlot();
+
+      // 3. Set KEY[j] = key
+      KEY[j] = x;
+
+      // 4. Set bKEY[j] = 0
+      fillEmptySlot(j);
+
+      // 5. update INDEX according to the new key
+      // this operation consists of moving all the indices of the keys that have rank smaller than
+      // the new key one position to the left to make room for the index of the new key
+      // After this is done, store the index in KEY in INDEX of the new key, respecting the rank of
+      // the keys.
+
+      // Need to implement method to move all indices one position to the front
+
+    }
+
+    public long rank(long x){
+      return 0;
+    }
 
   }
 
