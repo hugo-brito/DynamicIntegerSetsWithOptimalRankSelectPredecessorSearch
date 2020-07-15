@@ -104,10 +104,18 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     // int emptySpotAt = 2;
     // long res = clearAfterPos(-1, ceilLgK, emptySpotAt) | clearBeforePos(-1, ceilLgK, emptySpotAt);
     
-    // Util.print(Util.bin64(res));
+    // Util.print(Util.bin64(-2));
+
+    long bKey = -1;
+    int j = 15;
+    long res = bKey & ~(1L << (BITSWORD - j));
+    Util.print(res);
+    Util.print(Util.bin64(res));
 
     DynamicFusionNode n = new DynamicFusionNode();
     n.insert(10);
+    n.rank(12);
+    Util.print("rank(12) = " + n.rank(12));
     n.insert(12);
     n.insert(42);
     n.insert(-1337);
@@ -133,12 +141,12 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     if (n == k) { // no empty spot
       return -1;
     }
-    return Util.msb64LookupDistributedInput(bKey);
+    return Util.msb32Obvious(bKey);
   }
 
   private void fillEmptySlot(final int j) {
     if (j >= 0 && j < k) {
-      bKey &= ~(1L << (BITSWORD - j));
+      bKey &= ~(1L << (31 - j));
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
@@ -147,10 +155,10 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /**
    * Returns the index of the key x in KEY such that its rank is {@code i}.
    * 
-   * @param rank The rank of the key in the S
+   * @param i The rank of the key in the S
    * @return the index in KEY of rank {@code rank}
    */
-  private int indexOfithLastestKey(final long i) {
+  private int indexOfithLargestKey(final long i) {
     return (int) (index << (ceilLgK * i)) >>> (ceilLgK * (k - 1));
   }
 
@@ -160,7 +168,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
       return null;
     }
 
-    return key[indexOfithLastestKey(rank)];
+    return key[indexOfithLargestKey(rank)];
   }
 
   public long rank(final long x) {
@@ -174,28 +182,30 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
     int lowerBound = 0; // indices of the KEY array.
     int upperBound = n - 1;
-    int candidate = -1;
+    int middle = -1;
 
     while (lowerBound <= upperBound) {
-      final int middle = lowerBound + ((upperBound - lowerBound) / 2);
+      middle = lowerBound + ((upperBound - lowerBound) / 2);
 
       final int compare = Long.compareUnsigned(select(middle), x);
 
-      // if (select(middle) > x)
-      if (compare > 0) {
-        upperBound = middle - 1;
+      if (compare == 0) {
+        break;
 
-      } else if (compare == 0) {
-        candidate = middle;
+      } else if (compare > 0) {
         upperBound = middle - 1;
 
       } else {
         lowerBound = middle + 1;
-
       }
+
     }
 
-    return candidate;
+    if (Long.compareUnsigned(select(middle), x) > 0) {
+      return middle;
+    } else {
+      return middle + 1;
+    }
   }
 
   @Override
