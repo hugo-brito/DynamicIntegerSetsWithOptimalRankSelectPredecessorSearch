@@ -38,14 +38,14 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
    * zero-length string.
    */
   public NonRecursivePatriciaTrie() {
-    empty();
+    reset();
   }
 
   /**
    * Resets the data strucutre, removing all items.
    */
   @Override
-  public void empty() {
+  public void reset() {
     root = new PTrieNode<BitsKey>(null, 0);
     root.left = root;
     root.right = root;

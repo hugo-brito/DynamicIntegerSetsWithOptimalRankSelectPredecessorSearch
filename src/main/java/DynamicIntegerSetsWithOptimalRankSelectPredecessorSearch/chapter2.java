@@ -196,7 +196,7 @@ class Indexing64bit implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public void empty() {
+  public void reset() {
     // TODO Auto-generated method stub
 
   }

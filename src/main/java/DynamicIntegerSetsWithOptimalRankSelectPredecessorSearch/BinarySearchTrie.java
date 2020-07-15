@@ -27,14 +27,14 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
   private BSTrieNode<BitsKey> root;
 
   public BinarySearchTrie() {
-    empty();
+    reset();
   }
 
   /**
    * Resets the data strucutre, removing all items.
    */
   @Override
-  public void empty() {
+  public void reset() {
     root = null;
   }
 

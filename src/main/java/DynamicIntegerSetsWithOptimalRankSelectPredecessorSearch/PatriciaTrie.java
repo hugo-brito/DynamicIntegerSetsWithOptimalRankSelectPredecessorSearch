@@ -28,11 +28,11 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
   private long count;
 
   public PatriciaTrie() {
-    empty();
+    reset();
   }
 
   @Override
-  public void empty() {
+  public void reset() {
     root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
     count = 0;

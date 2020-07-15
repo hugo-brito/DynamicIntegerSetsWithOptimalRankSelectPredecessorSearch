@@ -35,7 +35,7 @@ class RankSelectPredecessorUpdateTest {
   static RankSelectPredecessorUpdate generateAndInsertKeys(int pass,
       final RankSelectPredecessorUpdate testSet) {
 
-    testSet.empty(); // reset the data structure, just in case
+    testSet.reset(); // reset the data structure, just in case
 
     Random random = new Random(seeds[pass]);
     keySet = new HashSet<>();
@@ -246,7 +246,7 @@ class RankSelectPredecessorUpdateTest {
 
   static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
     for (int p = 0; p < passes; p++) {
-      testSet.empty(); // We reset the data structure as there could be keys from the last pass
+      testSet.reset(); // We reset the data structure as there could be keys from the last pass
 
       final long lowerBound = numKeys * (-1);
       long i = 0;

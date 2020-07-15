@@ -68,5 +68,5 @@ public interface RankSelectPredecessorUpdate {
 
   /** Resets the data structure, removing all elements.
    */
-  void empty();
+  void reset();
 }
