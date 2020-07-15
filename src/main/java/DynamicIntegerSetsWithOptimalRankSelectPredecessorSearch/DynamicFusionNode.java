@@ -1,5 +1,7 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
+import java.nio.channels.SelectableChannel;
+
 public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** For this version of indexing, which comes described in page 5 of the paper,
   * we have selected w = 64, e. g. with word is made up of 64 bits. The reason
@@ -106,20 +108,22 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     
     // Util.print(Util.bin64(-2));
 
-    long bKey = -1;
-    int j = 15;
-    long res = bKey & ~(1L << (BITSWORD - j));
-    Util.print(res);
-    Util.print(Util.bin64(res));
+    // long bKey = -1;
+    // int j = 15;
+    // long res = bKey & ~(1L << (BITSWORD - j));
+    // Util.print(res);
+    // Util.print(Util.bin64(res));
 
     DynamicFusionNode n = new DynamicFusionNode();
     n.insert(10);
-    n.rank(12);
-    Util.print("rank(12) = " + n.rank(12));
     n.insert(12);
     n.insert(42);
     n.insert(-1337);
     n.insert(-42);
+    int rank = 10;
+    n.rank(rank);
+    Util.print(n.select(2));
+    Util.print("rank(" + rank + ") = " + n.rank(rank));
 
   }
 
@@ -180,32 +184,25 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
       return 0;
     }
 
-    int lowerBound = 0; // indices of the KEY array.
-    int upperBound = n - 1;
-    int middle = -1;
+    int lo = 0; // indices of the KEY array.
+    int hi = n - 1;
 
-    while (lowerBound <= upperBound) {
-      middle = lowerBound + ((upperBound - lowerBound) / 2);
+    while (lo <= hi) {
+      final int mid = lo + ((hi - lo) / 2);
 
-      final int compare = Long.compareUnsigned(select(middle), x);
+      final int compare = Long.compareUnsigned(x, select(mid));
 
-      if (compare == 0) {
-        break;
+      if (compare < 0) {
+        hi = mid - 1;
 
-      } else if (compare > 0) {
-        upperBound = middle - 1;
+      } else if (compare == 0) {
+        return mid;
 
       } else {
-        lowerBound = middle + 1;
+        lo = mid + 1;
       }
-
     }
-
-    if (Long.compareUnsigned(select(middle), x) > 0) {
-      return middle;
-    } else {
-      return middle + 1;
-    }
+    return lo;
   }
 
   @Override
