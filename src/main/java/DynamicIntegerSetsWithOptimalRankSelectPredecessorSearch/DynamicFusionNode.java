@@ -1,7 +1,5 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
-import java.nio.channels.SelectableChannel;
-
 public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** For this version of indexing, which comes described in page 5 of the paper,
   * we have selected w = 64, e. g. with word is made up of 64 bits. The reason
@@ -123,6 +121,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     int rank = 10;
     n.rank(rank);
     Util.print(n.select(2));
+    Util.print("index = " + n.indexOfithLargestKey(3));
     Util.print("rank(" + rank + ") = " + n.rank(rank));
 
   }
@@ -163,7 +162,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @return the index in KEY of rank {@code rank}
    */
   private int indexOfithLargestKey(final long i) {
-    return (int) (index << (ceilLgK * i)) >>> (ceilLgK * (k - 1));
+    return (int) ((index << (ceilLgK * i)) >>> (BITSWORD + 1 - ceilLgK));
   }
 
   @Override
