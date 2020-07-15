@@ -291,14 +291,42 @@ public class Util {
   }
 
   /**
+   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit.
+   * Digits are indexed 0..63.
+   * 
+   * @param val the long value to have the digit extracted from
+   * @param d the digit index
+   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   */
+  public static int bit(long val, int d) {
+    return (int) (val >> (63 - d)) & 1;
+  }
+
+  /**
+   * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit.
+   * Digits are indexed 0..63.
+   * 
+   * @param val the long value to have the digit extracted from
+   * @param d the digit index
+   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   */
+  public static int bit(int val, int d) {
+    return (val >> (31 - d)) & 1;
+  }
+
+  /**
    * Sets bit at position {@code bit} to 1 and returns the key {@code key}
    * @param key the key to have the bit altered
    * @param bit the bit to be set to 1
    * @return the key with the bit altered
    */
-  public static long setBit(long key, int bit) {
+  public static long setBit(final long key, final int bit) {
     assert ((key >>> (63 - bit)) & 1) == 0; // checks if the bit at position bit is 0!
     return key | (1L << (63 - bit));
+  }
+
+  public static void print(Object s) {
+    System.out.println(s);
   }
 
   public static void main(final String[] args) {
