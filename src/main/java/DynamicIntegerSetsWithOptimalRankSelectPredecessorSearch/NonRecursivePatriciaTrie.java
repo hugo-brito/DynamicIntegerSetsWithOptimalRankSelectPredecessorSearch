@@ -203,10 +203,9 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
     }
   }
 
-  /**
-   * Does the set contain the given key?
+  /** Does the set contain the given key?.
    * 
-   * @param key the key
+   * @param y the key
    * @return {@code true} if the set contains {@code key} and {@code false}
    *         otherwise
    * @throws IllegalArgumentException if {@code key} is {@code null}
@@ -302,6 +301,10 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
     return s.toString();
   }
 
+  /** Debugging.
+   * 
+   * @param args --
+   */
   public static void main(String[] args) {
     NonRecursivePatriciaTrie t = new NonRecursivePatriciaTrie();
     System.out.println(t.member(1));
