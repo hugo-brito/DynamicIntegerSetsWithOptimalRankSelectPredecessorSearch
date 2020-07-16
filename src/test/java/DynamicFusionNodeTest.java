@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class DynamicFusionNodeTest {
 
   static final long seed = 42;
-  static final int passes = 100;
+  static final int passes = 200_000;
   static final int numKeys = 16;
 
   static long[] seeds = null;
@@ -110,22 +110,21 @@ class DynamicFusionNodeTest {
     generateSeeds();
 
     for (int p = 0; p < passes; p++) {
+      setUp();
+
       set = generateAndInsertKeys(p, set);
       Random rand = new Random(seeds[p]);
-
-      if (p == 23) {
-        System.err.println(orderedKeyList.toString());
-      }
 
       long i = 0;
       while (orderedKeyList.size() > 0) {
         i++;
         final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys 
-            + "\nExpected " + key + " to be member.", set.member(key));
+        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
+            + " | Seed = " + seeds[p] + "\nExpected " + key + " to be member.", set.member(key));
       }
+
+      tearDown();
     }
   }
-
 }
 
