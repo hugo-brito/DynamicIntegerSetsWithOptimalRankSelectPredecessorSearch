@@ -5,24 +5,27 @@ public class BitsKey implements Comparable<BitsKey> {
    */
 
   public final long val;
-  
-  public static final int bitsword = 64;
 
   public BitsKey(final long val) {
     this.val = val;
   }
 
-  /**
-   * Helper function. Given a 64-bit word, val, return the value (0 or 1) of the
-   * d-th digit. Digits are indexed 0..63.
+  /** Helper function.
+   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit.
+   * Digits are indexed 0..63.
    * 
    * @param d the digit index
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
   public int bit(final int d) {
-    return (int) (val >>> (bitsword - d - 1)) & 1;
+    return (int) (val >>> (Long.SIZE - 1 - d)) & 1;
   }
 
+  /** Naive way of calculating compareTo.
+   * 
+   * @param that the other key
+   * @return 0 if they are the same, -1 if {@code that} is larger, 1 if {@code this} is larger
+   */
   public int compareToNaive(final BitsKey that) {
     if (this.equals(that)) {
       return 0;
@@ -51,7 +54,7 @@ public class BitsKey implements Comparable<BitsKey> {
       return 0;
     }
 
-    if (this.bit(Util.msb64LookupDistributedInput(aux)) == 0) {
+    if (this.bit(Util.msb(aux)) == 0) {
       return -1;
     }
 
@@ -79,8 +82,8 @@ public class BitsKey implements Comparable<BitsKey> {
    * @return
    */
   public String bin() {
-    final StringBuilder res = new StringBuilder(bitsword);
-    for (int i = 0; i < bitsword; i++) {
+    final StringBuilder res = new StringBuilder(Long.SIZE);
+    for (int i = 0; i < Long.SIZE; i++) {
       res.append(bit(i));
     }
     return res.toString();

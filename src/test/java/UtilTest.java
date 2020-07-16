@@ -13,77 +13,66 @@ class UtilTest {
   @Test
   void msb32Obvious() {
     for (int i = intLowerBound; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32Obvious(i));
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
-    assertEquals(-1, Util.msb32Obvious(0));
+    assertEquals(-1, Util.msbObvious(0));
     for (int i = 1; i <= intUpperBound; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32Obvious(i));
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
   }
 
   @Test
   void msb64Obvious() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msb64Obvious(i));
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
-    assertEquals(-1, Util.msb64Obvious(0));
+    assertEquals(-1, Util.msbObvious(0));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msb64Obvious(i));
-    }
-  }
-
-  @Test
-  void msb32double() {
-    for (int i = intLowerBound; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32double(i));
-    }
-    assertEquals(-1, Util.msb32double(0));
-    for (int i = 1; i <= intUpperBound; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32double(i));
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
   }
 
   @Test
   void msb64LookupDistributedOutput() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msb64LookupDistributedOutput(i));
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
     }
-    // assertEquals(-1, Util.msb64LookupDistributedOutput(0));
+    assertEquals(-1, Util.msbLookupDistributedOutput(0L));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msb64LookupDistributedOutput(i));
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
     }
   }
 
   @Test
   void msb64LookupDistributedInput() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msb64LookupDistributedInput(i));
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
     }
-    assertEquals(-1, Util.msb64LookupDistributedInput(0));
+    assertEquals(-1, Util.msbLookupDistributedInput(0L));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msb64LookupDistributedInput(i));
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
     }
   }
 
   @Test
   void msb32LookupDistributedOutput() {
     for (int i = Integer.MIN_VALUE; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32LookupDistributedOutput(i));
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
     }
-    assertEquals(-1, Util.msb32LookupDistributedOutput(0));
+    assertEquals(-1, Util.msbLookupDistributedOutput(0));
     for (int i = 1; i <= Integer.MAX_VALUE - 1; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32LookupDistributedOutput(i));
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
     }
   }
 
   @Test
   void msb32LookupDistributedInput() {
     for (int i = Integer.MIN_VALUE; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32LookupDistributedInput(i));
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
     }
-    assertEquals(-1, Util.msb32LookupDistributedInput(0));
+    assertEquals(-1, Util.msbLookupDistributedInput(0));
     for (int i = 1; i <= Integer.MAX_VALUE - 1; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msb32LookupDistributedInput(i));
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
     }
   }
 

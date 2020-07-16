@@ -33,17 +33,12 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
 
   /**
    * Initializes an empty PATRICIA-based set.
-   */
-  /* The constructor creates a head (sentinel) node that contains a
-   * zero-length string.
+   * The constructor creates a head (sentinel) node that contains a zero-length string.
    */
   public NonRecursivePatriciaTrie() {
     reset();
   }
 
-  /**
-   * Resets the data strucutre, removing all items.
-   */
   @Override
   public void reset() {
     root = new PTrieNode<BitsKey>(null, 0);
@@ -77,7 +72,7 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
       } while (parent.bit < curr.bit);
 
       if (!curr.key.equals(insertionKey)) {
-        final int bit = Util.msb64Obvious(curr.key.val ^ insertionKey.val);
+        final int bit = Util.msb(curr.key.val ^ insertionKey.val);
         curr = root;
         do {
           parent = curr;
@@ -108,13 +103,6 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
     }
   }
 
-  /**
-   * Removes the key from the set if the key is present.
-   * 
-   * @param x the key
-   * @throws IllegalArgumentException if {@code key} is {@code null}
-   * @throws IllegalArgumentException if {@code key} is the empty string.
-   */
   @Override
   public void delete(final long x) {
 
@@ -203,14 +191,6 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
     }
   }
 
-  /** Does the set contain the given key?.
-   * 
-   * @param y the key
-   * @return {@code true} if the set contains {@code key} and {@code false}
-   *         otherwise
-   * @throws IllegalArgumentException if {@code key} is {@code null}
-   * @throws IllegalArgumentException if {@code key} is the empty string.
-   */
   @Override
   public boolean member(final long y) {
     // if (key == null) {
@@ -248,11 +228,6 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
     return 0L;
   }
 
-  /**
-   * Returns the number of keys in the set.
-   * 
-   * @return the number of keys in the set
-   */
   @Override
   public long size() {
     return count;
@@ -287,8 +262,7 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
   /**
    * Returns a string representation of this set.
    * 
-   * @return a string representation of this set, with the keys separated by
-   *         single spaces
+   * @return a string representation of this set, with the keys separated by single spaces
    */
   public String toString() {
     final StringBuilder s = new StringBuilder();

@@ -28,25 +28,22 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
   private long count;
 
   public PatriciaTrie() {
-    reset();
-  }
-
-  @Override
-  public void reset() {
     root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
     count = 0;
   }
 
-  /** Returns the number of keys present in the set.
-   * 
-   */
+  @Override
+  public void reset() {
+    root.bit = -1;
+    root.left = root;
+    count = 0;
+  }
+
   @Override
   public long size() {
     return count;
   }
-
-
 
   @Override
   public void insert(final long x) {

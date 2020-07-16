@@ -30,17 +30,11 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     reset();
   }
 
-  /**
-   * Resets the data strucutre, removing all items.
-   */
   @Override
   public void reset() {
     root = null;
   }
 
-  /** Returns the number of keys present in the set.
-   * 
-   */
   @Override
   public long size() {
     if (root != null) {
@@ -202,10 +196,6 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
   }
 
-  /** Returns the number of keys in the set up that are strictly smaller than x.
-   * @param x the key to be ranked
-   * @return the number of keys that are strictly smaller than x
-   */
   @Override
   public long rank(final long x) {
     return rank(root, new BitsKey(x), 0);
