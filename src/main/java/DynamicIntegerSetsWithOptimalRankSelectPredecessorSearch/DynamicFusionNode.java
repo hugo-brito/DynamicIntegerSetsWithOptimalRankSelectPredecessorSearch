@@ -121,7 +121,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     int rank = 10;
     n.rank(rank);
     Util.print(n.select(2));
-    Util.print("index = " + n.indexOfithLargestKey(3));
+    Util.print("index = " + n.getIndex(3));
     Util.print("rank(" + rank + ") = " + n.rank(rank));
 
   }
@@ -159,19 +159,45 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * Returns the index of the key x in KEY such that its rank is {@code i}.
    * 
    * @param i The rank of the key in the S
-   * @return the index in KEY of rank {@code rank}
+   * @return the index in KEY of rank {@code i}
    */
-  private int indexOfithLargestKey(final long i) {
-    return (int) ((index << (ceilLgK * i)) >>> (BITSWORD + 1 - ceilLgK));
+  private int getIndex(final long i) {
+    return (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
+  }
+
+  /** Sets the index of the key.
+   * 
+   * @param rank the rank of the key that has been put in KEY
+   * @param slot the real position of the key in KEY
+   */
+  public void setIndex(final int rank, final int slot) {
+    assert (rank >= 0 && rank < k && slot >= 0 && slot < k);
+
+    long lo = (index << (rank * ceilLgK)) >>> ((rank + 1) * ceilLgK);
+
+    // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
+    long mid = Integer.toUnsignedLong(slot) << ((k - 1 - rank) * ceilLgK);
+
+    Util.print(Util.bin64(index) + " (before operation)");
+    if (rank > 0) {
+      long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+      Util.print(Util.bin64(hi) + " (hi)");
+      index = hi | mid | lo;
+    } else {
+      index = mid | lo;
+    }
+    Util.print(Util.bin64(mid) + " (mid) " + slot);
+    Util.print(Util.bin64(lo) + " (lo)");
+    Util.print(Util.bin64(index) + " (res)\n");
   }
 
   @Override
   public Long select(final long rank) {
-    if (rank < 0 || rank > n) {
+    if (rank < 0 || rank >= size()) {
       return null;
     }
 
-    return key[indexOfithLargestKey(rank)];
+    return key[getIndex(rank)];
   }
 
   public long rank(final long x) {
@@ -221,7 +247,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     }
 
     // 1. Find the rank of the key
-    final long i = rank(x);
+    final int i = (int) rank(x);
 
     // 2. Find a free slot
     final int j = firstEmptySlot();
@@ -233,18 +259,13 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     fillEmptySlot(j);
 
     // 5. update INDEX according to the new key
-    // this operation consists of moving all the indices of the keys that have rank smaller than
-    // the new key one position to the left to make room for the index of the new key
+    // this operation consists of moving all the indices of the keys that have rank larger than
+    // the new key one position to the right to make room for the index of the new key
     // After this is done, store the index in KEY in INDEX of the new key, respecting the rank of
     // the keys.
 
-    long hi = (index >>> ((BITSWORD + 1) - (i * ceilLgK))) << ((BITSWORD + 1) - (i * ceilLgK));
-    long mid = j << (i * ceilLgK);
-    long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
+    setIndex(i, j);
 
-    index = hi | mid | lo;
-
-    // Need to implement method to move all indices one position to the front
     n++;
 
   }
