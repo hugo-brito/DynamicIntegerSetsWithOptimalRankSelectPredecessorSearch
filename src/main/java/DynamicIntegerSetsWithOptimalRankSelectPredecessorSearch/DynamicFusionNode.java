@@ -1,5 +1,9 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** For this version of indexing, which comes described in page 5 of the paper,
   * we have selected w = 64, e. g. with word is made up of 64 bits. The reason
@@ -11,7 +15,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   * which is very small. Let w = be 64, then w^(1/4) = 2,8..... This is a set
   * of very small size. So we drift away from this limit to a focus on the part
   * where they say "We assume that our set S is stored in an unordered array KEY
-  * of k words plus a single word INDEX such that KEY[INDEX_i ceilLogK] is the
+  * of k words plus a single word INDEX such that KEY[INDEX_i ceilLgK] is the
   * key of rank i in S.". So what happens is that we max out the capacity for
   * storing keys in INDEX given the premise that INDEX shall not exceed 64 bits
   * in size. We calculate k such that k*ceil(log k) = 64, and we know that
@@ -20,64 +24,228 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   * <p>To help us storing the integers in the set, we use:
   * - 1 array of words KEYS, which in this particular case is a long[]
   * - An additional "array" which we called KEY with k bits, where each "cell"
-  * takes ceil(log k) bits. The paper tells us that all of this information needs
+  * takes ceil(lg k) bits. The paper tells us that all of this information needs
   * to fit in one word, e. g. 64 bits. So, doing the math we have 64 = k * ceil(log k)
   * k = 16 (https://www.wolframalpha.com/input/?i=k+ceil%28log_2%28k%29%29+%3D+64)
   * This means that our set will have capaticity for 16 elements.</p>
   * 
-  * <p>An important note is that each "slot" in INDEX will have ceil(log k) size and
+  * <p>An important note is that each "slot" in INDEX will have ceil(lg k) size and
   * k slots in total. This means that with this specific word size, we will have
   * 16 slots of 4 bits each.</p>
   */
 
-
-  // this will potentially be a node
-
-  private static final int BITSWORD = 63; // how many bits are stored in a word
-
-
-  private final int k;
-  // capacity
+  /**
+  * We will ourselves use k = w^(1/4) The exact value makes no theoretical
+  * difference: We choose k = 16, such that we can fill a whole word to index all
+  * the keys in KEY.
+  */
+  private final int k = 16; // capacity
 
   /* We will store our key set S in an unsorted array KEY with room for k w-bit integers */
-  private final long[] key;
+  private final long[] key = new long[k];
 
   /* We will also maintain an array INDEX of ceil(lg k)-bit indices */
   private long index;
-  private final int ceilLgK;
+  private final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
 
   private int bKey;
   // a bit map containing the empty spots in KEY
-  // we only use the first k bits
+  // we only consider the first k bits
 
   private int n;
   // the current number of elements in S
 
   public DynamicFusionNode() {
-    /*
-     * We will ourselves use k = w^(1/4) The exact value makes no theoretical
-     * difference: We choose k = 16, such that we can fill a whole word to index all
-     * the
-     */
-    k = 16;
-    key = new long[k];
-
-    // We use the logarithm rules to change the base from 10 to 2. We make
-    // ceil(log2_k) to depend on k
-    ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
 
     // We start with no items.
     index = 0;
     n = 0;
-
     // bitmap containing the empty spots. 1 if it is empty, 0 if it is taken.
     bKey = -1; // because -1 in java binary is 1111..11
+  }
 
-    System.out.println("ceil(lg k) = " + ceilLgK); // we get 4 when w = 64
-    System.out.println(ceilLgK * k);
+  /** Sets S = S union {x}.
+   * @param x the integer to insert
+   */
+  public void insert(final long x) {
 
-    System.out.println("(" + Long.toBinaryString(bKey).length() + ") " + Long.toBinaryString(bKey));
+    if (n > 0 && member(x)) {
+      return;
+    }
 
+    if (n == k) {
+      throw new RuntimeException("Cannot insert. Node is full.");
+    }
+
+    final int i = (int) rank(x);
+    final int j = firstEmptySlot();
+    key[j] = x;
+    fillSlot(j);
+    setIndex(i, j);
+    n++;
+  }
+
+  @Override
+  public void delete(final long x) {
+    if (!member(x)) {
+      return;
+    }
+
+    final int i = (int) rank(x);
+    vacantSlot(i);
+    deleteAtIndex(i); // need to make this consistent
+    n--;
+  }
+
+  @Override
+  public boolean member(final long x) {
+    final Long res = successor(x);
+    return res != null && res == x;
+  }
+
+  @Override
+  public long rank(final long x) {
+    return binaryRank(x);
+  }
+
+  @Override
+  public Long select(final long rank) {
+    if (rank < 0 || rank >= size()) {
+      return null;
+    }
+
+    return key[getIndex(rank)];
+  }
+
+  @Override
+  public long size() {
+    return n;
+  }
+
+  @Override
+  public void reset() {
+    n = 0;
+    bKey = -1;
+  }
+
+  /** Returns the index of the first empty slot in KEY.
+   * 
+   * @return the index in KEY of the first empty slot.
+   */
+  private int firstEmptySlot() {
+    if (n == k) { // no empty spot
+      return -1;
+    }
+    return Util.msb(bKey);
+  }
+
+  /** Sets position {@code j} in KEY to not empty.
+   * @param j the position to be made unavailable
+   */
+  private void fillSlot(final int j) {
+    if (j >= 0 && j < k) {
+      bKey &= ~(1L << (31 - j));
+    } else {
+      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
+    }
+  }
+
+  /** Sets position {@code j} in KEY to empty.
+   * @param j the position to be made available
+   */
+  private void vacantSlot(final int j) {
+    if (j >= 0 && j < k) {
+      bKey |= 1L << (31 - j);
+    } else {
+      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
+    }
+  }
+
+  /** Helper method to retrieve the position in KEY of a key, given its rank {@code i}.
+   * 
+   * @param i The rank of the key in the S
+   * @return the index in KEY of the key with rank {@code i}
+   */
+  private int getIndex(final long i) {
+    return (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
+  }
+
+  /** Helper method to maintain the correspondence between the rank of the keys and their real
+   * position in KEY.
+   * The methods receives the rank {@code rank} of a key and removes such position in Index, keeping
+   * all other indices ordered.
+   * @param rank the rank of the key that has been put in KEY
+   */
+  public void deleteAtIndex(final int rank) {
+    if (!(rank >= 0 && rank < k)) {
+      throw new IndexOutOfBoundsException("Invalid rank");
+    }
+
+    long lo = (index << (rank * ceilLgK)) >>> (rank * ceilLgK);
+
+    if (rank > 0) {
+      long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+      index = hi | lo;
+    } else {
+      index = lo;
+    }
+  }
+
+  /** Helper method to maintain the correspondence between the rank of the keys and their real
+   * position in KEY.
+   * The methods receives the rank {@code rank} of a key and the position where such key is stored
+   * in KEY {@code slot} and saves that information in Index.
+   * @param rank the rank of the key that has been put in KEY
+   * @param slot the real position of the key in KEY
+   */
+  public void setIndex(final int rank, final int slot) {
+    if (!(rank >= 0 && rank < k && slot >= 0 && slot < k)) {
+      throw new IndexOutOfBoundsException("Invalid rank or slot");
+    }
+
+    long lo = (index << (rank * ceilLgK)) >>> ((rank + 1) * ceilLgK);
+
+    // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
+    long mid = Integer.toUnsignedLong(slot) << ((k - 1 - rank) * ceilLgK);
+
+    if (rank > 0) {
+      long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+      index = hi | mid | lo;
+    } else {
+      index = mid | lo;
+    }
+  }
+
+  /** Helper method than provides the rank of a key {@code x} resorting to binary search.
+   * For this reason, it takes O(lg N) time.
+   * 
+   * @param x the key to be used to compute the rank
+   * @return the rank of {@code x} in S
+   */
+  private int binaryRank(final long x) {
+    if (n == 0) {
+      return 0;
+    }
+
+    int lo = 0; // indices of the KEY array.
+    int hi = n - 1;
+
+    while (lo <= hi) {
+      final int mid = lo + ((hi - lo) / 2);
+
+      final int compare = Long.compareUnsigned(x, select(mid));
+
+      if (compare < 0) {
+        hi = mid - 1;
+
+      } else if (compare == 0) {
+        return mid;
+
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return lo;
   }
 
   /** Debugging.
@@ -113,178 +281,42 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     // Util.print(Util.bin64(res));
 
     DynamicFusionNode n = new DynamicFusionNode();
-    n.insert(10);
-    n.insert(12);
-    n.insert(42);
-    n.insert(-1337);
-    n.insert(-42);
-    int rank = 10;
-    n.rank(rank);
-    Util.print(n.select(2));
-    Util.print("index = " + n.getIndex(3));
-    Util.print("rank(" + rank + ") = " + n.rank(rank));
+    // n.insert(10);
+    // n.insert(12);
+    // n.insert(42);
+    // n.insert(-1337);
+    // n.insert(-42);
+    // int rank = 10;
+    // n.rank(rank);
+    // Util.print(n.select(2));
+    // Util.print("index = " + n.getIndex(3));
+    // Util.print("rank(" + rank + ") = " + n.rank(rank));
 
-  }
+    // n.fillSlot(2);
 
-  public static long clearAfterPos(long target, int ceilLgK, int pos) {
+    // Util.print(Util.bin(n.bKey));
 
-    return (target >>> ((BITSWORD + 1) - (pos * ceilLgK))) << ((BITSWORD + 1) - (pos * ceilLgK));
-  }
+    // n.fillSlot(5);
 
-  public static long clearBeforePos(long target, int ceilLgK, int pos) {
-    return (target << (pos * ceilLgK)) >>> ((pos + 1) * ceilLgK);
-  }
+    // n.vacantSlot(2);
 
-  /**
-   * Returns the index of the first empty slot in KEY.
-   * 
-   * @return the index in KEY of the first empty slot.
-   */
-  private int firstEmptySlot() {
-    if (n == k) { // no empty spot
-      return -1;
-    }
-    return Util.msb32Obvious(bKey);
-  }
+    // Util.print(Util.bin(n.bKey));
 
-  private void fillEmptySlot(final int j) {
-    if (j >= 0 && j < k) {
-      bKey &= ~(1L << (31 - j));
-    } else {
-      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
-    }
-  }
-
-  /**
-   * Returns the index of the key x in KEY such that its rank is {@code i}.
-   * 
-   * @param i The rank of the key in the S
-   * @return the index in KEY of rank {@code i}
-   */
-  private int getIndex(final long i) {
-    return (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
-  }
-
-  /** Sets the index of the key.
-   * 
-   * @param rank the rank of the key that has been put in KEY
-   * @param slot the real position of the key in KEY
-   */
-  public void setIndex(final int rank, final int slot) {
-    assert (rank >= 0 && rank < k && slot >= 0 && slot < k);
-
-    long lo = (index << (rank * ceilLgK)) >>> ((rank + 1) * ceilLgK);
-
-    // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
-    long mid = Integer.toUnsignedLong(slot) << ((k - 1 - rank) * ceilLgK);
-
-    Util.print(Util.bin64(index) + " (before operation)");
-    if (rank > 0) {
-      long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
-      Util.print(Util.bin64(hi) + " (hi)");
-      index = hi | mid | lo;
-    } else {
-      index = mid | lo;
-    }
-    Util.print(Util.bin64(mid) + " (mid) " + slot);
-    Util.print(Util.bin64(lo) + " (lo)");
-    Util.print(Util.bin64(index) + " (res)\n");
-  }
-
-  @Override
-  public Long select(final long rank) {
-    if (rank < 0 || rank >= size()) {
-      return null;
-    }
-
-    return key[getIndex(rank)];
-  }
-
-  public long rank(final long x) {
-    return binaryRank(x);
-  }
-
-  private int binaryRank(final long x) {
-    if (n == 0) {
-      return 0;
-    }
-
-    int lo = 0; // indices of the KEY array.
-    int hi = n - 1;
-
-    while (lo <= hi) {
-      final int mid = lo + ((hi - lo) / 2);
-
-      final int compare = Long.compareUnsigned(x, select(mid));
-
-      if (compare < 0) {
-        hi = mid - 1;
-
-      } else if (compare == 0) {
-        return mid;
-
-      } else {
-        lo = mid + 1;
+    List<Long> keys = Arrays.asList(315695500683237855L, 1035960279184277455L, 2823061837329097166L,
+        3528065820668932973L, 3647185084975378507L, 4318001443518939058L, 4720838414396291942L,
+        5360841483952788578L, 5804993710225459844L, 5977902347604451452L, 6081248335864524375L,
+        6768627067374757278L, -6075542556847207016L, -4578084468500077427L, -4268025916040144627L,
+        -2352310100662929756L);
+    
+    int i = 0;
+    for (Long key : keys) {
+      i++;
+      n.insert(key);
+      System.out.println("keys in the set = " + i);
+      if (!n.member(key)) {
+        System.out.println("problem with key " + key);
       }
     }
-    return lo;
-  }
 
-  @Override
-  public boolean member(final long x) {
-    final Long res = successor(x);
-    return res != null && res == x;
-  }
-
-  public void insert(final long x) {
-
-    if (n > 0 && member(x)) {
-      return;
-    }
-
-    if (n == k) {
-      throw new RuntimeException("Cannot insert. Node is full.");
-    }
-
-    // 1. Find the rank of the key
-    final int i = (int) rank(x);
-
-    // 2. Find a free slot
-    final int j = firstEmptySlot();
-
-    // 3. Set KEY[j] = key
-    key[j] = x;
-
-    // 4. Set bKEY[j] = 0
-    fillEmptySlot(j);
-
-    // 5. update INDEX according to the new key
-    // this operation consists of moving all the indices of the keys that have rank larger than
-    // the new key one position to the right to make room for the index of the new key
-    // After this is done, store the index in KEY in INDEX of the new key, respecting the rank of
-    // the keys.
-
-    setIndex(i, j);
-
-    n++;
-
-  }
-
-  @Override
-  public void delete(final long x) {
-    if (!member(x)) {
-      return;
-    }
-  }
-
-  @Override
-  public long size() {
-    return n;
-  }
-
-  @Override
-  public void reset() {
-    n = 0;
-    bKey = -1;
   }
 }
