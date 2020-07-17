@@ -1,8 +1,10 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** For this version of indexing, which comes described in page 5 of the paper,
@@ -99,6 +101,9 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
   @Override
   public boolean member(final long x) {
+    if (isEmpty()) {
+      return false;
+    }
     final Long res = successor(x);
     return res != null && res == x;
   }
@@ -303,21 +308,41 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
     // Util.print(Util.bin(n.bKey));
 
-    List<Long> keys = Arrays.asList(315695500683237855L, 1035960279184277455L, 2823061837329097166L,
-        3528065820668932973L, 3647185084975378507L, 4318001443518939058L, 4720838414396291942L,
-        5360841483952788578L, 5804993710225459844L, 5977902347604451452L, 6081248335864524375L,
-        6768627067374757278L, -6075542556847207016L, -4578084468500077427L, -4268025916040144627L,
-        -2352310100662929756L);
+
+    Random rand = new Random(-1488139573943419793L);
+
+    List<Long> keys = new ArrayList<>();
+
+    for (int i = 0; i < 16; i++) {
+      keys.add(rand.nextLong());
+    }
+
+
     
     int i = 0;
     for (Long key : keys) {
       i++;
+      if (key == -443923248454636511L) {
+        System.err.println("");
+      }
       n.insert(key);
       System.out.println("keys in the set = " + i);
       if (!n.member(key)) {
         System.out.println("problem with key " + key);
       }
     }
+
+    if (n.member(-443923248454636511L)) {
+      System.err.println("Can't find " + -443923248454636511L);
+    }
+
+    // for (Long key : keys) {
+    //   i--;
+    //   n.delete(key);
+    //   if (n.size() != i) {
+    //     System.err.println("Problem! " + key + " " + i);
+    //   }
+    // }
 
   }
 }
