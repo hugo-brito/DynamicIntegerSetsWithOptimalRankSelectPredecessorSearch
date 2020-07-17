@@ -138,7 +138,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * 
    * @return the index in KEY of the first empty slot.
    */
-  private int firstEmptySlot() {
+  public int firstEmptySlot() {
     if (n == k) { // no empty spot
       return -1;
     }
@@ -148,7 +148,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** Sets position {@code j} in KEY to not empty.
    * @param j the position to be made unavailable
    */
-  private void fillSlot(final int j) {
+  public void fillSlot(final int j) {
     if (j >= 0 && j < k) {
       bKey &= ~(1L << (31 - j));
     } else {
@@ -159,7 +159,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** Sets position {@code j} in KEY to empty.
    * @param j the position to be made available
    */
-  private void vacantSlot(final int j) {
+  public void vacantSlot(final int j) {
     if (j >= 0 && j < k) {
       bKey |= 1L << (31 - j);
     } else {
@@ -172,8 +172,9 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param i The rank of the key in the S
    * @return the index in KEY of the key with rank {@code i}
    */
-  private int getIndex(final long i) {
-    return (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
+  public int getIndex(final long i) {
+    int res = (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
+    return res;
   }
 
   /** Helper method to maintain the correspondence between the rank of the keys and their real
@@ -199,23 +200,23 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
   /** Helper method to maintain the correspondence between the rank of the keys and their real
    * position in KEY.
-   * The methods receives the rank {@code rank} of a key and the position where such key is stored
+   * The methods receives the rank {@code i} of a key and the position where such key is stored
    * in KEY {@code slot} and saves that information in Index.
-   * @param rank the rank of the key that has been put in KEY
+   * @param i the rank of the key that has been put in KEY
    * @param slot the real position of the key in KEY
    */
-  public void setIndex(final int rank, final int slot) {
-    if (!(rank >= 0 && rank < k && slot >= 0 && slot < k)) {
+  public void setIndex(final int i, final int slot) {
+    if (!(i >= 0 && i < k && slot >= 0 && slot < k)) {
       throw new IndexOutOfBoundsException("Invalid rank or slot");
     }
 
-    long lo = (index << (rank * ceilLgK)) >>> ((rank + 1) * ceilLgK);
+    long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
 
     // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
-    long mid = Integer.toUnsignedLong(slot) << ((k - 1 - rank) * ceilLgK);
+    long mid = Integer.toUnsignedLong(slot) << ((k - 1 - i) * ceilLgK);
 
-    if (rank > 0) {
-      long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+    if (i > 0) {
+      long hi = (index >>> ((k - i) * ceilLgK)) << (((k - i) * ceilLgK));
       index = hi | mid | lo;
     } else {
       index = mid | lo;
@@ -259,90 +260,34 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param args --
    */
   public static void main(final String[] args) {
-    // int k = 16;
-    // int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
-    // // Util.print(k);
-    // // Util.print(Util.bin64((k - 1) << ceilLgK));
 
-    // // Util.print(Util.bin64((k - 1) << 2 * ceilLgK));
+    DynamicFusionNode node = new DynamicFusionNode();
 
-    // // Util.print(Util.bin64(((k - 1) * (k - 1)) << ceilLgK));
+    long bloodySeed = -1488139573943419793L;
 
-    // Util.print(Util.bin64(-1));
-    // Util.print(Util.bin64((-1L >>> ceilLgK)));
-
-    // Util.print(Util.bin64(clearAfterPos(-1, ceilLgK, 2)));
-
-    // Util.print(Util.bin64(clearBeforePos(-1, ceilLgK, 2)));
-
-    // int emptySpotAt = 2;
-    // long res = clearAfterPos(-1, ceilLgK, emptySpotAt) | clearBeforePos(-1, ceilLgK, emptySpotAt);
-    
-    // Util.print(Util.bin64(-2));
-
-    // long bKey = -1;
-    // int j = 15;
-    // long res = bKey & ~(1L << (BITSWORD - j));
-    // Util.print(res);
-    // Util.print(Util.bin64(res));
-
-    DynamicFusionNode n = new DynamicFusionNode();
-    // n.insert(10);
-    // n.insert(12);
-    // n.insert(42);
-    // n.insert(-1337);
-    // n.insert(-42);
-    // int rank = 10;
-    // n.rank(rank);
-    // Util.print(n.select(2));
-    // Util.print("index = " + n.getIndex(3));
-    // Util.print("rank(" + rank + ") = " + n.rank(rank));
-
-    // n.fillSlot(2);
-
-    // Util.print(Util.bin(n.bKey));
-
-    // n.fillSlot(5);
-
-    // n.vacantSlot(2);
-
-    // Util.print(Util.bin(n.bKey));
-
-
-    Random rand = new Random(-1488139573943419793L);
+    Random rand = new Random(bloodySeed);
 
     List<Long> keys = new ArrayList<>();
 
-    for (int i = 0; i < 16; i++) {
-      keys.add(rand.nextLong());
+    for (int i = 0; i < 10; i++) {
+      long key = rand.nextLong();
+      node.insert(key);
+      keys.add(key);
     }
 
+    rand = new Random(bloodySeed);
 
-    
     int i = 0;
-    for (Long key : keys) {
+    int keysInS = keys.size();
+    while (keys.size() > 0) {
       i++;
-      if (key == -443923248454636511L) {
-        System.err.println("");
-      }
-      n.insert(key);
-      System.out.println("keys in the set = " + i);
-      if (!n.member(key)) {
-        System.out.println("problem with key " + key);
+      keysInS--;
+      long key = keys.remove(rand.nextInt(keys.size()));
+      node.delete(key);
+      if (keysInS != node.size()) {
+        System.err.println("Problem " + i);
       }
     }
-
-    if (n.member(-443923248454636511L)) {
-      System.err.println("Can't find " + -443923248454636511L);
-    }
-
-    // for (Long key : keys) {
-    //   i--;
-    //   n.delete(key);
-    //   if (n.size() != i) {
-    //     System.err.println("Problem! " + key + " " + i);
-    //   }
-    // }
 
   }
 }

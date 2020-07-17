@@ -452,7 +452,7 @@ class RankSelectPredecessorUpdateTest {
       final ArrayList<Long> keyList = new ArrayList<>(keySetList.get(p));
 
       // use generated keys to test the set
-      final Random rand = new Random();
+      final Random rand = new Random(seeds.get(p));
       long i = keysInS;
       while (keyList.size() > 0) {
         i++;
