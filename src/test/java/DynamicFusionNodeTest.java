@@ -1,30 +1,23 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.DynamicFusionNode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class DynamicFusionNodeTest {
 
   static final long seed = 42;
-  static final int passes = 200_000;
+  static final int passes = 20;
   static final int numKeys = 16;
 
-  static long[] seeds = null;
-  static Set<Long> keySet;
-  static List<Long> orderedKeyList;
+  private DynamicFusionNode set;
+  private static RankSelectPredecessorUpdateTest test;
 
-  DynamicFusionNode set;
+  @BeforeAll
+  static void generateTests() {
+    test = new RankSelectPredecessorUpdateTest(seed, passes, numKeys);
+  }
 
   @BeforeEach
   void setUp() {
@@ -36,95 +29,58 @@ class DynamicFusionNodeTest {
     set = null;
   }
 
-  static void generateSeeds() {
-    if (seeds == null) {
-      Random rand = new Random(seed);
-      seeds = new long[passes];
-      for (int p = 0; p < passes; p++) {
-        seeds[p] = rand.nextLong();
-      }
-    }
-  }
-
-  static void generateKeys(int pass) {
-    Random random = new Random(seeds[pass]);
-    keySet = new HashSet<>();
-    while (keySet.size() < numKeys) {
-      keySet.add(random.nextLong());
-    }
-
-    // produce a list of keys in ascending order using the unsigned comparator
-    orderedKeyList = new ArrayList<>(keySet);
-
-    // because the msb of a negative number is 1.
-    Collections.sort(orderedKeyList, new Comparator<Long>() {
-      @Override
-      public int compare(final Long o1, final Long o2) {
-        return Long.compareUnsigned(o1, o2);
-      }
-    });
-  }
-
-  DynamicFusionNode generateAndInsertKeys(int pass, DynamicFusionNode set) {
-
-    set.reset(); // reset the data structure, just in case
-
-    Random random = new Random(seeds[pass]);
-    keySet = new HashSet<>();
-    while (keySet.size() < numKeys) {
-      keySet.add(random.nextLong());
-    }
-
-    // produce a list of keys in ascending order using the unsigned comparator
-    orderedKeyList = new ArrayList<>(keySet);
-
-    // because the msb of a negative number is 1.
-    Collections.sort(orderedKeyList, new Comparator<Long>() {
-      @Override
-      public int compare(final Long o1, final Long o2) {
-        return Long.compareUnsigned(o1, o2);
-      }
-    });
-
-    // add all keys to the set
-    for (final Long key : keySet) {
-      set.insert(key);
-    }
-
-    return set;
-  }
-
-  @Test
-  void smallCorrectnessTest() {
-    RankSelectPredecessorUpdateTest.smallCorrectnessTest(set);
+  @AfterAll
+  static void clear() {
+    test = null;
   }
 
   @Test
   void insertAndMemberSmallTest() {
-    RankSelectPredecessorUpdateTest.smallCorrectnessTest(set);
+    test.insertAndMemberSmallTest(set);
+  }
+
+  @Test
+  void smallCorrectnessTest() {
+    test.smallCorrectnessTest(set);
   }
 
   @Test
   void insertThenMemberTest() {
+    test.insertThenMemberTest(set);
+  }
 
-    generateSeeds();
+  @Test
+  void insertThenDeleteRandomKeysTest() {
+    test.insertThenDeleteRandomKeysTest(set);
+  }
 
-    for (int p = 0; p < passes; p++) {
-      setUp();
+  @Test
+  void insertThenDeleteRangeOfKeysTest() {
+    test.insertThenDeleteRangeOfKeysTest(set);
+  }
 
-      set = generateAndInsertKeys(p, set);
-      Random rand = new Random(seeds[p]);
+  @Test
+  void growingRankTest() {
+    test.growingRankTest(set);
+  }
 
-      long i = 0;
-      while (orderedKeyList.size() > 0) {
-        i++;
-        final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
-            + " | Seed = " + seeds[p] + "\nExpected " + key + " to be member.", set.member(key));
-      }
+  @Test
+  void selectOfRankTest() {
+    test.selectOfRankTest(set);
+  }
 
-      tearDown();
-    }
+  @Test
+  void rankOfSelectTest() {
+    test.rankOfSelectTest(set);
+  }
+
+  @Test
+  void sizeTest() {
+    test.sizeTest(set);
+  }
+
+  @Test
+  void oldSizeTest() {
+    OldRankSelectPredecessorUpdateTest.sizeTest(set);
   }
 }
-

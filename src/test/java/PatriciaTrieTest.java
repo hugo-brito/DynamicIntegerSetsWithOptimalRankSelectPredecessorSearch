@@ -1,11 +1,23 @@
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.PatriciaTrie;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class PatriciaTrieTest {
 
-  PatriciaTrie set;
+  static final long seed = 42;
+  static final int passes = 3;
+  static final int numKeys = 10_000;
+
+  private PatriciaTrie set;
+  private static RankSelectPredecessorUpdateTest test;
+
+  @BeforeAll
+  static void generateTests() {
+    test = new RankSelectPredecessorUpdateTest(seed, passes, numKeys);
+  }
 
   @BeforeEach
   void setUp() {
@@ -17,48 +29,53 @@ class PatriciaTrieTest {
     set = null;
   }
 
-  @Test
-  void insertAndMemberSmallTest() {
-    RankSelectPredecessorUpdateTest.insertAndMemberSmallTest(set);
+  @AfterAll
+  static void clear() {
+    test = null;
   }
 
   @Test
-  void insertThenMemberTest() {
-    RankSelectPredecessorUpdateTest.insertThenMemberTest(set);
+  void insertAndMemberSmallTest() {
+    test.insertAndMemberSmallTest(set);
   }
 
   @Test
   void smallCorrectnessTest() {
-    RankSelectPredecessorUpdateTest.smallCorrectnessTest(set);
+    test.smallCorrectnessTest(set);
   }
 
   @Test
-  void insertThenDeleteRangeOfKeysTest() {
-    RankSelectPredecessorUpdateTest.insertThenDeleteRangeOfKeysTest(set);
+  void insertThenMemberTest() {
+    test.insertThenMemberTest(set);
   }
 
   @Test
   void insertThenDeleteRandomKeysTest() {
-    RankSelectPredecessorUpdateTest.insertThenDeleteRandomKeysTest(set);
+    test.insertThenDeleteRandomKeysTest(set);
+  }
+
+  @Test
+  void insertThenDeleteRangeOfKeysTest() {
+    test.insertThenDeleteRangeOfKeysTest(set);
   }
 
   @Test
   void growingRankTest() {
-    RankSelectPredecessorUpdateTest.growingRankTest(set);
-  }
-
-  @Test
-  void sizeTest() {
-    RankSelectPredecessorUpdateTest.sizeTest(set);
+    test.growingRankTest(set);
   }
 
   @Test
   void selectOfRankTest() {
-    RankSelectPredecessorUpdateTest.selectOfRankTest(set);
+    test.selectOfRankTest(set);
   }
 
   @Test
   void rankOfSelectTest() {
-    RankSelectPredecessorUpdateTest.rankOfSelectTest(set);
+    test.rankOfSelectTest(set);
   }
+
+  // @Test
+  // void sizeTest() {
+  //   test.sizeTest(set);
+  // }
 }

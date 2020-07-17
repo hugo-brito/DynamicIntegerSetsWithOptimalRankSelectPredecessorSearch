@@ -1,115 +1,137 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.RankSelectPredecessorUpdate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 class RankSelectPredecessorUpdateTest {
-
-  static final long seed = 42;
-  static final int passes = 20;
-  static final int numKeys = 100_000;
   
-  // static Random rand = new Random(seed);
-  static long[] seeds = null;
-  static Set<Long> keySet;
-  static List<Long> orderedKeyList;
+  private final long seed;
+  private final int passes;
+  private final List<Long> seeds;
+  private final int numKeys;
+  
+  private ArrayList<TreeSet<Long>> keySetList;
 
-  static void generateSeeds() {
-    if (seeds == null) {
-      Random rand = new Random(seed);
-      seeds = new long[passes];
-      for (int p = 0; p < passes; p++) {
-        seeds[p] = rand.nextLong();
+  public RankSelectPredecessorUpdateTest(final long seed, final int passes, final int numKeys) {
+    this.seed = seed;
+    this.passes = passes;
+    this.numKeys = numKeys;
+    seeds = new LinkedList<>();
+
+    generateSeeds();
+    generateKeys();
+
+  }
+
+  /**
+   * Helper method.
+   * It is to be called by the constructor to populate the {@code seedSet}.
+   * Each seed corresponds to a pass of the test.
+   */
+  private void generateSeeds() {
+    final Random rand = new Random(seed);
+    final Set<Long> seedSet = new HashSet<>();
+
+    while (seedSet.size() < passes) {
+      seedSet.add(rand.nextLong());
+    }
+
+    seeds.addAll(seedSet);
+  }
+
+  /**
+   * Helper method.
+   * It is to be called by the constructor to populate the key sets and store them in
+   * {@code keySetList}.
+   */
+  private void generateKeys() {
+    keySetList = new ArrayList<>();
+
+    int pass = 0;
+    for (final long seed : seeds) {
+      final Random random = new Random(seed);
+      final TreeSet<Long> keySet = new TreeSet<Long>(new Comparator<Long>() {
+        @Override
+        public int compare(final Long o1, final Long o2) {
+          return Long.compareUnsigned(o1, o2);
+        }
+      });
+
+      while (keySet.size() < numKeys) {
+        keySet.add(random.nextLong());
       }
+
+      keySetList.add(pass, keySet);
+      pass++;
+      System.err.println("Added a keySet to keySetList " + keySetList.size());
     }
   }
 
-  static RankSelectPredecessorUpdate generateAndInsertKeys(int pass,
-      final RankSelectPredecessorUpdate testSet) {
+  /**
+   * Helper method.
+   * Takes a concrete implementation of a {@code RankSelectPredecessorUpdate} and inserts all the
+   * keys corresponding to that {@code pass} in the set.
+   * 
+   * @param testSet the set to insert the keys
+   * @param pass the pass to 
+   */
+  private void insertAllKeys(final RankSelectPredecessorUpdate testSet, final int pass) {
 
-    testSet.reset(); // reset the data structure, just in case
-
-    Random random = new Random(seeds[pass]);
-    keySet = new HashSet<>();
-    while (keySet.size() < numKeys) {
-      keySet.add(random.nextLong());
-    }
-
-    // produce a list of keys in ascending order using the unsigned comparator
-    orderedKeyList = new ArrayList<>(keySet);
-
-    // because the msb of a negative number is 1.
-    Collections.sort(orderedKeyList, new Comparator<Long>() {
-      @Override
-      public int compare(final Long o1, final Long o2) {
-        return Long.compareUnsigned(o1, o2);
-      }
-    });
-
-    // add all keys to the set
-    for (final Long key : keySet) {
+    for (final long key : keySetList.get(pass)) {
       testSet.insert(key);
     }
 
-    return testSet;
   }
 
-  static void generateKeys(int pass) {
-    Random random = new Random(seeds[pass]);
-    keySet = new HashSet<>();
-    while (keySet.size() < numKeys) {
-      keySet.add(random.nextLong());
-    }
+  /**
+   * Small test to attest correctness of the insert method.
+   * Inserts some keys in {@code testSet} and then calls {@code member} on the inserted keys.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void insertAndMemberSmallTest(final RankSelectPredecessorUpdate testSet) {
 
-    // produce a list of keys in ascending order using the unsigned comparator
-    orderedKeyList = new ArrayList<>(keySet);
-
-    // because the msb of a negative number is 1.
-    Collections.sort(orderedKeyList, new Comparator<Long>() {
-      @Override
-      public int compare(final Long o1, final Long o2) {
-        return Long.compareUnsigned(o1, o2);
-      }
-    });
-
-  }
-
-  static void insertAndMemberSmallTest(final RankSelectPredecessorUpdate testSet) {
     testSet.insert(6917529027641081855L);
     testSet.insert(4611686018427387903L);
+
+    assertFalse(testSet.member(10), "Expected member(10) == false\n");
+
+    assertTrue(testSet.member(6917529027641081855L),
+        "Expected member(6917529027641081855L) == true\n");
     
-    assertFalse("Expected member(10) == false\n", testSet.member(10));
-    
-    assertTrue("Expected member(6917529027641081855L) == true\n",
-        testSet.member(6917529027641081855L));
-    assertTrue("Expected member(4611686018427387903L) == true\n",
-        testSet.member(4611686018427387903L));
-    
-    assertFalse("Expected member(" + Long.MAX_VALUE + ") == false\n",
-        testSet.member(Long.MAX_VALUE));
+    assertTrue(testSet.member(4611686018427387903L),
+        "Expected member(4611686018427387903L) == true\n");
+
+    assertFalse(testSet.member(Long.MAX_VALUE),
+        "Expected member(" + Long.MAX_VALUE + ") == false\n");
 
     testSet.insert(Long.MAX_VALUE);
 
-    assertTrue("Expected member(" + Long.MAX_VALUE + ") == true\n",
-        testSet.member(Long.MAX_VALUE));
+    assertTrue(testSet.member(Long.MAX_VALUE), "Expected member(" + Long.MAX_VALUE + ") == true\n");
   }
 
-  static void smallCorrectnessTest(final RankSelectPredecessorUpdate testSet) {
+  /**
+   * Small correctness test with a defined small set of keys and known answers.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void smallCorrectnessTest(final RankSelectPredecessorUpdate testSet) {
     testSet.insert(10);
     testSet.insert(12);
     testSet.insert(42);
     testSet.insert(-1337);
     testSet.insert(-42);
 
-    assertEquals("Expected size() == 5", 5, testSet.size());
+    assertEquals(5, testSet.size(), "Expected size() == 5");
 
     {
       // Testing key 10
@@ -200,180 +222,251 @@ class RankSelectPredecessorUpdateTest {
     }
   }
 
-  private static void smallCorrectnessTest(final RankSelectPredecessorUpdate testSet,
-      final long key, final boolean member, final long rank, final Long predecessor,
-      final Long successor) {
+  private void smallCorrectnessTest(final RankSelectPredecessorUpdate testSet, final long key,
+      final boolean member, final long rank, final Long predecessor, final Long successor) {
 
     // Member
-    assertEquals("Key " + key + " | Test 1/5: expected member(" + key + ") == " + member + "\n",
-        member, testSet.member(key));
+    assertEquals(member, testSet.member(key),
+        "Key " + key + " | Test 1/5: expected member(" + key + ") == " + member + "\n");
 
     // Rank
-    assertEquals("Key " + key + " | Test 2/5: expected rank(" + key + ") == " + rank + "\n",
-        rank, testSet.rank(key));
+    assertEquals(rank, testSet.rank(key),
+        "Key " + key + " | Test 2/5: expected rank(" + key + ") == " + rank + "\n");
 
     // Select
-    assertEquals("Key " + key + " | Test 3/5: expected select(" + rank + ") == " + key + "\n",
-        successor, testSet.select(rank));
-    
+    assertEquals(successor, testSet.select(rank),
+        "Key " + key + " | Test 3/5: expected select(" + rank + ") == " + key + "\n");
+
     // Predecessor
-    assertEquals("Key " + key + " | Test 4/5: expected predecessor(" + key + ") == " + predecessor
-        + "\n", predecessor, testSet.predecessor(key));
+    assertEquals(predecessor, testSet.predecessor(key),
+        "Key " + key + " | Test 4/5: expected predecessor(" + key + ") == " + predecessor + "\n");
 
     // Successor
-    assertEquals("Key " + key + " | Test 5/5: expected successor(" + key + ") == " + successor
-        + "\n", successor, testSet.successor(key));
-    
+    assertEquals(successor, testSet.successor(key),
+        "Key " + key + " | Test 5/5: expected successor(" + key + ") == " + successor + "\n");
+
   }
 
-  static void insertThenMemberTest(RankSelectPredecessorUpdate testSet) {
+  /**
+   * 1. A range of keys is defined at the beginning of the test.
+   *    If {@code numKeys > 16}, the range of the keys to be inserted is [-numKeys, numKeys[
+   * 2. The test iterates through all the range and each iteration consists of:
+   *    - Asserting that the key {@code i} is not in the set
+   *    - Inserting {@code i} in the set
+   *    - Asserting that the key {@code i} is in the set
+   * 3. Each time the number of keys in the set reaches 10 % of the range, all the keys are removed.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
 
-    generateSeeds();
+    long lowerBound;
+
+    if (numKeys > 16) {
+      lowerBound = 0;
+    } else {
+      lowerBound = numKeys * (-1);
+    }
+
+    final long localNumKeys = numKeys - lowerBound;
+
+    for (long i = lowerBound; i < localNumKeys; i++) {
+
+      assertFalse(testSet.member(i),
+          "Iteration " + i + "/" + localNumKeys + " (before insertion)\n");
+
+      testSet.insert(i);
+
+      assertTrue(testSet.member(i), "Iteration " + i + "/" + localNumKeys + " (after insertion)\n");
+
+      if ((i % (numKeys / 10)) == 0) {
+        System.err.println("Reached 10 % of the range:\ni = " + i
+            + "\nnumKeys / 10 = " + (numKeys / 10)
+            + "\ni * (numKeys / 10) = " + (i * (numKeys / 10)));
+
+        testSet.reset();
+        assertTrue(testSet.isEmpty(),
+            "Iteration " + i + "/" + localNumKeys
+            + " | Expected set to be empty after reseting it.\n");
+      }
+    }  
+  }
+
+  /**
+   * 1. Insert all the pseudoramdomly-generated keys in {@code testSet}.
+   * 2. Iterate in random order through all the keys and assert that {@code member(key)} is
+   * {@code true}.
+   * This test is executed in passes.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void insertThenMemberTest(final RankSelectPredecessorUpdate testSet) {
 
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(p, testSet);
-      Random rand = new Random(seeds[p]);
+
+      insertAllKeys(testSet, p);
+      final Random rand = new Random();
+      final List<Long> keys = new ArrayList<>(keySetList.get(p));
 
       long i = 0;
-      while (orderedKeyList.size() > 0) {
+      while (keys.size() > 0) {
         i++;
-        final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys,
-            testSet.member(key));
+        final long key = keys.remove(rand.nextInt(keys.size()));
+        assertTrue(testSet.member(key),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys);
       }
+
+      testSet.reset();
     }
   }
 
-  static void insertThenDeleteRangeOfKeysTest(final RankSelectPredecessorUpdate testSet) {
-    for (int p = 0; p < passes; p++) {
-      testSet.reset(); // We reset the data structure as there could be keys from the last pass
-
-      final long lowerBound = numKeys * (-1);
-      long i = 0;
-      for (long j = lowerBound; j <= numKeys; j++) {
-        i++;
-
-        assertFalse("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
-            + " (before insertion)\n", testSet.member(j));
-        testSet.insert(j);
-
-        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
-            + " (after insertion)\n", testSet.member(j));
-
-        if (j % 1000 == 0) {
-          for (long k = j - 1000; k <= j; k++) {
-            testSet.delete(k);
-          }
-        }
-      }
-    }
-  }
-
-  static void insertThenDeleteRandomKeysTest(RankSelectPredecessorUpdate testSet) {
-
-    generateSeeds();
+  /**
+   * 1. Insert all the pseudoramdomly-generated keys in {@code testSet}.
+   * 2. Iterate in random order through all the keys and:
+   *    - Assert that {@code member(key)} is {@code true}.
+   *    - Remove the {@code key}
+   *    - Assert that {@code member(key)} is {@code false}.
+   * This test is executed in passes.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void insertThenDeleteRandomKeysTest(final RankSelectPredecessorUpdate testSet) {
 
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(p, testSet);
-      Random rand = new Random(seeds[p]);
+
+      insertAllKeys(testSet, p);
+      final Random rand = new Random();
+      final List<Long> keys = new ArrayList<>(keySetList.get(p));
 
       long i = 0;
-  
-      // use generated keys to test the set
-      while (orderedKeyList.size() > 0) {
+      while (keys.size() > 0) {
         i++;
-        final long key = orderedKeyList.remove(rand.nextInt(orderedKeyList.size()));
-  
-        assertTrue("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
-            + ": expected member(" + key + ") == true\n", testSet.member(key));
-  
+        final long key = keys.remove(rand.nextInt(keys.size()));
+
+        assertTrue(testSet.member(key),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
+            + ": expected member(" + key + ") == true\n");
+        
         testSet.delete(key);
-  
-        assertFalse("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
-            + ": expected member(" + key + ") == false\n", testSet.member(key));
+        
+        assertFalse(testSet.member(key),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
+            + ": expected member(" + key + ") == false\n");
       }
 
-    }
-
-  }
-
-  static void growingRankTest(RankSelectPredecessorUpdate testSet) {
-
-    generateSeeds();
-
-    for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(p, testSet);
-
-      for (int i = 0; i < orderedKeyList.size(); i++) {
-        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
-            + ": expected rank of keys in sorted order to be monotone increasing function.\n",
-            i, testSet.rank(orderedKeyList.get(i)));
-      }
+      testSet.reset();
     }
   }
 
-  static void selectOfRankTest(RankSelectPredecessorUpdate testSet) {
-
-    generateSeeds();
+  /**
+   * Asserts that for all keys in the set, their rank is a monotone increasing function.
+   * This test is executed in passes.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void growingRankTest(final RankSelectPredecessorUpdate testSet) {
 
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(p, testSet);
+
+      insertAllKeys(testSet, p);
 
       long i = 0;
-      for (final Long key : keySet) {
+      for (final long key : keySetList.get(p)) {
+        assertEquals(i, testSet.rank(key),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + (i + 1) + "/" + numKeys
+            + ": expected rank of keys in sorted order to be monotone increasing function.\n");
         i++;
-        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\n",
-            key, testSet.select(testSet.rank(key)));
       }
+
+      testSet.reset();
     }
   }
 
-  static void rankOfSelectTest(RankSelectPredecessorUpdate testSet) {
-
-    generateSeeds();
+  /**
+   * Asserts that {@code select(rank(key)) == key} is {@code true} for all keys in the set.
+   * This test is executed in passes.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void selectOfRankTest(final RankSelectPredecessorUpdate testSet) {
 
     for (int p = 0; p < passes; p++) {
-      testSet = generateAndInsertKeys(p, testSet);
+
+      insertAllKeys(testSet, p);
+
+      long i = 0;
+      for (final Long key : keySetList.get(p)) {
+        i++;
+        assertEquals(key, testSet.select(testSet.rank(key)),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\n");
+      }
+
+      testSet.reset();
+    }
+  }
+
+  /**
+   * Asserts that {@code rank(select(i) == i} is {@code true} for every {@code i} ranging from 0 to
+   * {@code numKeys} (exclusive).
+   * This test is executed in passes.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void rankOfSelectTest(final RankSelectPredecessorUpdate testSet) {
+
+    for (int p = 0; p < passes; p++) {
+      insertAllKeys(testSet, p);
 
       for (long i = 0; i < numKeys; i++) {
-        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\n",
-            i, testSet.rank(testSet.select(i)));
+        assertEquals(i, testSet.rank(testSet.select(i)),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + (i + 1) + "/" + numKeys + "\n");
       }
+
+      testSet.reset();
     }
   }
 
-  static void sizeTest(final RankSelectPredecessorUpdate testSet) {
+  /**
+   * Inserts keys, one by one, to the {@code testSet}, evaluating the {@code size()} at every step.
+   * This test is executed in passes.
+   * 
+   * @param testSet the data structure to be tested
+   */
+  void sizeTest(final RankSelectPredecessorUpdate testSet) {
 
     generateSeeds();
 
     for (int p = 0; p < passes; p++) {
 
-      generateKeys(p);
-      long i = 0;
-
-      // add all keys to the set
+      // add, one by one, all keys to the set
       int keysInS = 0;
-      for (final Long key : keySet) {
-        i++;
+      for (final Long key : keySetList.get(p)) {
         testSet.insert(key);
         keysInS++;
-        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
-            + ": expected KeysInS == size()\n", keysInS, testSet.size());
+        assertEquals(keysInS, testSet.size(),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + keysInS + "/" + (numKeys * 2)
+            + " | Key inserted: " + key + " | Seed: " + seeds.get(p)
+            + "\nAfter insertion, expected KeysInS == size()\n");
       }
 
-      final ArrayList<Long> keyList = new ArrayList<>(keySet);
+      final ArrayList<Long> keyList = new ArrayList<>(keySetList.get(p));
 
       // use generated keys to test the set
-      Random rand = new Random(seeds[p]);
+      final Random rand = new Random();
+      long i = keysInS;
       while (keyList.size() > 0) {
         i++;
         final long key = keyList.remove(rand.nextInt(keyList.size()));
         testSet.delete(key);
         keysInS--;
 
-        assertEquals("Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
-            + ": expected KeysInS == size()\n", keysInS, testSet.size());
+        assertEquals(keysInS, testSet.size(),
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + (numKeys * 2)
+            + " | Key deleted: " + key + " | Seed: " + seeds.get(p)
+            + "\nAfter deletion, expected KeysInS == size()\n");
       }
+
+      testSet.reset();
     }
   }
 }
