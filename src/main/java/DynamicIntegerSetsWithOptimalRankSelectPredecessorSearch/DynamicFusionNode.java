@@ -1,7 +1,6 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
-public class DynamicFusionNode implements RankSelectPredecessorUpdate {
-  /** For this version of indexing, which comes described in page 5 of the paper,
+/** For this version of indexing, which comes described in page 5 of the paper,
   * we have selected w = 64, e. g. with word is made up of 64 bits. The reason
   * for us to pick this size of word length is that we can conveniently use
   * Java's \>\> \<\< | & ^ operations in constant time.
@@ -30,6 +29,8 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   * 16 slots of 4 bits each.</p>
   */
 
+public class DynamicFusionNode implements RankSelectPredecessorUpdate {
+  
   /**
   * We will ourselves use k = w^(1/4) The exact value makes no theoretical
   * difference: We choose k = 16, such that we can fill a whole word to index all
