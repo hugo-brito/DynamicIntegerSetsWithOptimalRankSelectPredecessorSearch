@@ -1,11 +1,5 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-
 public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /** For this version of indexing, which comes described in page 5 of the paper,
   * we have selected w = 64, e. g. with word is made up of 64 bits. The reason
@@ -195,7 +189,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
       throw new IndexOutOfBoundsException("Invalid rank");
     }
 
-    long lo = (index << (rank * ceilLgK)) >>> (rank * ceilLgK);
+    long lo = (index << ((rank + 1) * ceilLgK)) >>> (rank * ceilLgK);
 
     if (rank > 0) {
       long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
@@ -267,12 +261,5 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param args --
    */
   public static void main(final String[] args) {
-
-    DynamicFusionNode node = new DynamicFusionNode();
-
-    node.insert(42);
-
-    System.out.println(Arrays.toString(node.key));
-
   }
 }
