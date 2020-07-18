@@ -70,7 +70,6 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param x the integer to insert
    */
   public void insert(final long x) {
-
     if (n > 0 && member(x)) {
       return;
     }
@@ -177,6 +176,14 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     return res;
   }
 
+  private String getIndices(final long index) {
+    StringBuilder res = new StringBuilder();
+    for (int j = 0; j < 16; j++) {
+      res.append("" + (int) ((index << (j * ceilLgK)) >>> ((k - 1) * ceilLgK))).append(" ");
+    }
+    return res.toString();
+  }
+
   /** Helper method to maintain the correspondence between the rank of the keys and their real
    * position in KEY.
    * The methods receives the rank {@code rank} of a key and removes such position in Index, keeping
@@ -263,31 +270,9 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
     DynamicFusionNode node = new DynamicFusionNode();
 
-    long bloodySeed = -1488139573943419793L;
+    node.insert(42);
 
-    Random rand = new Random(bloodySeed);
-
-    List<Long> keys = new ArrayList<>();
-
-    for (int i = 0; i < 10; i++) {
-      long key = rand.nextLong();
-      node.insert(key);
-      keys.add(key);
-    }
-
-    rand = new Random(bloodySeed);
-
-    int i = 0;
-    int keysInS = keys.size();
-    while (keys.size() > 0) {
-      i++;
-      keysInS--;
-      long key = keys.remove(rand.nextInt(keys.size()));
-      node.delete(key);
-      if (keysInS != node.size()) {
-        System.err.println("Problem " + i);
-      }
-    }
+    System.out.println(Arrays.toString(node.key));
 
   }
 }
