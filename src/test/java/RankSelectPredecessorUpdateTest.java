@@ -72,7 +72,7 @@ class RankSelectPredecessorUpdateTest {
 
       keySetList.add(pass, keySet);
       pass++;
-      System.err.println("Added a keySet to keySetList " + keySetList.size());
+      // System.err.println("Added a keySet to keySetList " + keySetList.size());
     }
   }
 
@@ -270,14 +270,16 @@ class RankSelectPredecessorUpdateTest {
 
     final long localNumKeys = numKeys - lowerBound;
 
+    int iteration = 0;
     for (long i = lowerBound; i < localNumKeys; i++) {
-
+      iteration++;
       assertFalse(testSet.member(i),
-          "Iteration " + i + "/" + localNumKeys + " (before insertion)\n");
+          "Iteration " + iteration + "/" + (localNumKeys * 2) + " (before insertion)\n");
 
       testSet.insert(i);
 
-      assertTrue(testSet.member(i), "Iteration " + i + "/" + localNumKeys + " (after insertion)\n");
+      assertTrue(testSet.member(i), "Iteration " + iteration + "/" + (localNumKeys * 2)
+          + " (after insertion)\n");
 
       if ((i % (numKeys / 10)) == 0) {
         System.err.println("Reached 10 % of the range:\ni = " + i
@@ -286,7 +288,7 @@ class RankSelectPredecessorUpdateTest {
 
         testSet.reset();
         assertTrue(testSet.isEmpty(),
-            "Iteration " + i + "/" + localNumKeys
+            "Iteration " + iteration + "/" + (localNumKeys * 2)
             + " | Expected set to be empty after reseting it.\n");
       }
     }  
