@@ -381,17 +381,23 @@ class RankSelectPredecessorUpdateTest {
       while (keys.size() > 0) {
         i++;
         long key = rand.nextLong();
+
         testSet.delete(key);
 
         StringBuilder errorMessage = new StringBuilder("Pass ").append((p + 1)).append("/")
             .append("" + passes).append(" | Iteration ").append("" + i).append(" | Seed: ")
             .append("" + seeds.get(p)).append(" | Key deleted: ").append("" + key).append("\n");
 
+        StringBuilder member = new StringBuilder(errorMessage.toString())
+              .append("After deletion, key should not be member!");
+
         if (keys.remove(key)) {
           errorMessage.append("Removing existing key returned wrong size().");
         } else {
           errorMessage.append("Removing non-existing key returned wrong size().");
         }
+
+        assertFalse(testSet.member(key), member.toString());
         
         assertEquals(keys.size(), testSet.size(), errorMessage.toString());
 

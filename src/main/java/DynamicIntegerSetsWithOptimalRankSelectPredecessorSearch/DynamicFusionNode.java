@@ -52,8 +52,10 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   private int n;
   // the current number of elements in S
 
+  /**
+   * Constructs an empty DynamicFusionNode.
+   */
   public DynamicFusionNode() {
-
     // We start with no items.
     index = 0;
     n = 0;
@@ -65,11 +67,11 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param x the integer to insert
    */
   public void insert(final long x) {
-    if (n > 0 && member(x)) {
+    if (member(x)) {
       return;
     }
 
-    if (n == k) {
+    if (size() == k) {
       throw new RuntimeException("Cannot insert. Node is full.");
     }
 
@@ -77,7 +79,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     final int j = firstEmptySlot();
     key[j] = x;
     fillSlot(j);
-    setIndex(i, j);
+    updateIndex(i, j);
     n++;
   }
 
@@ -89,7 +91,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
     final int i = (int) rank(x);
     vacantSlot(i);
-    deleteAtIndex(i); // need to make this consistent
+    updateIndex(i);
     n--;
   }
 
@@ -119,6 +121,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   @Override
   public long size() {
     return n;
+    // return (Integer.bitCount(~bKey >>> (Integer.SIZE - k)));
   }
 
   @Override
@@ -127,29 +130,21 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     bKey = -1;
   }
 
-  @Override
-  public boolean isEmpty() {
-    // return bKey == -1;
-    return n == 0;
-  }
-
   /** Returns the index of the first empty slot in KEY.
    * 
    * @return the index in KEY of the first empty slot.
    */
   public int firstEmptySlot() {
-    int res = Util.msb(bKey);
+    final int res = Util.msb(bKey);
     if (res < k) {
       return res;
     }
     return -1;
-    // if (n == k) { // no empty spot
-    //   return -1;
-    // }
-    // return Util.msb(bKey);
   }
 
-  /** Sets position {@code j} in KEY to not empty.
+  /**
+   * Sets position {@code j} in KEY to not empty.
+   * 
    * @param j the position to be made unavailable
    */
   public void fillSlot(final int j) {
@@ -160,119 +155,84 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     }
   }
 
-  /** Sets position {@code j} in KEY to empty.
+  /**
+   * Sets position {@code j}th taken position in KEY to empty.
+   * 
    * @param j the position to be made available
    */
-  public void vacantSlot(final int j) {
+  public void vacantSlot(int j) {
     if (j >= 0 && j < k) {
+      j = j + Util.msb(~bKey << j);
       bKey |= 1L << (31 - j);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
   }
 
-    /** Returns the index of the first empty slot in KEY.
-   * 
-   * @return the index in KEY of the first empty slot.
-   */
-  public static int firstEmptySlot(int target) {
-    int res = Util.msb(target);
-    if (res < 16) {
-      return res;
-    }
-    return -1;
-  }
-
-  /** Sets position {@code j} in KEY to not empty.
-   * @param j the position to be made unavailable
-   */
-  public static int fillSlot(int target, final int j) {
-    int k = 16;
-    if (j >= 0 && j < k) {
-      return target &= ~(1L << (31 - j));
-    } else {
-      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
-    }
-  }
-
-  /** Sets position {@code j} in KEY to empty.
-   * @param j the position to be made available
-   */
-  public static int vacantSlot(int target, final int j) {
-    int k = 16;
-    if (j >= 0 && j < k) {
-      return target |= 1L << (31 - j);
-    } else {
-      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
-    }
-  }
-
-  /** Helper method to retrieve the position in KEY of a key, given its rank {@code i}.
+  /**
+   * Helper method to retrieve the position in KEY of a key, given its rank
+   * {@code i}.
    * 
    * @param i The rank of the key in the S
    * @return the index in KEY of the key with rank {@code i}
    */
   public int getIndex(final long i) {
-    int res = (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
+    final int res = (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
     return res;
   }
 
-  private String getIndices(final long index) {
-    StringBuilder res = new StringBuilder();
-    for (int j = 0; j < 16; j++) {
-      res.append("" + (int) ((index << (j * ceilLgK)) >>> ((k - 1) * ceilLgK))).append(" ");
-    }
-    return res.toString();
-  }
-
-  /** Helper method to maintain the correspondence between the rank of the keys and their real
-   * position in KEY.
-   * The methods receives the rank {@code rank} of a key and removes such position in Index, keeping
-   * all other indices ordered.
+  /**
+   * Helper method to maintain the correspondence between the rank of the keys and
+   * their real position in KEY. The methods receives the rank {@code rank} of a
+   * key and removes such position in Index, keeping all other indices ordered.
+   * 
    * @param rank the rank of the key that has been put in KEY
    */
-  public void deleteAtIndex(final int rank) {
+  public void updateIndex(final int rank) {
     if (!(rank >= 0 && rank < k)) {
       throw new IndexOutOfBoundsException("Invalid rank");
     }
 
-    long lo = (index << ((rank + 1) * ceilLgK)) >>> (rank * ceilLgK);
+    final long lo = (index << ((rank + 1) * ceilLgK)) >>> (rank * ceilLgK);
 
     if (rank > 0) {
-      long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+      final long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
       index = hi | lo;
     } else {
       index = lo;
     }
   }
 
-  /** Helper method to maintain the correspondence between the rank of the keys and their real
-   * position in KEY.
-   * The methods receives the rank {@code i} of a key and the position where such key is stored
-   * in KEY {@code slot} and saves that information in Index.
-   * @param i the rank of the key that has been put in KEY
+  /**
+   * Helper method to maintain the correspondence between the rank of the keys and
+   * their real position in KEY. The methods receives the rank {@code i} of a key
+   * and the position where such key is stored in KEY {@code slot} and saves that
+   * information in Index.
+   * 
+   * @param i    the rank of the key that has been put in KEY
    * @param slot the real position of the key in KEY
    */
-  public void setIndex(final int i, final int slot) {
+  public void updateIndex(final int i, final int slot) {
     if (!(i >= 0 && i < k && slot >= 0 && slot < k)) {
       throw new IndexOutOfBoundsException("Invalid rank or slot");
     }
 
-    long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
+    final long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
 
     // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
-    long mid = Integer.toUnsignedLong(slot) << ((k - 1 - i) * ceilLgK);
+    final long mid = Integer.toUnsignedLong(slot) << ((k - 1 - i) * ceilLgK);
 
     if (i > 0) {
-      long hi = (index >>> ((k - i) * ceilLgK)) << (((k - i) * ceilLgK));
+      final long hi = (index >>> ((k - i) * ceilLgK)) << (((k - i) * ceilLgK));
       index = hi | mid | lo;
     } else {
       index = mid | lo;
     }
   }
 
-  /** Helper method than provides the rank of a key {@code x} resorting to binary search.
-   * For this reason, it takes O(lg N) time.
+  /**
+   * Helper method than provides the rank of a key {@code x} resorting to binary
+   * search. For this reason, it takes O(lg N) time.
    * 
    * @param x the key to be used to compute the rank
    * @return the rank of {@code x} in S
@@ -303,24 +263,11 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     return lo;
   }
 
-  /** Debugging.
+  /**
+   * Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
-    int target = -1; // 0b1111_1111_1111_1111_0000_0000_0000_0000;
-    for (int i = 0; i < 16; i++) {
-      System.out.println("i = " + i);
-      // Util.print(DynamicFusionNode.firstEmptySlot(target));
-      target = DynamicFusionNode.fillSlot(target, i);
-      Util.print(Util.bin(target));
-      target = DynamicFusionNode.vacantSlot(target, i);
-      Util.print(Util.bin(target));
-      target = DynamicFusionNode.fillSlot(target, i);
-      Util.print(Util.bin(target));
-    }
-
-
-    Util.print(DynamicFusionNode.firstEmptySlot(target));
   }
 }
