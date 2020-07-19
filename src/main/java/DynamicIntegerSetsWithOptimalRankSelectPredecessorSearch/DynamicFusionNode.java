@@ -123,7 +123,6 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
   @Override
   public void reset() {
-    index = 0;
     n = 0;
     bKey = -1;
   }

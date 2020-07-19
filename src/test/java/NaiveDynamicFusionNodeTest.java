@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class NaiveDynamicFusionNodeTest {
 
   static final long seed = 42;
-  static final int passes = 20_000;
+  static final int passes = 100_000;
   static final int numKeys = 16;
 
   private NaiveDynamicFusionNode set;

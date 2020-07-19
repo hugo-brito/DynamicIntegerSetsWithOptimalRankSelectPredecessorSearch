@@ -280,7 +280,7 @@ class RankSelectPredecessorUpdateTest {
       assertTrue(testSet.member(i), "Iteration " + iteration + "/" + (localNumKeys * 2)
           + " (after insertion)\n");
 
-      if ((i % (numKeys / 10)) == 0) {
+      if (numKeys > 9 && (i % (numKeys / 10)) == 0) {
         // System.err.println("Reached 10 % of the range:\ni = " + iteration
         //     + "\nnumKeys / 10 = " + (numKeys / 10)
         //     + "\ni * (numKeys / 10) = " + (i * (numKeys / 10)));
