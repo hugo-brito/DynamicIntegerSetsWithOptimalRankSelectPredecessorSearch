@@ -1,4 +1,4 @@
-\chapter{Implementation}
+\part{Implementation}
 
 % \addsec{Unnumbered level}
 
@@ -24,21 +24,21 @@
 % In \figurename~\ref{fig:CowLickingNose}\myMarginnote{Reference to a figure} you see a cow that is licking its nose. The picture was taken by Nicole Barth on 11.08.2014 using a Canon EOS 500D. The original file has a resolution of $4247 \times 2831$ pixels.
 % Note that the image is also referenced.
 
-\section{Background}
+\chapter{Background}
 
 In this section, a series of data structures, techniques and other relevant aspects are presented in order to lay the foundation for the implementation that is presented in this report. The following subsections aim at providing some background and to frame the state of the art up to the point where the  \cite{patrascu2014dynamic} paper was presented.
 
 The \cite{patrascu2014dynamic} paper presents a dynamic data structure for storing integers and claims that its running times are optimal. We start by looking at what has been done in that research area.
 
-\subsection{Basic Concepts}
+\section{Basic Concepts}
 
-\subsubsection{Word}
+\subsection{Word}
 A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$.
 
-\subsubsection{Universe}
+\subsection{Universe}
 The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$. 
 
-\subsubsection{The Predecessor Problem}
+\subsection{The Predecessor Problem}
 Data structures that maintain a set, $S$ of (integer) keys and enable the following operations are said to solve the static predecessor problem \cite{beame1999optimal}:
 \begin{itemize}
     \item
@@ -75,7 +75,7 @@ In particular, the data structure presented in \cite{patrascu2014dynamic} not on
 
 Given this set of standard operations, this data structure solves the dynamic predecessor problem \cite{beame1999optimal}.
 
-\subsubsection{Models of Computation}\label{sec:modelsofcomputation}
+\subsection{Models of Computation}\label{sec:modelsofcomputation}
 
 In order to analyze and describe running times, authors resort to models of computation. Each model states which operations have an associated cost, and which ones do not.
 These models provide no unit of cost, and the given operations either have one unit of cost, or none.
@@ -86,12 +86,12 @@ Nevertheless, we will enumerate some models of computation, as many of the data 
 
 The models are presented in descending order from strongest to the least strong. This means that a less restrictive model, such as the cell-probe model is more suited to describe the theoretical \emph{lower} bounds of a data structure than the least stronger ones \cite{erikdemainelec11}.
 
-\paragraph{The Cell-Probe Model}
+\subsubsection{The Cell-Probe Model}
 In the cell-probe model memory is divided into cells of size $w$, a parameter of the model. Every computation is free.
 The only operations that come with an associated cost are reading or writing to memory, which are basically the memory accesses.
 Due to its simplicity, as stated in \ref{sec:modelsofcomputation}, it is widely used to prove lower bounds \cite{erikdemainelec11}.
 
-\paragraph{Trans-dichotomous RAM}
+\subsubsection{Trans-dichotomous RAM}
 In the trans-dichotomous RAM model, memory consists of an array of size $S$ of $w$-bit words.
 Reading or writing to one of the memory cells costs $O(1)$.
 Additionally, memory cells can be used as pointers to other cells, e.g. a single $w$-bit word can be used to access another cell.
@@ -102,7 +102,7 @@ Let the problem size be $n$:
 \end{equation}
 The name is due to expression~\ref{eq:problemSize}, which relates two dichotomies: problem size $n$; and the model of computation with words of size $w$ \cite{erikdemainelec11}. 
 
-\paragraph{Word RAM}
+\subsubsection{Word RAM}
 Similarly to the trans-dichotomous RAM model, the word RAM also operates with fixed size $w$-bit words. Additionally, the following operations have an associated cost \cite{nelsonjelanilec1}:
 \begin{itemize}
     \item Integer arithmetic (addition $+$, subtraction $-$, multiplication $\times$, division $\div$ and remainder of division (modulo) $\bmod$);
@@ -110,7 +110,7 @@ Similarly to the trans-dichotomous RAM model, the word RAM also operates with fi
     \item Bitshift operations (right bitshift $\gg$, left bitshift $\ll$).
 \end{itemize}
 
-\subsection{Integer Data Structures}
+\section{Integer Data Structures}
 
 Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data structures that, in incremental steps, led to the data structure presented in this project.
 
@@ -121,19 +121,90 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 \label{tab:dataStructComparison}
 \end{table}
 
-\subsubsection{Binary Search Tries}
+\subsection{Binary Search Tries}
 
-\subsubsection{Patricia Tries}
+\subsection{Patricia Tries}
 
-\subsubsection{Fusion Trees}
+\subsection{Fusion Trees}
 
-\subsection{Summary of techniques used in the present implementation}
+\section{Summary of techniques used in the present implementation}
 
-\section{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
+\chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 
 \subsection{Code base navigation}
 
-\subsection{Correctness tests}
+\section{Naive implementation}
+We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}. It holds a {\ttfamily key} array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
+
+The basic idea behind this implementation is to store the keys in {\ttfamily key}, making their respective rank the same as the their index in that array. In other words, {\ttfamily key} is always sorted.
+
+Updates, e.g. insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in {\ttfamily key} is its rank, all the keys with rank larger than the new key have to be moved one position to the right in {\ttfamily key} to make room for the new key and keeping rank consistent.
+
+A rank query takes $O(lg(n))$ because a binary search is performed on KEY. Select is faster: $O(1)$, because we need only to access and return the key a position $i$ in KEY to fulfill the query.
+
+\section{DynamicFusionNode with binary search for Rank}
+We take a step forward by improving on the previous idea: this time, two additional words, {\ttfamily index} and {\ttfamily bKey} are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the {\ttfamily rank} operation resorts to binary search to produce the result.
+
+We interpret {\ttfamily bKey} as an array where the values first $k$ significant bits correspond to the positions in {\ttfamily key}. If bit $0$ of {\ttfamily bKEY} is set to $1$, then position $0$ in {\ttfamily key} is free and can store a key, and vice-versa.
+
+We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in {\ttfamily index}, and knowing that our program is working with 64-bit integers, we solve the following equation:
+\begin{equation}
+    k \cdot log_2(k) = 64 \iff k = 16
+\end{equation}
+If $k=16$, then $\lceil \log_2(k) \rceil = 4$. We use each $\lceil \log_2(k) \rceil$-bits in {\ttfamily index} to store the indices of the keys in {\ttfamily key}, ensuring that in {\ttfamily index} the
+
+\chapter{Correctness tests}
+
+\section{Integer Data Structure tests}
+
+\subsection{Test parameters}
+
+Each implementation of {\ttfamily RankSelectPredecessorUpdate} has a corresponding test class, which in turn has {\ttfamily Test} appended to its name. For example, the {\ttfamily BinarySearchTrie} test class is called {\ttfamily BinarySearchTrieTest} and it can be found in the {\ttfamily src/test/java} folder.
+
+Each test class creates an instance of {\ttfamily RankSelectPredecessorUpdateTest} whose methods take a concrete implementation of {\ttfamily RankSelectPredecessorUpdate} to be tested. The constructor takes the following parameters:
+
+\begin{itemize}
+    \item {\ttfamily long seed}. This seed is used as parameter for instantiating a pseudo-random generator from the Java standard library --- {\ttfamily java.util.Random}. This instance will be later used to produce data for the test cases, such as seeds for passes (explained below), which in their turn will produce keys to be used in the tests.
+    \item {\ttfamily int passes}. Some tests can be executed in more than one pass. A pass in a particular test consists of generating data with its corresponding seed and running the test with that data. When $passes > 1$, then different seeds are generated, which will result in different pseudo-random values and the test is run {\ttfamily passes} number of times.
+    \item {\ttfamily int numKeys}. This parameter defines the size of the data set to be generated. It is particular important for testing for instance {\ttfamily DynamicFusionNode}, which size cannot exceed $k$.
+\end{itemize}
+
+\subsection{{\ttfamily insertAndMemberSmallTest()}}
+The methods tested in this test are:
+\begin{itemize}
+    \item
+    {\ttfamily insert}
+    \item
+    {\ttfamily member}
+\end{itemize}
+A small set of predetermined keys is inserted in the set and then {\ttfamily member} is called on the set with each of those keys. 
+
+\subsection{{\ttfamily insertThenMemberTest()}}
+
+The methods tested in this test are {\ttfamily insert} and {\ttfamily member}, and it can be executed in passes. It consists of:
+\begin{enumerate}
+    \item
+    Iterating through all the the pseudo-randomly-generated keys and inserting them all in the instance to be tested.
+    \item
+    Iterating in random order through all the keys and asserting $key \in S$.
+\end{enumerate}
+ 
+
+\subsection{{\ttfamily smallCorrectnessTest()}}
+
+An instance of a {\ttfamily RankSelectPredecessorUpdate} implementation is instantiated and keys are inserted such that after these insertions $S = \{10, 12, 42, -1337, -42\}$.
+
+It is defined that:
+\begin{itemize}
+    \item Select queries can range between $0$ and $|S|-1$. Should any query fall outside this range, then {\ttfamily null} is returned, meaning, no result.
+    \item $Select(0) = min\{y \in S \}$.
+    \item $Select(|S|-1) = max\{y \in S\}$.
+    \item Rank queries be any $w$-bit integer, and their possible range of results $\big[ 0, |S| \big]$
+    \item Any given predecessor query returns the largest key in the subset of keys that are \textbf{strictly} smaller than the query, otherwise {\ttfamily null}.
+    \item Whereas a successor query returns the queried key if present, otherwise the smallest key in the subset of keys that are larger than the query if any (and in such case {\ttfamily null} is returned).
+\end{itemize}
+
+With the given set and the above-mentioned rules, a small test is performed. Table~\ref{tab:smallCorrectnessTests} shows the expressions to be evaluated, and all of them must evaluate to {\ttfamily true} for the test to pass.
 
 \begin{table}[H]
 \centering
@@ -141,3 +212,46 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 \caption[Small correctness tests]{Small correctness tests.}
 \label{tab:smallCorrectnessTests}
 \end{table}
+
+\subsection{{\ttfamily insertThenDeleteRangeOfKeysTest()}}
+
+The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. It consists of iterating the whole range (which goes from $0$ to {\ttfamily numKeys}), where each iteration {\ttfamily i} consists of:
+\begin{enumerate}
+    \item
+    Asserting that the key, {\ttfamily i} is not in the set by calling {\ttfamily member} on the set with the key.
+    \item
+    Inserting the key {\ttfamily i} in the set.
+    \item
+    Asserting that the key {\ttfamily i} is in the set.
+\end{enumerate}
+
+\subsection{{\ttfamily insertThenDeleteRandomKeysTest()}}
+
+The methods testes in this test are {\ttfamily insert} and {\ttfamily delete} and it can be executed in passes. After inserting all the pseudo-randomly-generated keys in .Iterate in random order through all the keys and:It consists of:
+\begin{enumerate}
+    \item Assert that {@code member(key)} is {@code true}.
+    \item Remove the {@code key}
+    \item Assert that {@code member(key)} is {@code false}
+\end{enumerate}
+
+\subsection{{\ttfamily growingRankTest()}} This test aims ensuring that the following property holds for all the keys in the set: the rank of keys in sorted order is a monotone increasing function. This test can be executed in passes and it is works the following way:
+\begin{itemize}
+    \item After inserting all the keys in the set, a copy of those keys is kept on a {\ttfamily TreeSet} (a set that keeps its values in sorted order) such that we can iterate them in their sorted order.
+    \item A counter {\ttfamily i} is kept and initialized as $0$. It is incremented at each iteration.
+    \item The test then asserts that the rank of the key is the same as the number of current iteration. Note that we can assume that this condition must hold because the keys are iterated in sorted order. 
+\end{itemize}
+
+\subsection{{\ttfamily sizeTest()}}
+   * Inserts keys, one by one, to the {@code testSet}, evaluating the {@code size()} at every step.
+   * This test is executed in passes.
+
+\subsection{{\ttfamily selectOfRankTest()}}
+
+   * Asserts that {@code select(rank(key)) == key} is {@code true} for all keys in the set.
+   * This test is executed in passes.
+
+\subsection{{\ttfamily rankOfSelectTest()}}
+
+   * Asserts that {@code rank(select(i) == i} is {@code true} for every {@code i} ranging from 0 to
+   * {@code numKeys} (exclusive).
+   * This test is executed in passes.
