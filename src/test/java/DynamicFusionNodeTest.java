@@ -60,6 +60,11 @@ class DynamicFusionNodeTest {
   }
 
   @Test
+  void deleteTest() {
+    test.deleteTest(set);
+  }
+
+  @Test
   void sizeTest() {
     test.sizeTest(set);
   }

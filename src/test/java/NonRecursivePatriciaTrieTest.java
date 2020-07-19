@@ -58,6 +58,11 @@ class NonRecursivePatriciaTrieTest {
   void insertThenDeleteRandomKeysTest() {
     test.insertThenDeleteRandomKeysTest(set);
   }
+  
+  @Test
+  void deletTest() {
+    test.deleteTest(set);
+  }
 
   @Test
   void sizeTest() {

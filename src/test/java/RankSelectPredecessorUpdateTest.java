@@ -81,7 +81,7 @@ class RankSelectPredecessorUpdateTest {
    * keys corresponding to that {@code pass} in the set.
    * 
    * @param testSet the set to insert the keys
-   * @param pass the pass to 
+   * @param pass the corresponding pass
    */
   private void insertAllKeys(final RankSelectPredecessorUpdate testSet, final int pass) {
 
@@ -366,6 +366,36 @@ class RankSelectPredecessorUpdateTest {
     }
   }
 
+  void deleteTest(final RankSelectPredecessorUpdate testSet) {
+
+    for (int p = 0; p < passes; p++) {
+
+      insertAllKeys(testSet, p);
+      final Random rand = new Random(seeds.get(p));
+      final Set<Long> keys = new HashSet<>(keySetList.get(p));
+
+      long i = 0;
+      while (keys.size() > 0) {
+        i++;
+        long key = rand.nextLong();
+        testSet.delete(key);
+
+        StringBuilder errorMessage = new StringBuilder("Pass ").append((p + 1)).append("/")
+            .append("" + passes).append(" | Iteration ").append("" + i).append(" | Seed: ")
+            .append("" + seeds.get(p)).append(" | Key deleted: ").append("" + key).append("\n");
+
+        if (keys.remove(key)) {
+          errorMessage.append("Removing existing key returned wrong size().");
+        } else {
+          errorMessage.append("Removing non-existing key returned wrong size().");
+        }
+        
+        assertEquals(keys.size(), testSet.size(),
+            errorMessage.toString());
+      }
+    }
+  }
+
   /**
    * Inserts keys, one by one, to the {@code testSet}, evaluating the {@code size()} at every step.
    * This test is executed in passes.
@@ -373,8 +403,6 @@ class RankSelectPredecessorUpdateTest {
    * @param testSet the data structure to be tested
    */
   void sizeTest(final RankSelectPredecessorUpdate testSet) {
-
-    // generateSeeds();
 
     for (int p = 0; p < passes; p++) {
 
@@ -434,7 +462,7 @@ class RankSelectPredecessorUpdateTest {
   }
 
   /**
-   * Asserts that {@code rank(select(i) == i} is {@code true} for every {@code i} ranging from 0 to
+   * Asserts that {@code rank(select(i)) == i} is {@code true} for every {@code i} ranging from 0 to
    * {@code numKeys} (exclusive).
    * This test is executed in passes.
    * 
