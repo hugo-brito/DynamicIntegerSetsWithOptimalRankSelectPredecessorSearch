@@ -369,7 +369,6 @@ class RankSelectPredecessorUpdateTest {
   void deleteTest(final RankSelectPredecessorUpdate testSet) {
 
     for (int p = 0; p < passes; p++) {
-      System.err.println("Pass = " + p);
 
       assertEquals(0, testSet.size());
       insertAllKeys(testSet, p);

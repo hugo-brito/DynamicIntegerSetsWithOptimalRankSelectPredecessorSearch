@@ -177,8 +177,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @return the index in KEY of the key with rank {@code i}
    */
   public int getIndex(final long i) {
-    final int res = (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
-    return res;
+    return (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
   }
 
   /**
@@ -189,17 +188,16 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param rank the rank of the key that has been put in KEY
    */
   public void updateIndex(final int rank) {
-    if (!(rank >= 0 && rank < k)) {
-      throw new IndexOutOfBoundsException("Invalid rank");
-    }
-
-    final long lo = (index << ((rank + 1) * ceilLgK)) >>> (rank * ceilLgK);
-
-    if (rank > 0) {
-      final long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
-      index = hi | lo;
+    if (rank >= 0 && rank < k) {
+      final long lo = (index << ((rank + 1) * ceilLgK)) >>> (rank * ceilLgK);
+      if (rank > 0) {
+        final long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+        index = hi | lo;
+      } else {
+        index = lo;
+      }
     } else {
-      index = lo;
+      throw new IndexOutOfBoundsException("Invalid rank");
     }
   }
 
@@ -213,20 +211,18 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param slot the real position of the key in KEY
    */
   public void updateIndex(final int i, final int slot) {
-    if (!(i >= 0 && i < k && slot >= 0 && slot < k)) {
-      throw new IndexOutOfBoundsException("Invalid rank or slot");
-    }
-
-    final long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
-
-    // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
-    final long mid = Integer.toUnsignedLong(slot) << ((k - 1 - i) * ceilLgK);
-
-    if (i > 0) {
-      final long hi = (index >>> ((k - i) * ceilLgK)) << (((k - i) * ceilLgK));
-      index = hi | mid | lo;
+    if (i >= 0 && i < k && slot >= 0 && slot < k) {
+      final long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
+      // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
+      final long mid = Integer.toUnsignedLong(slot) << ((k - 1 - i) * ceilLgK);
+      if (i > 0) {
+        final long hi = (index >>> ((k - i) * ceilLgK)) << (((k - i) * ceilLgK));
+        index = hi | mid | lo;
+      } else {
+        index = mid | lo;
+      }
     } else {
-      index = mid | lo;
+      throw new IndexOutOfBoundsException("Invalid rank or slot");
     }
   }
 
@@ -238,7 +234,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @return the rank of {@code x} in S
    */
   private int binaryRank(final long x) {
-    if (n == 0) {
+    if (isEmpty()) {
       return 0;
     }
 
