@@ -140,12 +140,12 @@ The basic idea behind this implementation is to store the keys in {\ttfamily key
 
 Updates, e.g. insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in {\ttfamily key} is its rank, all the keys with rank larger than the new key have to be moved one position to the right in {\ttfamily key} to make room for the new key and keeping rank consistent.
 
-A rank query takes $O(lg(n))$ because a binary search is performed on KEY. Select is faster: $O(1)$, because we need only to access and return the key a position $i$ in KEY to fulfill the query.
+A rank query takes $O(\log_2(n))$ because a binary search is performed on {\ttfamily key}. Select is faster: $O(1)$, because we need only to access and return the key at position {\ttfamily i} in {\ttfamily key} to fulfill the query.
 
 \section{DynamicFusionNode with binary search for Rank}
 We take a step forward by improving on the previous idea: this time, two additional words, {\ttfamily index} and {\ttfamily bKey} are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the {\ttfamily rank} operation resorts to binary search to produce the result.
 
-We interpret {\ttfamily bKey} as an array where the values first $k$ significant bits correspond to the positions in {\ttfamily key}. If bit $0$ of {\ttfamily bKEY} is set to $1$, then position $0$ in {\ttfamily key} is free and can store a key, and vice-versa.
+We interpret {\ttfamily bKey} as an array where the values first $k$ significant bits correspond to the positions in {\ttfamily key}. Let us assume that the bits in {\ttfamily bKey} are indexed from $0$ to $k-1$: if the $i^{th}$ bit is set to $1$, then position $i$ in {\ttfamily key} is free and can store a key, and vice-versa.
 
 We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in {\ttfamily index}, and knowing that our program is working with 64-bit integers, we solve the following equation:
 \begin{equation}
@@ -154,6 +154,16 @@ We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \
 If $k=16$, then $\lceil \log_2(k) \rceil = 4$. We use each $\lceil \log_2(k) \rceil$-bits in {\ttfamily index} to store the indices of the keys in {\ttfamily key}, ensuring that in {\ttfamily index} the
 
 \chapter{Correctness tests}
+
+\section{{\ttfamily Util} class tests}
+
+\subsection{MSB series tests}
+
+The {\ttfamily Util} class contains many different implementations of the MSB operation. All tests prefixed with {\ttfamily msb} in the {\ttfamily UtilTest} class compare the results of the Java standard library {\ttfamily numberOfLeadingZeros} (either from the {\ttfamily Integer} or {\ttfamily Long} classes, depending of the number of bits per integer) with the implementation from the class.
+
+\subsection{{\ttfamily splitLong} and {\ttfamily mergeInts}}
+
+For a determined range 64-bit keys, it evaluates if the following property holds for the whole range: {\ttfamily key == mergeInts(splitLong(key))}.
 
 \section{Integer Data Structure tests}
 
@@ -170,25 +180,7 @@ Each test class creates an instance of {\ttfamily RankSelectPredecessorUpdateTes
 \end{itemize}
 
 \subsection{{\ttfamily insertAndMemberSmallTest()}}
-The methods tested in this test are:
-\begin{itemize}
-    \item
-    {\ttfamily insert}
-    \item
-    {\ttfamily member}
-\end{itemize}
-A small set of predetermined keys is inserted in the set and then {\ttfamily member} is called on the set with each of those keys. 
-
-\subsection{{\ttfamily insertThenMemberTest()}}
-
-The methods tested in this test are {\ttfamily insert} and {\ttfamily member}, and it can be executed in passes. It consists of:
-\begin{enumerate}
-    \item
-    Iterating through all the the pseudo-randomly-generated keys and inserting them all in the instance to be tested.
-    \item
-    Iterating in random order through all the keys and asserting $key \in S$.
-\end{enumerate}
- 
+The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. A small set of predetermined keys is inserted in the set and then {\ttfamily member} is called on the set with each of those keys. 
 
 \subsection{{\ttfamily smallCorrectnessTest()}}
 
@@ -213,6 +205,17 @@ With the given set and the above-mentioned rules, a small test is performed. Tab
 \label{tab:smallCorrectnessTests}
 \end{table}
 
+
+\subsection{{\ttfamily insertThenMemberTest()}}
+
+The methods tested in this test are {\ttfamily insert} and {\ttfamily member}, and it can be executed in passes. It consists of:
+\begin{enumerate}
+    \item
+    Iterating through all the the pseudo-randomly-generated keys and inserting them all in the instance to be tested.
+    \item
+    Iterating in random order through all the keys and asserting $key \in S$.
+\end{enumerate}
+
 \subsection{{\ttfamily insertThenDeleteRangeOfKeysTest()}}
 
 The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. It consists of iterating the whole range (which goes from $0$ to {\ttfamily numKeys}), where each iteration {\ttfamily i} consists of:
@@ -224,34 +227,53 @@ The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. I
     \item
     Asserting that the key {\ttfamily i} is in the set.
 \end{enumerate}
+Should the number of keys exceed 9, then every $1/10$ of {\ttfamily numKeys} the data structures is reset and all keys are removed.
 
 \subsection{{\ttfamily insertThenDeleteRandomKeysTest()}}
 
-The methods testes in this test are {\ttfamily insert} and {\ttfamily delete} and it can be executed in passes. After inserting all the pseudo-randomly-generated keys in .Iterate in random order through all the keys and:It consists of:
+The methods tested in this test are {\ttfamily insert} and {\ttfamily delete} and it can be executed in passes. After inserting all the pseudo-randomly-generated keys in the set, the keys are iterated in random order. Each iteration consists of:
 \begin{enumerate}
-    \item Assert that {@code member(key)} is {@code true}.
-    \item Remove the {@code key}
-    \item Assert that {@code member(key)} is {@code false}
+    \item Asserting that $key \in S$.
+    \item Removing the key.
+    \item Asserting that $key \not\in S$.
 \end{enumerate}
 
-\subsection{{\ttfamily growingRankTest()}} This test aims ensuring that the following property holds for all the keys in the set: the rank of keys in sorted order is a monotone increasing function. This test can be executed in passes and it is works the following way:
-\begin{itemize}
-    \item After inserting all the keys in the set, a copy of those keys is kept on a {\ttfamily TreeSet} (a set that keeps its values in sorted order) such that we can iterate them in their sorted order.
-    \item A counter {\ttfamily i} is kept and initialized as $0$. It is incremented at each iteration.
-    \item The test then asserts that the rank of the key is the same as the number of current iteration. Note that we can assume that this condition must hold because the keys are iterated in sorted order. 
-\end{itemize}
+\subsection{{\ttfamily deleteTest()}}
+
+This test aims at asserting that only when deleting an existing key the cardinality of the set is altered. It tests the methods {\ttfamily delete} and size, and it can be executed in passes. At each pass:
+\begin{enumerate}
+    \item
+    Pseudo-random keys are generated and delete on the set is called with that key.
+    \item
+    If the key was in the set, them the size must have decreased, otherwise it must remain the same.
+\end{enumerate}
 
 \subsection{{\ttfamily sizeTest()}}
-   * Inserts keys, one by one, to the {@code testSet}, evaluating the {@code size()} at every step.
-   * This test is executed in passes.
+
+The methods tested in this test are {\ttfamily insert}, {\ttfamily size} and {\ttfamily delete} and it can be executed in passes. Each pass consists of:
+\begin{enumerate}
+    \item
+    Iterating the pseudo-randomly-generated keys in random order. At each iteration the key is inserted and it is asserted that {\ttfamily size} has increased by 1.
+    \item
+    After all the keys have been inserted, the keys are iterated in random order once more and at each iteration the key is removed and it is asserted that {\ttfamily size} has decreased by 1.
+\end{enumerate}
+
+\subsection{{\ttfamily growingRankTest()}}
+
+This test aims ensuring that the following property holds for all the keys in the set: the rank of keys in sorted order is a monotone increasing function. It can be executed in passes and it is works the following way:
+\begin{itemize}
+    \item
+    After inserting all the keys in the set, a copy of those keys is kept on a {\ttfamily TreeSet} (a set that keeps its values in sorted order) such that we can iterate them in their sorted order.
+    \item
+    A counter {\ttfamily i} is kept and initialized as $0$. It is incremented at each iteration.
+    \item
+    The test then asserts that the rank of the key is the same as the number of current iteration. Note that we can assume that this condition must hold because the keys are iterated in sorted order. 
+\end{itemize}
 
 \subsection{{\ttfamily selectOfRankTest()}}
 
-   * Asserts that {@code select(rank(key)) == key} is {@code true} for all keys in the set.
-   * This test is executed in passes.
+This test aims ensuring that the following property holds for all the keys in the set: if a key is present in the set, knowing its rank and them querying for select of that must return the key. It can be executed in passes and it is works by iterating through the pseudo-randomly-generated keys and at each iteration it is asserted that {\ttfamily key == select(rank(key))}.
 
 \subsection{{\ttfamily rankOfSelectTest()}}
 
-   * Asserts that {@code rank(select(i) == i} is {@code true} for every {@code i} ranging from 0 to
-   * {@code numKeys} (exclusive).
-   * This test is executed in passes.
+This test aims ensuring that the following property holds for all the keys in the set: the rank of select a query is the query. It can be executed in passes and it is works by iterating from {\ttfamily 0} to {\ttfamily numKeys}. At each iteration {\ttfamily i}, it is asserted that {\ttfamily i == rank(select(i))}.
