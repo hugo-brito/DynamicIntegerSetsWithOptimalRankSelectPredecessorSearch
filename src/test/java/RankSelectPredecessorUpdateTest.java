@@ -369,8 +369,11 @@ class RankSelectPredecessorUpdateTest {
   void deleteTest(final RankSelectPredecessorUpdate testSet) {
 
     for (int p = 0; p < passes; p++) {
+      System.err.println("Pass = " + p);
 
+      assertEquals(0, testSet.size());
       insertAllKeys(testSet, p);
+      assertEquals(numKeys, testSet.size());
       final Random rand = new Random(seeds.get(p));
       final Set<Long> keys = new HashSet<>(keySetList.get(p));
 
@@ -390,9 +393,10 @@ class RankSelectPredecessorUpdateTest {
           errorMessage.append("Removing non-existing key returned wrong size().");
         }
         
-        assertEquals(keys.size(), testSet.size(),
-            errorMessage.toString());
+        assertEquals(keys.size(), testSet.size(), errorMessage.toString());
+
       }
+      assertTrue(testSet.isEmpty(), "problem in bKey");
     }
   }
 

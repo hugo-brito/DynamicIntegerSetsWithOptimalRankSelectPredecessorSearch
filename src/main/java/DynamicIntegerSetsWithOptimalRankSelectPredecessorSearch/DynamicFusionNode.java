@@ -127,15 +127,26 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     bKey = -1;
   }
 
+  @Override
+  public boolean isEmpty() {
+    // return bKey == -1;
+    return n == 0;
+  }
+
   /** Returns the index of the first empty slot in KEY.
    * 
    * @return the index in KEY of the first empty slot.
    */
   public int firstEmptySlot() {
-    if (n == k) { // no empty spot
-      return -1;
+    int res = Util.msb(bKey);
+    if (res < k) {
+      return res;
     }
-    return Util.msb(bKey);
+    return -1;
+    // if (n == k) { // no empty spot
+    //   return -1;
+    // }
+    // return Util.msb(bKey);
   }
 
   /** Sets position {@code j} in KEY to not empty.
@@ -155,6 +166,42 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   public void vacantSlot(final int j) {
     if (j >= 0 && j < k) {
       bKey |= 1L << (31 - j);
+    } else {
+      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
+    }
+  }
+
+    /** Returns the index of the first empty slot in KEY.
+   * 
+   * @return the index in KEY of the first empty slot.
+   */
+  public static int firstEmptySlot(int target) {
+    int res = Util.msb(target);
+    if (res < 16) {
+      return res;
+    }
+    return -1;
+  }
+
+  /** Sets position {@code j} in KEY to not empty.
+   * @param j the position to be made unavailable
+   */
+  public static int fillSlot(int target, final int j) {
+    int k = 16;
+    if (j >= 0 && j < k) {
+      return target &= ~(1L << (31 - j));
+    } else {
+      throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
+    }
+  }
+
+  /** Sets position {@code j} in KEY to empty.
+   * @param j the position to be made available
+   */
+  public static int vacantSlot(int target, final int j) {
+    int k = 16;
+    if (j >= 0 && j < k) {
+      return target |= 1L << (31 - j);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
@@ -261,5 +308,19 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param args --
    */
   public static void main(final String[] args) {
+    int target = -1; // 0b1111_1111_1111_1111_0000_0000_0000_0000;
+    for (int i = 0; i < 16; i++) {
+      System.out.println("i = " + i);
+      // Util.print(DynamicFusionNode.firstEmptySlot(target));
+      target = DynamicFusionNode.fillSlot(target, i);
+      Util.print(Util.bin(target));
+      target = DynamicFusionNode.vacantSlot(target, i);
+      Util.print(Util.bin(target));
+      target = DynamicFusionNode.fillSlot(target, i);
+      Util.print(Util.bin(target));
+    }
+
+
+    Util.print(DynamicFusionNode.firstEmptySlot(target));
   }
 }

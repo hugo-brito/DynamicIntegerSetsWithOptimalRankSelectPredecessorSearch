@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 class BinarySearchTrieTest {
 
   static final long seed = 42;
-  static final int passes = 20;
-  static final int numKeys = 100_000;
+  static final int passes = 10_000;
+  static final int numKeys = 16;
 
   private BinarySearchTrie set;
   private static RankSelectPredecessorUpdateTest test;
@@ -60,7 +60,7 @@ class BinarySearchTrieTest {
   }
   
   @Test
-  void deletTest() {
+  void deleteTest() {
     test.deleteTest(set);
   }
 
