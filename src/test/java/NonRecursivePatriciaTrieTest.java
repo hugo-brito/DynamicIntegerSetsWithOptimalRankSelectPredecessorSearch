@@ -50,13 +50,18 @@ class NonRecursivePatriciaTrieTest {
   }
 
   @Test
+  void insertThenDeleteRangeOfKeysTest() {
+    test.insertThenDeleteRangeOfKeysTest(set);
+  }
+
+  @Test
   void insertThenDeleteRandomKeysTest() {
     test.insertThenDeleteRandomKeysTest(set);
   }
 
   @Test
-  void insertThenDeleteRangeOfKeysTest() {
-    test.insertThenDeleteRangeOfKeysTest(set);
+  void sizeTest() {
+    test.sizeTest(set);
   }
 
   @Test
@@ -72,10 +77,5 @@ class NonRecursivePatriciaTrieTest {
   @Test
   void rankOfSelectTest() {
     test.rankOfSelectTest(set);
-  }
-
-  @Test
-  void sizeTest() {
-    test.sizeTest(set);
   }
 }
