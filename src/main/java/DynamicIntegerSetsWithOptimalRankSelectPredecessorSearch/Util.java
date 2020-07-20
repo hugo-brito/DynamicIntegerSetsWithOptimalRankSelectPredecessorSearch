@@ -378,13 +378,13 @@ public class Util {
   }
 
   public static void rank_lemma_1() {
-    final int A = 0b1011_0111_0100_0011; // compressed keys in descending sorted order!
-    System.out.print(" A     = ");
+    final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+    System.out.print("           A = ");
     printBin(A);
     // int x = 0b0001; // a key which rank I'm looking for
-    int x = 0b0000;
+    int x = 0b0100;
 
-    System.out.print(" x     = ");
+    System.out.print("           x = ");
     printBin(x);
 
     int w = 16;
@@ -396,27 +396,27 @@ public class Util {
 
     int M = M(b, w);
 
-    System.out.print(" M     = ");
+    System.out.print("           M = ");
     printBin(M);
 
-    System.out.print(" M * x = ");
+    System.out.print("       M * x = ");
     printBin(M * x);
 
     int d = A - (M * x);
 
-    System.out.print("A-(M*x)= ");
+    System.out.print(" A - (M * x) = ");
     printBin(d);
 
     // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
     int mask = 0b1000 * M;
 
-    System.out.print(" mask  = ");
+    System.out.print("        mask = ");
     printBin(mask);
 
-    System.out.print("d &mask= ");
-    printBin(d & mask);
+    System.out.print("(d&mask)^mask= ");
+    printBin((d & mask) ^ mask);
 
-    print(" msb/b = " + (Integer.SIZE - msb(d & mask)) / b);
+    print("     msb / b = " + (Integer.SIZE - msb((d & mask) ^ mask)) / b);
 
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
