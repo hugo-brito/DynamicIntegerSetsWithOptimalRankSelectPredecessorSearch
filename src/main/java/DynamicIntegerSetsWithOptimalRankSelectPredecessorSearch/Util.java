@@ -331,6 +331,8 @@ public class Util {
     return (val >> (31 - d)) & 1;
   }
 
+
+
   /** Sets bit at position {@code bit} to 1 and returns the key {@code key}.
    * 
    * @param target the key to have the bit altered
@@ -346,32 +348,85 @@ public class Util {
     System.out.println(s);
   }
 
+    
+  public static void printBin(final int x) {
+    StringBuilder res = new StringBuilder("0b");
+    String bin = bin(x);
+    res.append(bin.substring(0, 4));
+    for (int i = 4; i < Integer.SIZE; i += 4) {
+      res.append("_").append(bin.substring(i, i + 4));
+    }
+    Util.print(res.toString());
+  }
+
+  public static void printBin(final long x) {
+    StringBuilder res = new StringBuilder("0b");
+    String bin = bin(x);
+    res.append(bin.substring(0, 4));
+    for (int i = 4; i < Long.SIZE; i += 4) {
+      res.append("_").append(bin.substring(i, i + 4));
+    }
+    Util.print(res.toString());
+  }
+
+  public static int M(final int b, final int w) {
+    int M = 1;
+    for (int i = 1; i < (w / b); i++) {
+      M |= 1 << (i * b);
+    }
+    return M;
+  }
+
+  public static void rank_lemma_1() {
+    final int A = 0b1011_0111_0100_0011; // compressed keys in descending sorted order!
+    System.out.print(" A     = ");
+    printBin(A);
+    // int x = 0b0001; // a key which rank I'm looking for
+    int x = 0b0000;
+
+    System.out.print(" x     = ");
+    printBin(x);
+
+    int w = 16;
+    int b = 4; // block size
+    // with this block size and we can index 16 different keys (0..15)
+
+    int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
+    // it's 8
+
+    int M = M(b, w);
+
+    System.out.print(" M     = ");
+    printBin(M);
+
+    System.out.print(" M * x = ");
+    printBin(M * x);
+
+    int d = A - (M * x);
+
+    System.out.print("A-(M*x)= ");
+    printBin(d);
+
+    // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
+    int mask = 0b1000 * M;
+
+    System.out.print(" mask  = ");
+    printBin(mask);
+
+    System.out.print("d &mask= ");
+    printBin(d & mask);
+
+    print(" msb/b = " + (Integer.SIZE - msb(d & mask)) / b);
+
+    // The rank of x is equal to the number of blocks whose left-most bit is 1
+  }
+
   /** Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
-    final int i = Integer.MAX_VALUE;
-    System.out.println("Binary representation: " + bin(i));
-    System.out.println("Indices go from 0 .. 31. If it returns -1 then there is no 1-bit");
-    System.out.println("MSB standard library: " + msb(i));
-    System.out.println("LSB using MSB standard library: " + lsb(i));
-    // System.out.println(new BitsKey(Double.doubleToRawLongBits(1)).bin());
-
-    final long j = -6442450944L;
-    System.out.println("whole 64 bits:\n" + bin(j));
-    System.out.println(bin(splitLong(j)[0]));
-    System.out.println(bin(splitLong(j)[1]));
-    System.out.println(bin(mergeInts(splitLong(j))));
-    System.out.println(Arrays.toString(new String[]{bin(splitLong(j)[0]), bin(splitLong(j)[1])}));
-    System.out.println(msbObvious(j));
-    System.out.println(msbLookupDistributedInput(j));
-
-    System.out.println(bin(mergeInts(splitLong(j))));
-    System.out.println(mergeInts(splitLong(j)) == j);
-
-    System.out.println(bin(-6442450944L));
-
+    rank_lemma_1();
   }
 
 }
