@@ -337,8 +337,9 @@ class RankSelectPredecessorUpdateTest {
             "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys
             + ": expected member(" + key + ") == false\n");
       }
-
-      testSet.reset();
+      assertTrue(testSet.isEmpty(),
+          "Pass " + (p + 1) + "/" + passes + " | Seed: " + seeds.get(p)
+          + "\nDeleting all keys, expected set to be empty!\n");
     }
   }
 
@@ -401,7 +402,9 @@ class RankSelectPredecessorUpdateTest {
         assertEquals(keys.size(), testSet.size(), errorMessage.toString());
 
       }
-      assertTrue(testSet.isEmpty(), "problem in bKey");
+      assertTrue(testSet.isEmpty(),
+          "Pass " + (p + 1) + "/" + passes + " | Seed: " + seeds.get(p)
+          + "\nDeleting all keys, expected set to be empty!\n");
     }
   }
 
@@ -443,7 +446,9 @@ class RankSelectPredecessorUpdateTest {
             + "\nAfter deletion, expected KeysInS == size()\n");
       }
 
-      testSet.reset();
+      assertTrue(testSet.isEmpty(),
+          "Pass " + (p + 1) + "/" + passes + " | Seed: " + seeds.get(p)
+          + "\nDeleting all keys, expected set to be empty!\n");
     }
   }
 
