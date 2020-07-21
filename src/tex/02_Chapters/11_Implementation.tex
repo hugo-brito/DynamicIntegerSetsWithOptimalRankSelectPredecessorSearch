@@ -129,6 +129,30 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 
 \section{Summary of techniques used in the present implementation}
 
+\subsection{Most significant set bit}
+
+Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we have looked at different ways to achieve this result efficiently. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully.
+
+\subsubsection{Naive}
+
+The simplest way to achieve the intended outcome is to loop through the word until the first non-zero bit is found, returning the number of iterations that it took to find that bit.
+
+This approach takes $O(w)$ time.
+
+\subsubsection{Lookup}
+
+In this approach, a lookup table containing the most significant bits answers for all combinations of 8 bits is pre-computed.
+
+When a query comes, it is split in 8-bit parts and the algorithm looks at the first 8 most significant bits. If those bits are not zero, then the most significant bit of the queried word lies in that block. In such case, the answer will be the most significant set bit of that block plus all the bits that were discarded, e.g. the number of bits we had to shift to the right in order to have that 8-bit block in the 8 least significant positions of the word. Since the answer to any combination of of 8 bits is pre-computed, then we know the answer in constant time.
+
+Otherwise, if the first block of 8 bits is 0, the algorithm looks at the second 8-bit block and does the same operation as described in the previous paragraph, subtracting now 8 bits less to the answer.
+
+This approach takes $O(1)$ after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
+
+\subsubsection{Constant time with parallel comparison}
+
+
+
 \chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 
 \subsection{Code base navigation}
