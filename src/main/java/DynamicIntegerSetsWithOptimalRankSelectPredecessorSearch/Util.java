@@ -66,26 +66,28 @@ public class Util {
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
-  public static int msbLibrary(int x) {
+  public static int msbLibrary(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
     return Integer.numberOfLeadingZeros(x);
   }
 
-  /** Uses the standard library function to calculate msb(x).
+  /**
+   * Uses the standard library function to calculate msb(x).
    * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
-  public static int msbLibrary(long x) {
+  public static int msbLibrary(final long x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
     return Long.numberOfLeadingZeros(x);
   }
 
-  /** Naive way to calculate msb(x) as described in:
+  /**
+   * Naive way to calculate msb(x) as described in:
    * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious
    * 
    * @param x the key to be evaluated
@@ -105,7 +107,8 @@ public class Util {
     return r;
   }
 
-  /** Naive way to calculate msb(x) as described in:
+  /**
+   * Naive way to calculate msb(x) as described in:
    * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious
    * 
    * @param x the key to be evaluated
@@ -127,7 +130,8 @@ public class Util {
 
   static int[] LogTable256;
 
-  /** Populates a lookup table for fast queries of msb.
+  /**
+   * Populates a lookup table for fast queries of msb.
    * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
    */
   public static void generateLookupTable() {
@@ -141,7 +145,9 @@ public class Util {
     }
   }
 
-  /** Uses the lookup table to return the most significant bit in {@code x} as described in
+  /**
+   * Uses the lookup table to return the most significant bit in {@code x} as
+   * described in
    * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
    * 
    * @param x the key to be evaluated
@@ -166,8 +172,9 @@ public class Util {
     return 31 - r;
   }
 
-  /** Splits the long {@code x} and then uses msbLookupDistributedOutput to return the most
-   * significant bit.
+  /**
+   * Splits the long {@code x} and then uses msbLookupDistributedOutput to return
+   * the most significant bit.
    * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
@@ -187,7 +194,9 @@ public class Util {
     return high;
   }
 
-  /** Uses the lookup table to return the most significant bit in {@code x} as described in
+  /**
+   * Uses the lookup table to return the most significant bit in {@code x} as
+   * described in
    * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
    * 
    * @param x the key to be evaluated
@@ -216,8 +225,9 @@ public class Util {
     return 31 - r;
   }
 
-  /** Splits the long {@code x} and then uses msbLookupDistributedInput to return the most
-   * significant bit.
+  /**
+   * Splits the long {@code x} and then uses msbLookupDistributedInput to return
+   * the most significant bit.
    * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
@@ -308,11 +318,11 @@ public class Util {
   }
 
   /**
-   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit.
-   * Digits are indexed 0..63.
+   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
+   * are indexed 0..63.
    * 
    * @param val the long value to have the digit extracted from
-   * @param d the digit index
+   * @param d   the digit index
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
   public static int bit(final long val, final int d) {
@@ -331,9 +341,8 @@ public class Util {
     return (val >> (31 - d)) & 1;
   }
 
-
-
-  /** Sets bit at position {@code bit} to 1 and returns the key {@code key}.
+  /**
+   * Sets bit at position {@code bit} to 1 and returns the key {@code key}.
    * 
    * @param target the key to have the bit altered
    * @param bit    the bit to be set to 1
@@ -348,23 +357,24 @@ public class Util {
     System.out.println(s);
   }
 
-    
   public static void printBin(final int x) {
-    StringBuilder res = new StringBuilder("0b");
-    String bin = bin(x);
-    res.append(bin.substring(0, 4));
-    for (int i = 4; i < Integer.SIZE; i += 4) {
-      res.append("_").append(bin.substring(i, i + 4));
+    final int blockSize = 4;
+    final StringBuilder res = new StringBuilder("0b");
+    final String bin = bin(x);
+    res.append(bin.substring(0, blockSize));
+    for (int i = blockSize; i < Integer.SIZE; i += blockSize) {
+      res.append("_").append(bin.substring(i, i + blockSize));
     }
     Util.print(res.toString());
   }
 
   public static void printBin(final long x) {
-    StringBuilder res = new StringBuilder("0b");
-    String bin = bin(x);
-    res.append(bin.substring(0, 4));
-    for (int i = 4; i < Long.SIZE; i += 4) {
-      res.append("_").append(bin.substring(i, i + 4));
+    final int blockSize = 8;
+    final StringBuilder res = new StringBuilder("0b");
+    final String bin = bin(x);
+    res.append(bin.substring(0, blockSize));
+    for (int i = blockSize; i < Long.SIZE; i += blockSize) {
+      res.append("_").append(bin.substring(i, i + blockSize));
     }
     Util.print(res.toString());
   }
@@ -382,19 +392,19 @@ public class Util {
     System.out.print("           A = ");
     printBin(A);
     // int x = 0b0001; // a key which rank I'm looking for
-    int x = 0b0100;
+    final int x = 0b0100;
 
     System.out.print("           x = ");
     printBin(x);
 
-    int w = 16;
-    int b = 4; // block size
+    final int w = 16;
+    final int b = 4; // block size
     // with this block size and we can index 16 different keys (0..15)
 
-    int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
+    final int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
     // it's 8
 
-    int M = M(b, w);
+    final int M = M(b, w);
 
     System.out.print("           M = ");
     printBin(M);
@@ -402,13 +412,13 @@ public class Util {
     System.out.print("       M * x = ");
     printBin(M * x);
 
-    int d = A - (M * x);
+    final int d = A - (M * x);
 
     System.out.print(" A - (M * x) = ");
     printBin(d);
 
     // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
-    int mask = 0b1000 * M;
+    final int mask = 0b1000 * M;
 
     System.out.print("        mask = ");
     printBin(mask);
@@ -421,12 +431,109 @@ public class Util {
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
 
+  public static void msbNelsonExhaustive(final long x) {
+    // MSB (x)
+    final int w = Long.SIZE; // 64
+    final int blockSize = (int) Math.sqrt(w); // 8
+    final int numBlocks = blockSize; // 8
+    // There will be an example in the comments.
+    // It this particular example, let's assume w = 16. Let
+    // x = 0b0101_0000_1000_1101
+
+    // 1. Find F
+    // F is a w-bit word (same size as x) with 1 at the most significant positions of each sqrt(w)
+    // cluster
+    // In my example,
+    // F = 0b1000_1000_1000_1000
+    final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
+
+    // 2. Store information about the leading bits of each cluster in a local variable.
+    // We do that by ANDing F with x: x & F
+    // In my example
+    //   x = 0b0101_0000_1000_1101
+    //   F = 0b1000_1000_1000_1000
+    // x&F = 0b0000_0000_1000_1000
+    final long leadingBits = x & F;
+    // now I know that the last and the second to last clusters are non-zero. In
+    // particular because
+    // of their first bit.
+    // WE DEAL WITH THE FIRST BITS OF A CLUSTER AND THE REMAINING BITS IN A
+    // DIFFERENT WAY!
+
+    // 3. We set the leading bits of each block in x to 0, effectively clearing the msb of each
+    // cluster This is easily done by x ^ (x & F)
+    // In my example,
+    //       x = 0b0101_0000_1000_1101
+    //       F = 0b0101_0000_1000_1101
+    //     x&F = 0b0000_0000_1000_1000
+    // x^(x&F) = 0b0101_0000_0000_0101
+    final long noLeadingBits = x ^ (x & F);
+
+    // 4. We subtract F to the previous result. Since F has 1 set at every msb of every cluster, by
+    // subtracting the previous result to F, eg subtracting x after having all the msb of every
+    // cluster set to 0 to F, we will have the information about if that cluster was empty (all
+    // zeros) or not. This information is given by the bit that remains at the msb. If a 1 remains,
+    // them it means that we have subtracted by 0, which means that such cluster was empty.
+    // Otherwise, it wasn't empty.
+    // In my example:
+    //           F = 0b1000_1000_1000_1000
+    //     x^(x&F) = 0b0101_0000_0000_0101
+    // F-(x^(x&F)) = 0b0abc_1000_1000_0xyz --> if the cluster was non zero, then there will be a 0
+    //                                         after subtracting because msb of each cluster
+    //                                         "borrowed". Otherwise, there will be a 1.
+    final long difference = F - (x ^ (x & F));
+
+    // 5. Note that in the non empty clusters, there will be the remainder of the difference, which
+    // is some noise we do not care about. In fact, the result we are looking for at the is stage
+    // is a word with 1 at the msb of the clusters that we non empty in x after we cleared the msb
+    // of each cluster of x. So we negate that result and we AND it with F.
+    // In my example:
+    //        F-(x^(x&F)) = 0b0abc_1000_1000_0xyz
+    //     ~(F-(x^(x&F))) = 0b1abc_0111_0111_1xyz
+    //                  F = 0b1000_1000_1000_1000
+    // ~(F-(x^(x&F))) & F = 0b1000_0000_0000_1000
+    final long noLeadingBitsNonEmptyClusters = (~(F - (x ^ (x & F)))) & F;
+
+    // 6. In order to get all the information about the whole x word, we need only to OR with the
+    // first word we saved which contained information about the msb of each cluster
+    // In my example:
+    //                          x&F = 0b0000_0000_1000_1000
+    //           ~(F-(x^(x&F))) & F = 0b1000_0000_0000_1000
+    // (x&F) | (~(F-(x^(x&F))) & F) = 0b1000_0000_1000_1000
+    // The result is a word which holds the information of which cluster of x the msb of x is.
+    final long res = leadingBits | noLeadingBitsNonEmptyClusters;
+    // Or in a single operation:
+    // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
+
+    printBin(res);
+
+    // Perfect sketch: I want to have all these leading bits consecutive
+    // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that multiplying by m
+    // makes all the important bits consecutive with no gaps.
+
+    // find the m such that m * 1000_0000_1000_1000 = 1011
+
+    // So do parallel comparison between 1011 and:
+    // {0001, 0010, 0100, 1000}.
+    // The idea is to repeat the vector 1011 a bunch of times and find how it compares to the other
+    // 4 vectors.
+    // The idea is to know the index of the first cluster with this first parallel comparison.
+
+    // Then, once we get the index of the cluster, we get the cluster from x, by shifting/masking
+    // the remaining clusters. Perform another parallel comparison between that cluster and
+    // {0001, 0010, 0100, 1000}.
+
+
+  }
+
   /** Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
-    rank_lemma_1();
+    final int w = Long.SIZE; // 64
+    final int blockSize = (int) Math.sqrt(w); // 8
+    for (int i )
   }
 
 }
