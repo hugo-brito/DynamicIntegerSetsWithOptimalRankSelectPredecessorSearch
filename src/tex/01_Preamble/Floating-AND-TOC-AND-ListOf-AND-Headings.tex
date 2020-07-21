@@ -22,9 +22,14 @@
 
 % KOMA-Script code to adjust TOC
 % Applying the color 'myColorMainA' which is defined in the main file (MainFile.tex)
+% NB!: this only changes the colors of the titles in the Table of Contents!
 \makeatletter
-\addtokomafont{chapterentrypagenumber}{\color{myColorMainA}}
-\addtokomafont{chapterentry}{\color{myColorMainA}}
+\addtokomafont{partentry}{\color{myColorMainB}}
+\addtokomafont{partentrypagenumber}{\color{black}}
+
+\addtokomafont{chapterentrypagenumber}{\color{black}}
+% \addtokomafont{chapterentry}{\color{myColorMainA}}
+
 \makeatother
 
 %
@@ -58,6 +63,11 @@
 
 % KOMA-Script code to customize the headings
 % Applying the color 'myColorMainA' which is defined in the main file (MainFile.tex)
+
+% everything that belongs to a title but isn't a title:
+\addtokomafont{disposition}{\color{myColorMainC}}
+
+\addtokomafont{part}{\color{myColorMainA}}
 \addtokomafont{chapter}{\color{myColorMainA}}
 \addtokomafont{section}{\color{myColorMainA}}
 \addtokomafont{subsection}{\color{myColorMainA}}
