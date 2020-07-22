@@ -468,7 +468,7 @@ public class Util {
     //       F = 0b0101_0000_1000_1101
     //     x&F = 0b0000_0000_1000_1000
     // x^(x&F) = 0b0101_0000_0000_0101
-    final long noLeadingBits = x ^ (x & F);
+    // final long noLeadingBits = x ^ (x & F);
 
     // 4. We subtract F to the previous result. Since F has 1 set at every msb of every cluster, by
     // subtracting the previous result to F, eg subtracting x after having all the msb of every
@@ -482,7 +482,7 @@ public class Util {
     // F-(x^(x&F)) = 0b0abc_1000_1000_0xyz --> if the cluster was non zero, then there will be a 0
     //                                         after subtracting because msb of each cluster
     //                                         "borrowed". Otherwise, there will be a 1.
-    final long difference = F - (x ^ (x & F));
+    // final long difference = F - (x ^ (x & F));
 
     // 5. Note that in the non empty clusters, there will be the remainder of the difference, which
     // is some noise we do not care about. In fact, the result we are looking for at the is stage
@@ -502,29 +502,67 @@ public class Util {
     //           ~(F-(x^(x&F))) & F = 0b1000_0000_0000_1000
     // (x&F) | (~(F-(x^(x&F))) & F) = 0b1000_0000_1000_1000
     // The result is a word which holds the information of which cluster of x the msb of x is.
-    final long res = leadingBits | noLeadingBitsNonEmptyClusters;
+    long res = leadingBits | noLeadingBitsNonEmptyClusters;
     // Or in a single operation:
     // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
 
-    printBin(res, 8);
+    print("Clusters empty/non-empty");
+    printBin(res, blockSize);
 
-    printBin(((res >>> 7)* 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L) >>> (Long.SIZE - 8), 8);
-
-    // Perfect sketch: I want to have all these leading bits consecutive
+    // 7. Perfect sketch: I want to have all these leading bits consecutive
     // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that multiplying by m
     // makes all the important bits consecutive with no gaps.
+    // to do that, we shift to the right result by (block size - 1);
 
-    // find the m such that m * 1000_0000_1000_1000 = 1011
+    // In my example:
+    // (x&F) | (~(F-(x^(x&F))) & F) = 0b1000_0000_1000_1000
+    // >>> (sqrt(w) - 1 = 4 - 1 = 3)= 0b0001_0000_0001_0001
+
+    res >>>= (blockSize - 1);
+    print("Clusters shifted");
+    printBin(res, blockSize);
+
+    // 8. Sketch compression.
+    // We find m, which is a word that will put all the important bits in the same cluster.
+    // Then we multiply by m.
+    // Let the clusters be indexed from most significant position 0 to least significant position i.
+    // Let the cluster also be indexed from 0 to i where cluster 0 is the most significant cluster.
+    // Them m is word where every cluster i has bit i set, and all the other bits are 0.
+
+    // In my example:
+    // m = 0b0001_0010_0100_1000
+    
+    final long m = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
+    res *= m;
+    print("Clusters summarized in the first cluster");
+    printBin(res, blockSize);
+
+    // 9. The sketch is now compressed, but it is stored in the first cluster. So we shift all the
+    // clusters to the right minus one.
+
+    // In my example:
+    // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * 0b0001_0010_0100_1000) >>> (w - sqrt(w))
+    res >>>= w - blockSize;
+    print("Summary of the important bits on the right-most cluster");
+    printBin(res, blockSize);
 
     // So do parallel comparison between 1011 and:
-    // {0001, 0010, 0100, 1000}.
+    // {1000, 0100, 0010, 0001}
     // The idea is to repeat the vector 1011 a bunch of times and find how it compares to the other
-    // 4 vectors.
-    // The idea is to know the index of the first cluster with this first parallel comparison.
+    // 4 vectors, to know the index of the first cluster with this first parallel comparison.
+    // In order to repeat the vector, we do:
+    // res = 0b1011;
+    //       M = 0b0001_0001_0001_0001; // integer that repeats the vector
+    //     res = 0b1011;    
+    // res * m = 0b1011_1011_1011_1011;
+
+
 
     // Then, once we get the index of the cluster, we get the cluster from x, by shifting/masking
     // the remaining clusters. Perform another parallel comparison between that cluster and
     // {0001, 0010, 0100, 1000}.
+
+    
 
 
   }
@@ -535,7 +573,11 @@ public class Util {
    */
   public static void main(final String[] args) {
     // msbNelsonExhaustive(0b0000001_00010000_00000000);
-    rank_lemma_1();
+    // rank_lemma_1();
+
+    printBin(0b1011_1011_1011_1011, 4);
+    printBin(0b1000_0100_0010_0001, 4);
+    printBin((0b1000_0100_0010_0001 - 0b1011_1011_1011_1011), 4);
   }
 
 }
