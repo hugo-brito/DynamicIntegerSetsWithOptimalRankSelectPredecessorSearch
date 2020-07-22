@@ -265,5 +265,17 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param args --
    */
   public static void main(final String[] args) {
+    int k = 16;
+    final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
+    // Util.print(ceilLgK);
+    DynamicFusionNode node = new DynamicFusionNode();
+    node.insert(10);
+    Util.printBin(node.index, ceilLgK);
+    node.insert(12);
+    Util.printBin(node.index, ceilLgK);
+    node.insert(42);
+    Util.printBin(node.index, ceilLgK);
+    Util.print(node.getIndex(2));
+
   }
 }
