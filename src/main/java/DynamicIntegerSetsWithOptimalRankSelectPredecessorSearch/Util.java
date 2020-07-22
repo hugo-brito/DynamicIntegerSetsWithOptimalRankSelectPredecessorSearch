@@ -357,24 +357,24 @@ public class Util {
     System.out.println(s);
   }
 
-  public static void printBin(final int x) {
-    final int blockSize = 4;
+  public static void printBin(final int x, final int blockSize) {
     final StringBuilder res = new StringBuilder("0b");
     final String bin = bin(x);
     res.append(bin.substring(0, blockSize));
     for (int i = blockSize; i < Integer.SIZE; i += blockSize) {
-      res.append("_").append(bin.substring(i, i + blockSize));
+      res.append("_").append(bin.substring(i,
+          (i + blockSize > Integer.SIZE) ? Integer.SIZE : i + blockSize));
     }
     Util.print(res.toString());
   }
 
-  public static void printBin(final long x) {
-    final int blockSize = 8;
+  public static void printBin(final long x, final int blockSize) {
     final StringBuilder res = new StringBuilder("0b");
     final String bin = bin(x);
     res.append(bin.substring(0, blockSize));
     for (int i = blockSize; i < Long.SIZE; i += blockSize) {
-      res.append("_").append(bin.substring(i, i + blockSize));
+      res.append("_").append(bin.substring(i,
+          (i + blockSize > Long.SIZE) ? Long.SIZE : i + blockSize));
     }
     Util.print(res.toString());
   }
@@ -389,13 +389,14 @@ public class Util {
 
   public static void rank_lemma_1() {
     final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+    final int blockSize = 4;
     System.out.print("           A = ");
-    printBin(A);
+    printBin(A, 4);
     // int x = 0b0001; // a key which rank I'm looking for
     final int x = 0b0100;
 
     System.out.print("           x = ");
-    printBin(x);
+    printBin(x, 4);
 
     final int w = 16;
     final int b = 4; // block size
@@ -407,24 +408,24 @@ public class Util {
     final int M = M(b, w);
 
     System.out.print("           M = ");
-    printBin(M);
+    printBin(M, 4);
 
     System.out.print("       M * x = ");
-    printBin(M * x);
+    printBin(M * x, 4);
 
     final int d = A - (M * x);
 
     System.out.print(" A - (M * x) = ");
-    printBin(d);
+    printBin(d, 4);
 
     // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
     final int mask = 0b1000 * M;
 
     System.out.print("        mask = ");
-    printBin(mask);
+    printBin(mask, 4);
 
     System.out.print("(d&mask)^mask= ");
-    printBin((d & mask) ^ mask);
+    printBin((d & mask) ^ mask, 4);
 
     print("     msb / b = " + (Integer.SIZE - msb((d & mask) ^ mask)) / b);
 
@@ -505,7 +506,9 @@ public class Util {
     // Or in a single operation:
     // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
 
-    printBin(res);
+    printBin(res, 8);
+
+    printBin(((res >>> 7)* 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L) >>> (Long.SIZE - 8), 8);
 
     // Perfect sketch: I want to have all these leading bits consecutive
     // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that multiplying by m
@@ -531,9 +534,8 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    final int w = Long.SIZE; // 64
-    final int blockSize = (int) Math.sqrt(w); // 8
-    for (int i )
+    // msbNelsonExhaustive(0b0000001_00010000_00000000);
+    rank_lemma_1();
   }
 
 }
