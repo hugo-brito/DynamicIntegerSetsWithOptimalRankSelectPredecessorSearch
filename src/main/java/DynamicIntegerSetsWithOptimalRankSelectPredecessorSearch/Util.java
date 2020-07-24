@@ -360,10 +360,14 @@ public class Util {
   public static void printBin(final int x, final int blockSize) {
     final StringBuilder res = new StringBuilder("0b");
     final String bin = bin(x);
-    res.append(bin.substring(0, blockSize));
-    for (int i = blockSize; i < Integer.SIZE; i += blockSize) {
-      res.append("_").append(bin.substring(i,
-          (i + blockSize > Integer.SIZE) ? Integer.SIZE : i + blockSize));
+    if (blockSize > 0) {
+      int r = Integer.SIZE % blockSize == 0 ? blockSize : Integer.SIZE % blockSize;
+      res.append(bin.substring(0, r));
+      for (int i = r; i < Integer.SIZE; i += blockSize) {
+        res.append("_").append(bin.substring(i, i + blockSize));
+      }
+    } else {
+      res.append(bin);
     }
     Util.print(res.toString());
   }
@@ -371,10 +375,14 @@ public class Util {
   public static void printBin(final long x, final int blockSize) {
     final StringBuilder res = new StringBuilder("0b");
     final String bin = bin(x);
-    res.append(bin.substring(0, blockSize));
-    for (int i = blockSize; i < Long.SIZE; i += blockSize) {
-      res.append("_").append(bin.substring(i,
-          (i + blockSize > Long.SIZE) ? Long.SIZE : i + blockSize));
+    if (blockSize > 0) {
+      int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
+      res.append(bin.substring(0, r));
+      for (int i = r; i < Long.SIZE; i += blockSize) {
+        res.append("_").append(bin.substring(i, i + blockSize));
+      }
+    } else {
+      res.append(bin);
     }
     Util.print(res.toString());
   }
@@ -404,6 +412,8 @@ public class Util {
 
     final int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
     // it's 8
+
+    // !!!!!
 
     final int M = M(b, w);
 
@@ -440,6 +450,8 @@ public class Util {
     // There will be an example in the comments.
     // It this particular example, let's assume w = 16. Let
     // x = 0b0101_0000_1000_1101
+    print("Query");
+    printBin(x, blockSize);
 
     // 1. Find F
     // F is a w-bit word (same size as x) with 1 at the most significant positions of each sqrt(w)
@@ -519,42 +531,156 @@ public class Util {
     // >>> (sqrt(w) - 1 = 4 - 1 = 3)= 0b0001_0000_0001_0001
 
     res >>>= (blockSize - 1);
-    print("Clusters shifted");
+    print("Clusters shifted (res >>> (sqrt(w) - 1)");
     printBin(res, blockSize);
 
     // 8. Sketch compression.
-    // We find m, which is a word that will put all the important bits in the same cluster.
-    // Then we multiply by m.
+    // We find C, which is a word that will put all the important bits in the same cluster.
+    // Then we multiply by C.
     // Let the clusters be indexed from most significant position 0 to least significant position i.
     // Let the cluster also be indexed from 0 to i where cluster 0 is the most significant cluster.
-    // Them m is word where every cluster i has bit i set, and all the other bits are 0.
+    // Them C is word where every cluster i has bit i set, and all the other bits are 0.
 
     // In my example:
-    // m = 0b0001_0010_0100_1000
+    // C = 0b0001_0010_0100_1000
     
-    final long m = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
-    res *= m;
-    print("Clusters summarized in the first cluster");
+    final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
+    res *= C;
+    print("Clusters summarized in the first cluster (res * 00001_00010_...)");
     printBin(res, blockSize);
 
     // 9. The sketch is now compressed, but it is stored in the first cluster. So we shift all the
     // clusters to the right minus one.
 
     // In my example:
-    // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * 0b0001_0010_0100_1000) >>> (w - sqrt(w))
+    // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
-    print("Summary of the important bits on the right-most cluster");
+    print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
     printBin(res, blockSize);
 
     // So do parallel comparison between 1011 and:
     // {1000, 0100, 0010, 0001}
-    // The idea is to repeat the vector 1011 a bunch of times and find how it compares to the other
-    // 4 vectors, to know the index of the first cluster with this first parallel comparison.
+    // The idea is to repeat the vector 1011 a bunch of times and pad it with 0's.
+    // To find how it compares to the other 4 vectors, we pad them with 1's
+    // to know the index of the first cluster with this first parallel comparison.
     // In order to repeat the vector, we do:
     // res = 0b1011;
     //       M = 0b0001_0001_0001_0001; // integer that repeats the vector
     //     res = 0b1011;    
     // res * m = 0b1011_1011_1011_1011;
+
+    // HIGH:
+    //
+
+    print("Summary copied and padded with 0's");
+    long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
+    printBin(m * res, 9);
+
+    print("Highest first half of the powers of 2 padded with 1's");
+    long hiIndices = 0b1_10000000_1_01000000_1_00100000_1_00010000L;
+    printBin(hiIndices, 9);
+
+    print("Diff (High powers of 2, Summary)");
+    long hi = hiIndices - (m * res);
+    printBin(hi, 9);
+
+
+    long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
+    print("hi cleared of clutter ((hi & mask) ^ mask))");
+    hi = (hi & mask) ^ mask;
+    printBin(hi, 9);
+
+    hi >>>= blockSize;
+    print("hi >>> 8 (msb -> lsb)");
+    printBin(hi, 9);
+
+    print("D:");
+    long d = 0b000010000_000100000_001000000_010000000L;
+    printBin(d, 9);
+
+    print("hi with a summary on the first cluster");
+    hi *= d;
+    printBin(hi, 9);
+
+    print("cluster cleaned and pushed to the right");
+    // printBin(hi, 9);
+    hi &= (0b1111L << (3 * (blockSize + 1) + 4));
+    // printBin(hi, 9);
+    hi >>>= (3 * (blockSize + 1)); // + 4
+    printBin(hi, 9);
+    // hi <<= 28;
+    // hi >>>= 59;
+    // printBin(hi, 4);
+
+
+    // print("Summary copied and padded with 0's");
+    // long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
+    // printBin(m * res, 9);
+
+    print("Low half of the powers of 2 padded with 1's");
+    long loIndices = 0b1_00001000_1_00000100_1_00000010_1_00000001L;
+    printBin(hiIndices, 9);
+
+    print("Diff (High powers of 2, Summary)");
+    long lo = loIndices - (m * res);
+    printBin(lo, 9);
+
+    print("hi cleared of clutter ((hi & mask) ^ mask))");
+    lo = (lo & mask) ^ mask;
+    printBin(lo, 9);
+
+    lo >>>= blockSize;
+    print("lo >>> 8 (msb -> lsb)");
+    printBin(lo, 9);
+
+    print("D:");
+    // long d = 0b000010000_000100000_001000000_010000000L;
+    printBin(d, 9);
+
+    print("lo with a summary on the first cluster");
+    lo *= d;
+    printBin(lo, 9);
+
+    print("cluster cleaned and pushed to the right");
+    // printBin(hi, 9);
+    lo &= (0b1111L << (3 * (blockSize + 1) + 4));
+    // printBin(hi, 9);
+    lo >>>= (3 * (blockSize + 1)) + 4;
+    printBin(lo, 9);
+    // hi <<= 28;
+    // hi >>>= 59;
+    // printBin(hi, 4);
+
+    print("result hi | lo");
+    printBin(hi | lo, 8);
+
+    long newMask = 0b0000_0000_1_0000_0000_1_0000_0000_1_0000_0000_1_0000_0000_1_0000_0000_1_0000_0000_1_0000_0000_1L;
+
+
+
+    // 0b0000000000000000000000000000_000001110_000011100_000011000_000010000
+
+
+
+    // printBin(lo * 0b000000001_000000001_000000001_000000001, blockSize);
+    // hi >>>= blockSize; // get msb at lsb of each cluster
+    // print("hi: get msb at lsb of each cluster");
+    // printBin(hi, 0);
+
+    // hi *= 0b000000001_000000010_000000100_000001000L;
+    // print("hi: colisions at the highest cluster");
+    // printBin(hi, 0);
+
+    // hi >>>= (blockSize + 1) * 4;
+    // printBin(hi, 0);
+    // final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L
+
+    // mask = 0b0000_0000_0000_0000_1000_1000_1000_1000
+    // (d&mask)^mask
+    // msb / b
+
+    // print("lo");
+    // printBin(lo * 0b000000001_000000001_000000001_000000001, blockSize);
 
 
 
@@ -572,12 +698,16 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    // msbNelsonExhaustive(0b0000001_00010000_00000000);
+    msbNelsonExhaustive(0b00000000_00000000_00000000_00000000_00010000_00000000_00010000_00000000L);
+    print(0b1000);
     // rank_lemma_1();
+    // print(msbLibrary(10L));
 
-    printBin(0b1011_1011_1011_1011, 4);
-    printBin(0b1000_0100_0010_0001, 4);
-    printBin((0b1000_0100_0010_0001 - 0b1011_1011_1011_1011), 4);
+    // printBin(0b1011_1011_1011_1011, 4);
+    // printBin(0b1000_0100_0010_0001, 4);
+    // printBin((0b1000_0100_0010_0001 - 0b1011_1011_1011_1011), 4);
+    // printBin(M(5, 32),);
+    // System.out.println(0b0011);
   }
 
 }
