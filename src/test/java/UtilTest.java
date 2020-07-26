@@ -1,4 +1,4 @@
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.Util;
 import org.junit.jupiter.api.Test;
@@ -73,6 +73,19 @@ class UtilTest {
     assertEquals(-1, Util.msbLookupDistributedInput(0));
     for (int i = 1; i <= Integer.MAX_VALUE - 1; i++) {
       assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
+    }
+  }
+
+  @Test
+  void msb64Nelson() {
+    // for (long i = longLowerBound; i < 0; i++) {
+    //   assertEquals(Long.numberOfLeadingZeros(i), Util.msbNelsonShort(i),
+    //       "Failed for " + i);
+    // }
+    // assertEquals(-1, Util.msbObvious(0));
+    for (long i = 2; i <= longUpperBound; i = i + 2) {
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbNelsonShort(i),
+          "Failed for " + i);
     }
   }
 
