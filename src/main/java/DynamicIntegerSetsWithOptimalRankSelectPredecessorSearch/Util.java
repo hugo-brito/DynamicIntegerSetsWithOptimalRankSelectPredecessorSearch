@@ -1,5 +1,7 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import java.util.Arrays;
 /**
  * Utility class, containing many helful functions.
@@ -805,25 +807,31 @@ public class Util {
     // In my example:
     // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
-    // print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
-    // printBin(res, blockSize);
+    print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
+    printBin(res, blockSize);
 
-    // print("Cluster:");
+    print("Cluster:");
     int cluster = parallelComparison64(res);
-    // print(cluster);
+    print(cluster);
     // 0...7
-    x = (x >>> (cluster * blockSize)) & 0b11111111L;
 
-    // print("the cluster: " + bin(x));
+    print("Block shifts to make = " + ((blockSize - cluster) * blockSize));
 
-    // print("d: " + (parallelComparison64(x) + 1));
+    System.out.print("The query before the shift: ");
+    printBin(x, blockSize);
 
-    int msb = (cluster) * blockSize + (parallelComparison64(x) + 1);
+    x = (x >>> ((blockSize - cluster) * blockSize)) & 0b11111111L;
 
+    System.out.print("The query AFTER the shift: ");
+    printBin(x, blockSize);
 
+    print("the cluster: " + bin(x));
 
+    print("d: " + (parallelComparison64(x)));
 
-    return Long.SIZE - msb;
+    int msb = (cluster) * blockSize + (parallelComparison64(x));
+
+    return msb;
   }
 
   private static int parallelComparison64(long cluster) {
@@ -850,24 +858,27 @@ public class Util {
         >>> (3 * (blockSize + 1) + 1);
     final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
         >>> (3 * (blockSize + 1) + 5);
+    
+    // System.out.print("hi | lo = ");
+    // printBin(hi | lo, blockSize);
 
     switch ((int) (hi | lo)) {
       case 0b11111111:
-        return 7;
-      case 0b01111111:
-        return 6;
-      case 0b00111111:
-        return 5;
-      case 0b00011111:
-        return 4;
-      case 0b00001111:
-        return 3;
-      case 0b00000111:
-        return 2;
-      case 0b00000011:
-        return 1;
-      case 0b00000001:
         return 0;
+      case 0b01111111:
+        return 1;
+      case 0b00111111:
+        return 2;
+      case 0b00011111:
+        return 3;
+      case 0b00001111:
+        return 4;
+      case 0b00000111:
+        return 5;
+      case 0b00000011:
+        return 6;
+      case 0b00000001:
+        return 7;
       default:
         return -1;
     }
@@ -883,7 +894,8 @@ public class Util {
     //   print(parallelComparison64(clusters[i]));
     // }
 
-    print(msbNelsonShort(0b00000000_00000000_10000000_10000000_10000000_10000000_10000000_10000000L));
+    print(msbNelsonShort(0b00000001L));
+    // print(parallelComparison64(0b11111));
 
 
     // print(0b1000);
