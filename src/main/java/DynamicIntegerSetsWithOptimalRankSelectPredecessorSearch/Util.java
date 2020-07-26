@@ -3,6 +3,7 @@ package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.Arrays;
+import java.util.Random;
 /**
  * Utility class, containing many helful functions.
  */
@@ -810,28 +811,31 @@ public class Util {
     print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
     printBin(res, blockSize);
 
-    print("Cluster:");
+    print("Cluster (0..7):");
     int cluster = parallelComparison64(res);
     print(cluster);
     // 0...7
 
-    print("Block shifts to make = " + ((blockSize - cluster) * blockSize));
+    print("Block shifts to make (0..8..64)= " + (7 - cluster));
 
     System.out.print("The query before the shift: ");
     printBin(x, blockSize);
 
-    x = (x >>> ((blockSize - cluster) * blockSize)) & 0b11111111L;
+    x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
 
     System.out.print("The query AFTER the shift: ");
     printBin(x, blockSize);
 
     print("the cluster: " + bin(x));
 
-    print("d: " + (parallelComparison64(x)));
 
-    int msb = (cluster) * blockSize + (parallelComparison64(x));
+    int parRes = parallelComparison64(x);
+    print("d (0..7): " + parRes);
+    //0..7
 
-    return msb;
+    int msb = cluster * blockSize + parRes;
+
+    return msb - 1;
   }
 
   private static int parallelComparison64(long cluster) {
@@ -843,6 +847,7 @@ public class Util {
 
     // Summarizing mask:
     final long d = 0b000100000_001000000_010000000_100000000L;
+    // final long d = 0b00010000_00100000_01000000_10000000L;
 
     // Clearing mask:
     final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
@@ -859,8 +864,8 @@ public class Util {
     final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
         >>> (3 * (blockSize + 1) + 5);
     
-    // System.out.print("hi | lo = ");
-    // printBin(hi | lo, blockSize);
+    System.out.print("hi | lo = ");
+    printBin((int) (hi | lo), blockSize);
 
     switch ((int) (hi | lo)) {
       case 0b11111111:
@@ -894,8 +899,18 @@ public class Util {
     //   print(parallelComparison64(clusters[i]));
     // }
 
-    print(msbNelsonShort(0b00000001L));
-    // print(parallelComparison64(0b11111));
+    // print(msbNelsonShort(1));
+    // print(parallelComparison64(0b0010110));
+
+    Random rand = new Random();
+
+    for (int i = 0; i < 8; i++) {
+      int iter = (-1 >>> (Integer.SIZE - i - 1));
+      iter &= (~1) << rand.nextInt(i + 1); 
+      printBin(iter, 8);
+      print(parallelComparison64(iter));
+      System.out.println();
+    }
 
 
     // print(0b1000);
