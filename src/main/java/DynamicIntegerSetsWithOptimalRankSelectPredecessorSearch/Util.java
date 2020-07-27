@@ -853,17 +853,26 @@ public class Util {
     final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
 
     // Fetching mask:
-    final long fetch = 0b1111L << (3 * (blockSize + 1) + 5);
+    final long fetch = 0b1111L << (4 * blockSize);
 
     final long hiPowers = 0b1_10000000_1_01000000_1_00100000_1_00010000L;
-    final long loPowers = 0b1_00001000_1_00000100_1_00000010_1_00000000L;
+    final long loPowers = 0b1_00001000_1_00000100_1_00000010_1_00000001L;
 
+
+    // final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+    //     >>> (3 * (blockSize + 1) + 1);
+    // final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+    //     >>> (3 * (blockSize + 1) + 5);
 
     final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> (3 * (blockSize + 1) + 1);
+        >>> (3 * blockSize + 4);
     final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> (3 * (blockSize + 1) + 5);
+        >>> (4 * blockSize);
     
+    System.out.print("hi diff = ");
+    printBin(hiPowers - (m * cluster), blockSize + 1);
+    System.out.print("lo diff = ");
+    printBin(loPowers - (m * cluster), blockSize + 1);
     System.out.print("hi | lo = ");
     printBin((int) (hi | lo), blockSize);
 
@@ -906,11 +915,13 @@ public class Util {
 
     for (int i = 0; i < 8; i++) {
       int iter = (-1 >>> (Integer.SIZE - i - 1));
-      iter &= (~1) << rand.nextInt(i + 1); 
+      iter ^= 1 << (rand.nextInt(i + 1) - 1); 
       printBin(iter, 8);
       print(parallelComparison64(iter));
       System.out.println();
     }
+
+    // print(parallelComparison16(0b111));
 
 
     // print(0b1000);
