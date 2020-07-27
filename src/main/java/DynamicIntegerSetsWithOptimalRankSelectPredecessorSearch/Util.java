@@ -808,34 +808,34 @@ public class Util {
     // In my example:
     // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
-    print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
-    printBin(res, blockSize);
+    // print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
+    // printBin(res, blockSize);
 
-    print("Cluster (0..7):");
+    // print("Cluster (0..7):");
     int cluster = parallelComparison64(res);
-    print(cluster);
+    // print(cluster);
     // 0...7
 
-    print("Block shifts to make (0..8..64)= " + (7 - cluster));
+    // print("Block shifts to make (0..8..64)= " + (7 - cluster));
 
-    System.out.print("The query before the shift: ");
-    printBin(x, blockSize);
+    // System.out.print("The query before the shift: ");
+    // printBin(x, blockSize);
 
     x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
 
-    System.out.print("The query AFTER the shift: ");
-    printBin(x, blockSize);
+    // System.out.print("The query AFTER the shift: ");
+    // printBin(x, blockSize);
 
-    print("the cluster: " + bin(x));
+    // print("the cluster: " + bin(x));
 
 
     int parRes = parallelComparison64(x);
-    print("d (0..7): " + parRes);
+    // print("d (0..7): " + parRes);
     //0..7
 
     int msb = cluster * blockSize + parRes;
 
-    return msb - 1;
+    return msb;
   }
 
   private static int parallelComparison64(long cluster) {
@@ -855,8 +855,8 @@ public class Util {
     // Fetching mask:
     final long fetch = 0b1111L << (4 * blockSize);
 
-    final long hiPowers = 0b1_10000000_1_01000000_1_00100000_1_00010000L;
-    final long loPowers = 0b1_00001000_1_00000100_1_00000010_1_00000001L;
+    final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
+    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
 
 
     // final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
@@ -869,12 +869,12 @@ public class Util {
     final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
         >>> (4 * blockSize);
     
-    System.out.print("hi diff = ");
-    printBin(hiPowers - (m * cluster), blockSize + 1);
-    System.out.print("lo diff = ");
-    printBin(loPowers - (m * cluster), blockSize + 1);
-    System.out.print("hi | lo = ");
-    printBin((int) (hi | lo), blockSize);
+    // System.out.print("hi diff = ");
+    // printBin(hiPowers - (m * cluster), blockSize + 1);
+    // System.out.print("lo diff = ");
+    // printBin(loPowers - (m * cluster), blockSize + 1);
+    // System.out.print("hi | lo = ");
+    // printBin((int) (hi | lo), blockSize);
 
     switch ((int) (hi | lo)) {
       case 0b11111111:
@@ -908,18 +908,18 @@ public class Util {
     //   print(parallelComparison64(clusters[i]));
     // }
 
-    // print(msbNelsonShort(1));
+    print(msbNelsonShort(1));
     // print(parallelComparison64(0b0010110));
 
     Random rand = new Random();
 
-    for (int i = 0; i < 8; i++) {
-      int iter = (-1 >>> (Integer.SIZE - i - 1));
-      iter ^= 1 << (rand.nextInt(i + 1) - 1); 
-      printBin(iter, 8);
-      print(parallelComparison64(iter));
-      System.out.println();
-    }
+    // for (int i = 0; i < 8; i++) {
+    //   int iter = (-1 >>> (Integer.SIZE - i - 1));
+    //   iter ^= 1 << (rand.nextInt(i + 1) - 1); 
+    //   printBin(iter, 8);
+    //   print(parallelComparison64(iter));
+    //   System.out.println();
+    // }
 
     // print(parallelComparison16(0b111));
 
