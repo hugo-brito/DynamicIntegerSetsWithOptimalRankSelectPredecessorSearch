@@ -151,7 +151,192 @@ This approach takes $O(1)$ after the lookup table has been computed but, not onl
 
 \subsubsection{Constant time with parallel comparison}
 
+This operation consists of 3 steps. Let $x$ be the query for the most significant set bit:
+\begin{enumerate}
+    \item We divide $x$ in $\sqrt{w}$ blocks of $\sqrt{w}$ bits. Let those blocks be called clusters. The goal is to find a summary word of $\sqrt{w}$ bits in size which bits inform of which clusters of $x$ are not empty.
+    \item Then we do parallel comparison of the summary word to find the first non-empty cluster of $x$, because it will be on that cluster that the answer will lie.
+    \item We use the same technique as in the previous bullet point, but now on the first non-empty cluster of $x$.
+\end{enumerate}
 
+We will run a small example where every step will be illustrated. For simplicity, let $w=16$. This implies that we will have $\sqrt{16} = 4$ clusters of $4$ bits in size each. Let us also assume that our query $x = 0101\ 0000\ 1000\ 1101_2$.
+
+\paragraph{Step 1 --- Summarize the query clusters} \label{sec:summaryClusters}
+
+The goal of this step is to compute a summary word whose leading bit of each of its clusters is a summary of each cluster of the query word $x$. If in a given cluster $c_i$ the leading bit in the summary word is $1$, then $c_i$ in $x$ was not empty (one or more bits were set), and vice-versa.
+
+\begin{enumerate}
+    \item \label{blt:msb1}
+    We start by finding $F$. $F$ is a $w$-bit word where the most significant position of every cluster is set to $1$ and every other position is set to $0$. In this particular example $F = 1000\ 1000\ 1000\ 1000_2$
+    
+    \item \label{blt:msb2}
+    In a local variable $t_1$, we store information about the leading bits of each cluster of $x$. This is done with $x \wedge F$.
+    \begin{align*}
+                       x &= \underline{0}101\ \underline{0}000\ \underline{1}000\ \underline{1}101_2 \\
+                       F &= 1000\ 1000\ 1000\ 1000_2 \\ \cline{1-2} 
+        t_1 = x \wedge F &= \underline{0}000\ \underline{0}000\ \underline{1}000\ \underline{1}000_2
+    \end{align*}
+    
+    \item \label{blt:msb3}
+    In another local variable $t_2$, we store $x$ after setting the leading bits of each cluster to zero. This is done with $x \oplus t_1$.
+    \begin{align*}
+                         x &= 0\underline{101}\ 0\underline{000}\ 1\underline{000}\ 1\underline{101}_2 \\
+                       t_1 &= 0000\ 0000\ 1000\ 1000_2 \\ \cline{1-2}
+        t_2 = x \oplus t_1 &= 0\underline{101}\ 0\underline{000}\ 0\underline{000}\ 0\underline{101}_2
+    \end{align*}
+    
+    \item \label{blt:msb4}
+    We subtract $t_2$ from $F$ and save it to a local variable $t_3$. Since the leading bit of every cluster of $F$ is one, after subtracting $t_2$ to $F$ what remains is the information about if that cluster was empty (all zeros) or not. This information is given by the bit that remains at the most significant position of each resulting cluster. For any given cluster, if the most significant bit is one, then it means that the corresponding cluster in $x$ was empty. Otherwise, it was not empty. Since we only care about what remains of in the most significant position of each cluster, in the example below the remaining noise has been replaced with $?$.
+    \begin{align*}
+                    F &= 1000\ 1000\ 1000\ 1000_2 \\
+                  t_2 &= 0\underline{101}\ 0\underline{000}\ 0\underline{000}\ 0\underline{101}_2 \\ \cline{1-2} 
+        t_3 = F - t_2 &= \underline{0}???\ \underline{1}000\ \underline{1}000\ \underline{0}???_2
+    \end{align*}
+    
+    \item \label{blt:msb5}
+    This step consists of clearing the noise from $t_3$ since we care only about knowing if which clusters in $x$ were empty or not. To do so, $(\neg t_3) \wedge F$.
+    \begin{align*}
+                       t_3 &= \underline{0}???\ \underline{1}000\ \underline{1}000\ \underline{0}???_2 \\ \cline{1-2} 
+            t_4 = \neg t_3 &= \underline{1}???\ \underline{0}111\ \underline{0}111\ \underline{1}???_2 \\
+                         F &= 1000\ 1000\ 1000\ 1000_2 \\ \cline{1-2} 
+        t_5 = t_4 \wedge F &= \underline{1}000\ \underline{0}000\ \underline{0}000\ \underline{1}000_2
+    \end{align*}
+    
+    \item \label{blt:msb6}
+    The value calculated in \ref{blt:msb2} for $t_1$ holds information about the leading bits of each cluster, whereas $t_5$ from \ref{blt:msb5} contains the information about the non-leading bits. By merging both words, the resulting word will hold information about the whole word $x$. We achieve this with $t_1 \vee t_5$.
+    \begin{align*}
+                       t_1 &= \underline{0}000\ \underline{0}000\ \underline{1}000\ \underline{1}000_2 \\
+                       t_5 &= \underline{1}000\ \underline{0}000\ \underline{0}000\ \underline{1}000_2 \\ \cline{1-2} 
+        t_6 = t_1 \vee t_5 &= \underline{1}000\ \underline{0}000\ \underline{1}000\ \underline{1}000_2
+    \end{align*}
+\end{enumerate}
+
+In fact, once $F$ is known, steps \ref{blt:msb2} to \ref{blt:msb5} can be computed all at once with the expression:
+\begin{equation}
+    t_6 = (x \wedge F) \vee ((\neg(F - (x \oplus(x \wedge F)))) \wedge F)
+\end{equation}
+
+\paragraph{Step 2 --- Summary compression} \label{sec:summaryCompression}
+% minuto 1.12: https://www.youtube.com/watch?v=xSGorVW8j6Q&list=PLUl4u3cNGP61hsJNdULdudlRL493b-XZf&index=12
+
+The goal of this step is to compress the summary word down to a single cluster.
+
+\begin{enumerate}
+    \item \label{blt:summCompression1}
+    The first step consists of shifting the leading bits of each cluster to the least significant position of each cluster. This is done with $t_6 \gg (\sqrt{w} - 1)$. 
+    \begin{align*}
+                    t_6 &= \underline{1}000\ \underline{0}000\ \underline{1}000\ \underline{1}000_2 \\ \cline{1-2} 
+        t_7 = t_6 \gg 3 &= 000\underline{1}\ 000\underline{0}\ 000\underline{1}\ 000\underline{1}_2
+    \end{align*}
+    
+    \item \label{blt:summCompression2}
+    We wish now to copy the least significant bit of each cluster to a single cluster, keeping their relative order.
+    Similarly to \ref{sec:summaryClusters}.\ref{blt:msb1}, we need to find a word $C$ which when multiplied by $t_6$ will produce the result we are looking for.
+    Let $C$ be also partitioned in clusters indexed $\{c_0, ..., c_{\sqrt{w} - 1}\}$ where $c_0$ is the most significant cluster. At every cluster $c_i$, the only set bit is $b_i$).
+    In our example $C = 0001\ 0010\ 0100\ 1000_2$.
+    
+    \item \label{blt:summCompression3}
+    Multiplying $C$ with $t_7$ produces a result $t_8$ with all the important bits in their relative order in the most significant cluster. There will be some additional noise in the least significant clusters, which we can easily clear by $t_8 \gg ((\sqrt{w})\cdot(\sqrt{w} - 1))$.
+        \begin{align*}
+                         t_7 &= 000\underline{1}\ 000\underline{0}\ 000\underline{1}\ 000\underline{1}_2 \\
+                           C &= 0001\ 0010\ 0100\ 1000_2 \\ \cline{1-2} 
+          t_8 = t_7 \times C &= \underline{1011}\ ????\ ????\ ????_2\\ \cline{1-2}
+        t_9 = t_8 \gg (16-4) &= 0000\ 0000\ 0000\ \underline{1011}_2
+    \end{align*}
+\end{enumerate}
+
+\paragraph{Step 3 --- First non-empty cluster with parallel comparison} \label{sec:parallel}
+At this stage the goal is to know the first non-empty cluster of $x$. To do so, we need to do a parallel comparison between $t_9$ (the summary of $x$'s clusters) and all the $\sqrt{w}$ powers of two. Parallel comparison requires 1 extra bit per comparable block: this is because, similarly to the step taken in \ref{sec:summaryClusters}.\ref{blt:msb4}, a subtraction is done in order to figure out at which position the leading $1$ is borrowed. Since in total we need $\sqrt{w}\cdot(\sqrt{w} + 1)$ bits to for the vectors, and $\sqrt{w}\cdot(\sqrt{w} + 1) > w$, we know that it might be necessary to do this operation in two iterations: one for the higher powers of two, and another for the lower ones. We know also that, the result of operation is a monotone function, meaning that once the transition on the leading bit is found, the result is found. This also implies that if the result if found in the higher powers of two, then it is not necessary to look for it in the lower end.
+
+\begin{enumerate}
+    \item \label{blt:parallel1}
+    We define two vectors, $hi$ and $lo$, with $hi > lo$, which are comprised of the concatenation of the $\sqrt{w}$ powers of two in sorted in descending order and padded with $1$. To each power of two, have to subtract $1$ for this operation to work, because if we do not and the query is an exact power of two, the corresponding padding $1$ will not be borrowed. In our example:
+    \begin{align*}
+        hi &= 1\ \underbrace{0111}_{2^3-1=7}\ 1\ \underbrace{0011}_{2^2-1=3}{}_2\\
+        lo &= 1\ \underbrace{0001}_{2^1-1=1}\ 1\ \underbrace{0000}_{2^0-1=0}{}_2
+    \end{align*}
+    
+    \item \label{blt:parallel2}
+    We define another vector $t_{10}$ consisting of $\sqrt{w}/2$ concatenated copies of $t_9$ where each of the copies is prefixed by zero. This vector is achieved by multiplying $t_9$ with a word $M$ consisting of $\sqrt{w}/2$ clusters of size $\sqrt{w} + 1$ where the least significant bit of each cluster is set to $1$. Note that, because we have set the size of each cluster of $M$ to have an additional bit, this corresponds to prefix a zero to each $\sqrt{w}$ cluster:
+    \begin{align*}
+        t_9 = 0000\ 0000\ 0000\ &\underline{1011}_2\\ 
+        M = 0\ 0001\ 0\ &0001_2\\ \cline{1-2}
+        t_{10} = t_9 \times M = 0\ \underline{1011}\ 0\ &\underline{1011}_2
+    \end{align*}
+    
+    \item \label{blt:parallel3}
+    To find the first non-empty cluster of $x$, we take the differences between $t_{10}$ and $hi$ and $lo$ respectively. The answer will lie one the first cluster which leading bit resulted in a zero after the operation.
+    \begin{align*}
+                          hi &= \underline{1}\ \underline{1}000\ \underline{1}\ \underline{01}00_2\\
+                          lo &= \underline{1}\ \underline{001}0\ \underline{1}\ \underline{0001}_2 \\
+                      t_{10} &= 0\ 1011\ 0\ 1011_2\\ \cline{1-2}
+        t_{11} = hi - t_{10} &= \underline{0}\ ????\ \underline{0}\ ????_2 \\
+        t_{12} = lo - t_{10} &= \underline{0}\ ????\ \underline{0}\ ????_2
+    \end{align*}
+    
+    \item \label{blt:parallel4}
+    Looking at $t_{11}$, we note that the first non-empty cluster of $x$ is the first, because the leading bit of first cluster resulting from difference between $hi$ and $t_{10}$ is now zero. Nevertheless,  we will do the same operations on both $t_{11}$ and $t_{12}$ and concatenate the results so we end up with a single result for the whole query. Note that in the previous step the actual values within each cluster besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryClusters} and \ref{sec:summaryCompression}.
+    \begin{enumerate}
+        \item
+        The first step is to clear all the irrelevant bits in the clusters and turn the leading bits from zero to one. We choose a mask for this specific purpose.
+        \begin{align*}
+            t_{11} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
+            t_{12} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
+            Mask_1 = 1\ 0000\ 1\ 0000_2&\\ \cline{1-2}
+            t_{13} = (t_{11} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&\\
+            t_{14} = (t_{12} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&
+        \end{align*}
+        \item
+        Secondly, we wish to summarize the results in a single cluster. To achieve so, we first multiply the vectors by an integer $S$, which construction follows what we have done for \ref{sec:summaryCompression}.\ref{blt:summCompression2}, and that result will put all the important bits consecutive in the most significant cluster.
+        \begin{align*}
+            t_{15} = t_{13} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
+            t_{16} = t_{14} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
+            \cline{1-2}
+            S =\ 01000\ 10000_2 & \\
+            t_{17} = t_{15} \times S =\ ???????\ \underline{11}00?\ ?????_2& \\
+            t_{18} = t_{16} \times S =\ ???????\ \underline{11}00?\ ?????_2& \\
+        \end{align*}
+        \item
+        After the multiplication, we have to remove the noise and move the result to the least significant cluster. We achieve this by defining another mask for this purpose, followed by the necessary bit shifts. The final step will be to merge the results of the higher and the lower powers of two: $t_{hi} \vee t_{lo}$.
+        
+        \begin{align*}
+            Mask_2 = 11_2&\\
+            t_{19} = t_{17} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
+            t_{20} = t_{18} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
+            \cline{1-2}
+            t_{hi} = t_{19} \gg (\sqrt{w} + \sqrt{w}/2) = 00\ 0000\ \underline{11}00_2 &\\
+            t_{lo} = t_{20} \gg (2\cdot \sqrt{w}) = 00\ 0000\ 00 \underline{11}_2 &\\
+            \cline{1-2}
+            t_{q} = t_{hi} \vee t_{lo} = \underline{1111}_2 &\\
+        \end{align*}
+    \end{enumerate}
+    \item
+    Note that $t_q$ can only be one of four possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $0$ (zero), meaning, the method should now look at cluster $c_0$.
+\end{enumerate}
+
+\paragraph{Step 4 --- Final result}
+After learning in which cluster lies the most significant bit, we now run the same method as in \ref{sec:parallel} but now with the actual cluster.
+
+\begin{enumerate}
+    \item
+    We start by extracting the cluster from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the cluster. We extract $c_i$ by shifting $(\sqrt{w} - 1 - i)$ clusters in $x$ to the right and ANDing the result with a mask for this purpose.
+    \begin{align*}
+        x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
+        Mask_3 = 0000\ 0000\ 0000\ 1111_2 &\\
+        \cline{1-2}
+        t_{21} = (x \gg \underbrace{(\sqrt{w} \cdot (\sqrt{w} - 1 - i))}_{4\times(4-1-0)}\ \wedge\ Mask_3 = 0000\ 0000\ 0000\ \underline{0101}_2 &
+    \end{align*}
+    \item
+    We run another parallel comparison with $0101_2$. Let $d$ be the result of computing the parallel comparison of the first non-empty cluster of $x$, then in our example $d = 1$.
+    \item
+    We can now compute the overall most significant bit of $x$. The final result is given the expression:
+    \begin{align*}
+        \text{MSB}(x) = d + i\cdot\sqrt{w}
+    \end{align*}
+    In our example, this will evaluate to:
+    \begin{align*}
+        \text{MSB}(0101\ 0000\ 1000\ 1101_2) = 1 + 0\cdot\sqrt{16} = 1
+    \end{align*}
+\end{enumerate}
 
 \chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 

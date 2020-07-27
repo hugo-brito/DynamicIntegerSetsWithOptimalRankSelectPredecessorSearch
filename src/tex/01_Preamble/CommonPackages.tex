@@ -55,3 +55,28 @@
 
 % math symbols
 \usepackage{amsmath}
+
+% theorems, lemmas and corollaries:
+\newtheorem{theorem}{Theorem}%[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+
+% Code formatting
+\usepackage{listings}
+\lstset{
+  language=java,
+  extendedchars=true,
+  basicstyle=\small\ttfamily,
+  showstringspaces=false,
+  showspaces=false,
+  numbers=left,
+  numberstyle=\footnotesize,
+  numbersep=9pt,
+  tabsize=4,
+  breaklines=true,
+  showtabs=false,
+  frame=single,
+  extendedchars=false,
+  inputencoding=utf8,
+  captionpos=b
+}
