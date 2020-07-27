@@ -413,16 +413,17 @@ public class Util {
     final long fetch = 0b1111L << (4 * blockSize);
 
     final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
-    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
 
     long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> 4 * blockSize;
-    long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
         >>> 4 * blockSize;
 
     if (hi > 0) {
       return parallelLookup((int) hi);
     }
+
+    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
+    long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+        >>> 4 * blockSize;
 
     return 4 + parallelLookup((int) lo);
   }
@@ -467,7 +468,7 @@ public class Util {
     final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C)
         >>> (w - blockSize);
 
-    final int cluster = parallelComparison64(summary);
+    final int cluster = parallelComparison(summary);
 
     x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
 
@@ -495,6 +496,9 @@ public class Util {
     // There will be an example in the comments.
     // It this particular example, let's assume w = 16. Let
     // x = 0b0101_0000_1000_1101
+
+    println("Query");
+    println(bin(x, blockSize));
 
     // 1. Find F
     // F is a w-bit word (same size as x) with 1 at the most significant positions
@@ -562,6 +566,8 @@ public class Util {
     long res = leadingBits | noLeadingBitsNonEmptyClusters;
     // Or in a single operation:
     // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
+    println("Clusters empty/non-empty");
+    println(bin(res, blockSize));
 
     // 7. Perfect sketch: I want to have all these leading bits consecutive
     // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that
@@ -573,8 +579,8 @@ public class Util {
     // >>> (sqrt(w) - 1 = 4 - 1 = 3)= 0b0001_0000_0001_0001
 
     res >>>= (blockSize - 1);
-    // println("Clusters shifted (res >>> (sqrt(w) - 1)");
-    // println(bin(res, blockSize));
+    println("Clusters shifted (res >>> (sqrt(w) - 1)");
+    println(bin(res, blockSize));
 
     // 8. Sketch compression.
     // We find C, which is a word that will put all the important bits in the same cluster.
@@ -588,6 +594,8 @@ public class Util {
 
     final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
     res *= C;
+    println("Clusters summarized in the first cluster (res * 00001_00010_...)");
+    println(bin(res, blockSize));
 
     // 9. The sketch is now compressed, but it is stored in the first cluster. So we
     // shift all the
@@ -596,6 +604,8 @@ public class Util {
     // In my example:
     // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
+    println("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
+    println(bin(res, blockSize));
 
     // So do parallel comparison between 1011 and:
     // {1000, 0100, 0010, 0001}
@@ -607,247 +617,32 @@ public class Util {
     // M = 0b0001_0001_0001_0001; // integer that repeats the vector
     // res = 0b1011;
     // res * m = 0b1011_1011_1011_1011;
+    
+    println("Cluster (0..7):");
+    final int cluster = parallelComparison(res);
+    println(cluster);
+    // 0..7
 
-    final int cluster = parallelComparison64(res);
+    println("Block shifts to make (0..8..64)= " + (7 - cluster));
+
+    print("The query before the shift: ");
+    println(bin(x, blockSize));
 
     x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
+
+    print("The query AFTER the shift: ");
+    println(bin(x, blockSize));
+
+    println("the cluster: " + bin(x, blockSize));
 
     final int d = parallelComparison(x);
 
-    return cluster * blockSize + d;
-  }
-
-  public static long msbNelsonShort(long x) {
-
-    if (x < 0) {
-      return 0;
-    }
-    // MSB (x)
-    final int w = Long.SIZE; // 64
-    final int blockSize = (int) Math.sqrt(w); // 8
-    final int numBlocks = blockSize; // 8
-    // There will be an example in the comments.
-    // It this particular example, let's assume w = 16. Let
-    // x = 0b0101_0000_1000_1101
-    // print("Query");
-    // printBin(x, blockSize);
-
-    // 1. Find F
-    // F is a w-bit word (same size as x) with 1 at the most significant positions
-    // of each sqrt(w)
-    // cluster
-    // In my example,
-    // F = 0b1000_1000_1000_1000
-    final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
-
-    // 2. Store information about the leading bits of each cluster in a local
-    // variable.
-    // We do that by ANDing F with x: x & F
-    // In my example
-    // x = 0b0101_0000_1000_1101
-    // F = 0b1000_1000_1000_1000
-    // x&F = 0b0000_0000_1000_1000
-    final long leadingBits = x & F;
-    // now I know that the last and the second to last clusters are non-zero. In
-    // particular because
-    // of their first bit.
-    // WE DEAL WITH THE FIRST BITS OF A CLUSTER AND THE REMAINING BITS IN A
-    // DIFFERENT WAY!
-
-    // 3. We set the leading bits of each block in x to 0, effectively clearing the
-    // msb of each
-    // cluster This is easily done by x ^ (x & F)
-    // In my example,
-    // x = 0b0101_0000_1000_1101
-    // F = 0b0101_0000_1000_1101
-    // x&F = 0b0000_0000_1000_1000
-    // x^(x&F) = 0b0101_0000_0000_0101
-    // final long noLeadingBits = x ^ (x & F);
-
-    // 4. We subtract F to the previous result. Since F has 1 set at every msb of
-    // every cluster, by
-    // subtracting the previous result to F, eg subtracting x after having all the
-    // msb of every
-    // cluster set to 0 to F, we will have the information about if that cluster was
-    // empty (all
-    // zeros) or not. This information is given by the bit that remains at the msb.
-    // If a 1 remains,
-    // them it means that we have subtracted by 0, which means that such cluster was
-    // empty.
-    // Otherwise, it wasn't empty.
-    // In my example:
-    // F = 0b1000_1000_1000_1000
-    // x^(x&F) = 0b0101_0000_0000_0101
-    // F-(x^(x&F)) = 0b0abc_1000_1000_0xyz --> if the cluster was non zero, then
-    // there will be a 0
-    // after subtracting because msb of each cluster
-    // "borrowed". Otherwise, there will be a 1.
-    // final long difference = F - (x ^ (x & F));
-
-    // 5. Note that in the non empty clusters, there will be the remainder of the
-    // difference, which
-    // is some noise we do not care about. In fact, the result we are looking for at
-    // the is stage
-    // is a word with 1 at the msb of the clusters that we non empty in x after we
-    // cleared the msb
-    // of each cluster of x. So we negate that result and we AND it with F.
-    // In my example:
-    // F-(x^(x&F)) = 0b0abc_1000_1000_0xyz
-    // ~(F-(x^(x&F))) = 0b1abc_0111_0111_1xyz
-    // F = 0b1000_1000_1000_1000
-    // ~(F-(x^(x&F))) & F = 0b1000_0000_0000_1000
-    final long noLeadingBitsNonEmptyClusters = (~(F - (x ^ (x & F)))) & F;
-
-    // 6. In order to get all the information about the whole x word, we need only
-    // to OR with the
-    // first word we saved which contained information about the msb of each cluster
-    // In my example:
-    // x&F = 0b0000_0000_1000_1000
-    // ~(F-(x^(x&F))) & F = 0b1000_0000_0000_1000
-    // (x&F) | (~(F-(x^(x&F))) & F) = 0b1000_0000_1000_1000
-    // The result is a word which holds the information of which cluster of x the
-    // msb of x is.
-    long res = leadingBits | noLeadingBitsNonEmptyClusters;
-    // Or in a single operation:
-    // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
-
-    // print("Clusters empty/non-empty");
-    // printBin(res, blockSize);
-
-    // 7. Perfect sketch: I want to have all these leading bits consecutive
-    // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that
-    // multiplying by m
-    // makes all the important bits consecutive with no gaps.
-    // to do that, we shift to the right result by (block size - 1);
-
-    // In my example:
-    // (x&F) | (~(F-(x^(x&F))) & F) = 0b1000_0000_1000_1000
-    // >>> (sqrt(w) - 1 = 4 - 1 = 3)= 0b0001_0000_0001_0001
-
-    res >>>= (blockSize - 1);
-    // print("Clusters shifted (res >>> (sqrt(w) - 1)");
-    // printBin(res, blockSize);
-
-    // 8. Sketch compression.
-    // We find C, which is a word that will put all the important bits in the same
-    // cluster.
-    // Then we multiply by C.
-    // Let the clusters be indexed from most significant position 0 to least
-    // significant position i.
-    // Let the cluster also be indexed from 0 to i where cluster 0 is the most
-    // significant cluster.
-    // Them C is word where every cluster i has bit i set, and all the other bits
-    // are 0.
-
-    // In my example:
-    // C = 0b0001_0010_0100_1000
-
-    final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
-    res *= C;
-    // print("Clusters summarized in the first cluster (res * 00001_00010_...)");
-    // printBin(res, blockSize);
-
-    // 9. The sketch is now compressed, but it is stored in the first cluster. So we
-    // shift all the
-    // clusters to the right minus one.
-
-    // In my example:
-    // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
-    res >>>= w - blockSize;
-    // print("Summary of the important bits on the right-most cluster (res >>> (w -
-    // sqrt(w))");
-    // printBin(res, blockSize);
-
-    // print("Cluster (0..7):");
-    final int cluster = parallelComparison64(res);
-    // print(cluster);
-    // 0...7
-
-    // print("Block shifts to make (0..8..64)= " + (7 - cluster));
-
-    // System.out.print("The query before the shift: ");
-    // printBin(x, blockSize);
-
-    x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
-
-    // System.out.print("The query AFTER the shift: ");
-    // printBin(x, blockSize);
-
-    // print("the cluster: " + bin(x));
-
-    final int parRes = parallelComparison64(x);
-    // print("d (0..7): " + parRes);
+    println("d (0..7): " + d);
     // 0..7
 
-    final int msb = cluster * blockSize + parRes;
-
-    return msb;
+    return cluster * blockSize + d;
   }
-
-  private static int parallelComparison64(final long cluster) {
-
-    final int blockSize = 8;
-
-    // Copying mask:
-    final long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
-
-    // Summarizing mask:
-    final long d = 0b000100000_001000000_010000000_100000000L;
-    // final long d = 0b00010000_00100000_01000000_10000000L;
-
-    // Clearing mask:
-    final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
-
-    // Fetching mask:
-    final long fetch = 0b1111L << (4 * blockSize);
-
-    final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
-    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
-
-    // final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>>
-    // blockSize) * d) & fetch)
-    // >>> (3 * (blockSize + 1) + 1);
-    // final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>>
-    // blockSize) * d) & fetch)
-    // >>> (3 * (blockSize + 1) + 5);
-
-    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> (3 * blockSize
-        + 4);
-    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> (4 * blockSize);
-
-    // System.out.print("hi summ = ");
-    // printBin(((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d,
-    // blockSize + 1);
-    // System.out.print("lo summ = ");
-    // printBin(((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d,
-    // blockSize + 1);
-    // System.out.print("hi | lo = ");
-    // printBin((int) (hi | lo), blockSize);
-
-    switch ((int) (hi | lo)) {
-      case 0b11111111:
-        return 0;
-      case 0b01111111:
-        return 1;
-      case 0b00111111:
-        return 2;
-      case 0b00011111:
-        return 3;
-      case 0b00001111:
-        return 4;
-      case 0b00000111:
-        return 5;
-      case 0b00000011:
-        return 6;
-      case 0b00000001:
-        return 7;
-      default:
-        return -1;
-    }
-  }
-
-
-
+  
   public static int M(final int b, final int w) {
     int M = 1;
     for (int i = 1; i < (w / b); i++) {
