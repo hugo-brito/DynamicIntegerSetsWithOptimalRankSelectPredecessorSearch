@@ -78,13 +78,13 @@ class UtilTest {
 
   @Test
   void msb64Nelson() {
-    // for (long i = longLowerBound; i < 0; i++) {
-    //   assertEquals(Long.numberOfLeadingZeros(i), Util.msbNelsonShort(i),
-    //       "Failed for " + i);
-    // }
-    // assertEquals(-1, Util.msbObvious(0));
-    for (long i = 2; i <= longUpperBound; i = i + 2) {
+    for (long i = longLowerBound; i < 0; i++) {
       assertEquals(Long.numberOfLeadingZeros(i), Util.msbNelsonShort(i),
+          "Failed for " + i);
+    }
+    assertEquals(-1, Util.msbObvious(0));
+    for (long i = 1; i <= longUpperBound; i = i + 2) {
+      assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
   }
