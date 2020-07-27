@@ -1,11 +1,160 @@
 package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
 
-import java.util.Random;
 /**
  * Utility class, containing many helful functions.
  */
 
 public class Util {
+
+  /**
+   * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array. The
+   * most significant bits of x will be at position 0 of the array, whereas the
+   * least significant bits will be at position 1.
+   * 
+   * @param x the long to be split
+   * @return the array containing 2 32-bit integers.
+   */
+  public static int[] splitLong(final long x) {
+    final int[] res = new int[2];
+    res[0] = (int) (x >>> Integer.SIZE);
+    res[1] = (int) (x << Integer.SIZE >>> Integer.SIZE);
+    return res;
+  }
+
+  /**
+   * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using
+   * the bits from those integers. Entry 0 of the 32-bit int array will be the
+   * most significant bits of resulting long.
+   * 
+   * @param x The 32-bit integers
+   * @return The resulting long
+   */
+  public static long mergeInts(final int[] x) {
+    final long res = x[0];
+    return (res << Integer.SIZE) | Integer.toUnsignedLong(x[1]);
+  }
+
+  /**
+   * Returns a binary representation of integer x in a String containing leading
+   * zeroes.
+   * 
+   * @param x the target
+   * @return a String representation of {@code x}
+   */
+  public static String bin(final int x) {
+    return bin(x, 0);
+  }
+
+  /**
+   * Returns a binary representation of integer x in a String containing leading
+   * zeroes.
+   * 
+   * @param x the target
+   * @return a String representation of {@code x}
+   */
+  public static String bin(final int x, final int blockSize) {
+    final StringBuilder res = new StringBuilder("0b");
+    if (blockSize > 0) {
+      final int r = Integer.SIZE % blockSize == 0 ? blockSize : Integer.SIZE % blockSize;
+      for (int i = 0; i < r; i++) {
+        res.append(bit(x, i));
+      }
+      for (int i = r; i < Integer.SIZE; i += blockSize) {
+        res.append("_");
+        for (int j = i; j < i + blockSize; j++) {
+          res.append(bit(x, j));
+        }
+      }
+    } else {
+      for (int i = 0; i < Integer.SIZE; i++) {
+        res.append(bit(x, i));
+      }
+    }
+    return res.toString();
+  }
+
+  /**
+   * Returns a binary representation of integer x in a String containing leading
+   * zeroes.
+   * 
+   * @param x the target
+   * @return a String representation of {@code x}
+   */
+  public static String bin(final long x) {
+    return bin(x, 0);
+  }
+
+  /**
+   * Returns a binary representation of integer x in a String containing leading
+   * zeroes.
+   * 
+   * @param x the target
+   * @return a String representation of {@code x}
+   */
+  public static String bin(final long x, final int blockSize) {
+    final StringBuilder res = new StringBuilder("0b");
+    if (blockSize > 0) {
+      final int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
+      for (int i = 0; i < r; i++) {
+        res.append(bit(x, i));
+      }
+      for (int i = r; i < Long.SIZE; i += blockSize) {
+        res.append("_");
+        for (int j = i; j < i + blockSize; j++) {
+          res.append(bit(x, j));
+        }
+      }
+    } else {
+      for (int i = 0; i < Long.SIZE; i++) {
+        res.append(bit(x, i));
+      }
+    }
+    return res.toString();
+  }
+
+  /**
+   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
+   * are indexed 0..63.
+   * 
+   * @param val the long value to have the digit extracted from
+   * @param d   the digit index
+   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   */
+  public static int bit(final long val, final int d) {
+    return (int) (val >> (63 - d)) & 1;
+  }
+
+  /**
+   * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
+   * are indexed 0..63.
+   * 
+   * @param val the long value to have the digit extracted from
+   * @param d   the digit index
+   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   */
+  public static int bit(final int val, final int d) {
+    return (val >> (31 - d)) & 1;
+  }
+
+  /**
+   * Sets bit at position {@code bit} to 1 and returns the key {@code key}.
+   * 
+   * @param target the key to have the bit altered
+   * @param bit    the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static long setBit(final long target, final int bit) {
+    assert ((target >>> (63 - bit)) & 1) == 0; // checks if the bit at position bit is 0!
+    return target | (1L << (63 - bit));
+  }
+
+  public static void print(final Object o) {
+    System.out.print(o);
+  }
+
+  public static void println(final Object o) {
+    System.out.println(o);
+  }
 
   /* Finding the most and least significant bits in constant time.
    * We have an operation msb(x) that for an integer x computes the index of its most significant
@@ -21,7 +170,7 @@ public class Util {
    * @return the index of the most significant bit of {@code x}
    */
   public static int msb(final int x) {
-    return msbObvious(x);
+    return msbConstant(Integer.toUnsignedLong(x));
   }
 
   /** Returns the index of the most significant bit of the target {@code x}.
@@ -30,7 +179,7 @@ public class Util {
    * @return the index of the most significant bit of {@code x}
    */
   public static int msb(final long x) {
-    return msbObvious(x);
+    return msbConstant(x);
   }
 
   /**
@@ -247,6 +396,55 @@ public class Util {
     return high;
   }
 
+  private static int parallelComparison(final long cluster) {
+
+    final int blockSize = 8;
+
+    // Copying mask:
+    final long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
+
+    // Summarizing mask:
+    final long d = 0b000100000_001000000_010000000_100000000L;
+
+    // Clearing mask:
+    final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
+
+    // Fetching mask:
+    final long fetch = 0b1111L << (4 * blockSize);
+
+    final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
+    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
+
+    long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+        >>> 4 * blockSize;
+    long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+        >>> 4 * blockSize;
+
+    if (hi > 0) {
+      return parallelLookup((int) hi);
+    }
+
+    return 4 + parallelLookup((int) lo);
+  }
+
+  /**
+   * Lookup table for the parallel comparison.
+   */
+  private static int parallelLookup(int pow) {
+    switch (pow) {
+      case 0b1111:
+        return 0;
+      case 0b0111:
+        return 1;
+      case 0b0011:
+        return 2;
+      case 0b0001:
+        return 3;
+      default:
+        return -1;
+    }
+  }
+
   /**
    * Most significant bit in constant time. This implementation follows the Jelani Nelson and
    * Erik Demaine's lecture notes.
@@ -278,311 +476,18 @@ public class Util {
     return cluster * blockSize + d;
   }
 
-  private static int parallelComparison(final long cluster) {
-
-    final int blockSize = 8;
-
-    // Copying mask:
-    final long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
-
-    // Summarizing mask:
-    final long d = 0b000100000_001000000_010000000_100000000L;
-    // final long d = 0b00010000_00100000_01000000_10000000L;
-
-    // Clearing mask:
-    final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
-
-    // Fetching mask:
-    final long fetch = 0b1111L << (4 * blockSize);
-
-    final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
-    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
-
-    long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> 4 * blockSize;
-    long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> 4 * blockSize;
-
-    if (hi > 0) {
-      return parallelLookup((int) hi);
-    }
-
-    return 4 + parallelLookup((int) lo);
-  }
-
-  private static int parallelLookup(int pow){
-    switch (pow) {
-      case 0b1111:
-        return 0;
-      case 0b0111:
-        return 1;
-      case 0b0011:
-        return 2;
-      case 0b0001:
-        return 3;
-      default:
-        return -1;
-    }
-  }
-
-  private static int parallelComparison64(final long cluster) {
-
-    final int blockSize = 8;
-
-    // Copying mask:
-    final long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
-
-    // Summarizing mask:
-    final long d = 0b000100000_001000000_010000000_100000000L;
-    // final long d = 0b00010000_00100000_01000000_10000000L;
-
-    // Clearing mask:
-    final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
-
-    // Fetching mask:
-    final long fetch = 0b1111L << (4 * blockSize);
-
-    final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
-    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
-
-    // final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>>
-    // blockSize) * d) & fetch)
-    // >>> (3 * (blockSize + 1) + 1);
-    // final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>>
-    // blockSize) * d) & fetch)
-    // >>> (3 * (blockSize + 1) + 5);
-
-    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> (3 * blockSize
-        + 4);
-    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> (4 * blockSize);
-
-    // System.out.print("hi summ = ");
-    // printBin(((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d,
-    // blockSize + 1);
-    // System.out.print("lo summ = ");
-    // printBin(((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d,
-    // blockSize + 1);
-    // System.out.print("hi | lo = ");
-    // printBin((int) (hi | lo), blockSize);
-
-    switch ((int) (hi | lo)) {
-      case 0b11111111:
-        return 0;
-      case 0b01111111:
-        return 1;
-      case 0b00111111:
-        return 2;
-      case 0b00011111:
-        return 3;
-      case 0b00001111:
-        return 4;
-      case 0b00000111:
-        return 5;
-      case 0b00000011:
-        return 6;
-      case 0b00000001:
-        return 7;
-      default:
-        return -1;
-    }
-  }
-
   /**
-   * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array. The
-   * most significant bits of x will be at position 0 of the array, whereas the
-   * least significant bits will be at position 1.
-   * 
-   * @param x the long to be split
-   * @return the array containing 2 32-bit integers.
+   * Most significant bit in constant time. Commented version of {@code msbConstant(x)}.
+   * @param x the key to be evaluated
+   * @return the index of the most significant bit of {@code x}
    */
-  public static int[] splitLong(final long x) {
-    final int[] res = new int[2];
-    res[0] = (int) (x >>> Integer.SIZE);
-    res[1] = (int) (x << Integer.SIZE >>> Integer.SIZE);
-    return res;
-  }
-
-  /**
-   * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using
-   * the bits from those integers. Entry 0 of the 32-bit int array will be the
-   * most significant bits of resulting long.
-   * 
-   * @param x The 32-bit integers
-   * @return The resulting long
-   */
-  public static long mergeInts(final int[] x) {
-    final long res = x[0];
-    return (res << Integer.SIZE) | Integer.toUnsignedLong(x[1]);
-  }
-
-  /**
-   * Returns a binary representation of integer x in a String containing leading
-   * zeroes.
-   * 
-   * @param x the target
-   * @return a String representation of {@code x}
-   */
-  public static String bin(final int x) {
-    final String aux = Integer.toBinaryString(x);
-    if (aux.length() < Integer.SIZE) {
-      final StringBuilder res = new StringBuilder(32);
-      for (int i = Integer.SIZE - aux.length(); i > 0; i--) {
-        res.append(0);
-      }
-      res.append(aux);
-      return res.toString();
-    } else {
-      return aux;
+  public static int msbConstantCommented(long x) {
+    if (x == 0) {
+      return -1; // because 0 has no 1 bits
     }
-  }
-
-  /**
-   * Returns a binary representation of integer x in a String containing leading
-   * zeroes.
-   * 
-   * @param x the target
-   * @return a String representation of {@code x}
-   */
-  public static String bin(final long x) {
-    final String aux = Long.toBinaryString(x);
-    if (aux.length() < Long.SIZE) {
-      final StringBuilder res = new StringBuilder(64);
-      for (int i = Long.SIZE - aux.length(); i > 0; i--) {
-        res.append(0);
-      }
-      res.append(aux);
-      return res.toString();
-    } else {
-      return aux;
+    if (x < 0) {
+      return 0;
     }
-  }
-
-  /**
-   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed 0..63.
-   * 
-   * @param val the long value to have the digit extracted from
-   * @param d   the digit index
-   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
-   */
-  public static int bit(final long val, final int d) {
-    return (int) (val >> (63 - d)) & 1;
-  }
-
-  /**
-   * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed 0..63.
-   * 
-   * @param val the long value to have the digit extracted from
-   * @param d   the digit index
-   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
-   */
-  public static int bit(final int val, final int d) {
-    return (val >> (31 - d)) & 1;
-  }
-
-  /**
-   * Sets bit at position {@code bit} to 1 and returns the key {@code key}.
-   * 
-   * @param target the key to have the bit altered
-   * @param bit    the bit to be set to 1
-   * @return the key with the bit altered
-   */
-  public static long setBit(final long target, final int bit) {
-    assert ((target >>> (63 - bit)) & 1) == 0; // checks if the bit at position bit is 0!
-    return target | (1L << (63 - bit));
-  }
-
-  public static void print(final Object s) {
-    System.out.println(s);
-  }
-
-  public static void printBin(final int x, final int blockSize) {
-    final StringBuilder res = new StringBuilder("0b");
-    final String bin = bin(x);
-    if (blockSize > 0) {
-      final int r = Integer.SIZE % blockSize == 0 ? blockSize : Integer.SIZE % blockSize;
-      res.append(bin.substring(0, r));
-      for (int i = r; i < Integer.SIZE; i += blockSize) {
-        res.append("_").append(bin.substring(i, i + blockSize));
-      }
-    } else {
-      res.append(bin);
-    }
-    Util.print(res.toString());
-  }
-
-  public static void printBin(final long x, final int blockSize) {
-    final StringBuilder res = new StringBuilder("0b");
-    final String bin = bin(x);
-    if (blockSize > 0) {
-      final int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
-      res.append(bin.substring(0, r));
-      for (int i = r; i < Long.SIZE; i += blockSize) {
-        res.append("_").append(bin.substring(i, i + blockSize));
-      }
-    } else {
-      res.append(bin);
-    }
-    Util.print(res.toString());
-  }
-
-  public static int M(final int b, final int w) {
-    int M = 1;
-    for (int i = 1; i < (w / b); i++) {
-      M |= 1 << (i * b);
-    }
-    return M;
-  }
-
-  public static void rank_lemma_1() {
-    final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
-    final int blockSize = 4;
-    System.out.print("           A = ");
-    printBin(A, 4);
-    // int x = 0b0001; // a key which rank I'm looking for
-    final int x = 0b0100;
-
-    System.out.print("           x = ");
-    printBin(x, 4);
-
-    final int w = 16;
-    final int b = 4; // block size
-    // with this block size and we can index 16 different keys (0..15)
-
-    final int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
-    // it's 8
-
-    // !!!!!
-
-    final int M = M(b, w);
-
-    System.out.print("           M = ");
-    printBin(M, 4);
-
-    System.out.print("       M * x = ");
-    printBin(M * x, 4);
-
-    final int d = A - (M * x);
-
-    System.out.print(" A - (M * x) = ");
-    printBin(d, 4);
-
-    // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
-    final int mask = 0b1000 * M;
-
-    System.out.print("        mask = ");
-    printBin(mask, 4);
-
-    System.out.print("(d&mask)^mask= ");
-    printBin((d & mask) ^ mask, 4);
-
-    print("     msb / b = " + (Integer.SIZE - msb((d & mask) ^ mask)) / b);
-
-    // The rank of x is equal to the number of blocks whose left-most bit is 1
-  }
-
-  public static long msbNelsonExhaustive(final long x) {
     // MSB (x)
     final int w = Long.SIZE; // 64
     final int blockSize = (int) Math.sqrt(w); // 8
@@ -590,13 +495,10 @@ public class Util {
     // There will be an example in the comments.
     // It this particular example, let's assume w = 16. Let
     // x = 0b0101_0000_1000_1101
-    print("Query");
-    printBin(x, blockSize);
 
     // 1. Find F
     // F is a w-bit word (same size as x) with 1 at the most significant positions
-    // of each sqrt(w)
-    // cluster
+    // of each sqrt(w)  cluster
     // In my example,
     // F = 0b1000_1000_1000_1000
     final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
@@ -609,11 +511,8 @@ public class Util {
     // F = 0b1000_1000_1000_1000
     // x&F = 0b0000_0000_1000_1000
     final long leadingBits = x & F;
-    // now I know that the last and the second to last clusters are non-zero. In
-    // particular because
+    // now I know that the last and the second to last clusters are non-zero. In particular because
     // of their first bit.
-    // WE DEAL WITH THE FIRST BITS OF A CLUSTER AND THE REMAINING BITS IN A
-    // DIFFERENT WAY!
 
     // 3. We set the leading bits of each block in x to 0, effectively clearing the
     // msb of each
@@ -623,19 +522,14 @@ public class Util {
     // F = 0b0101_0000_1000_1101
     // x&F = 0b0000_0000_1000_1000
     // x^(x&F) = 0b0101_0000_0000_0101
-    // final long noLeadingBits = x ^ (x & F);
+    final long noLeadingBits = x ^ (x & F);
 
-    // 4. We subtract F to the previous result. Since F has 1 set at every msb of
-    // every cluster, by
-    // subtracting the previous result to F, eg subtracting x after having all the
-    // msb of every
-    // cluster set to 0 to F, we will have the information about if that cluster was
-    // empty (all
+    // 4. We subtract F to the previous result. Since F has 1 set at every msb of  every cluster, by
+    // subtracting the previous result to F, eg subtracting x after having all the msb of every
+    // cluster set to 0 to F, we will have the information about if that cluster was empty (all
     // zeros) or not. This information is given by the bit that remains at the msb.
-    // If a 1 remains,
-    // them it means that we have subtracted by 0, which means that such cluster was
-    // empty.
-    // Otherwise, it wasn't empty.
+    // If a 1 remains, then it means that we have subtracted by 0, which means that such cluster was
+    // empty. Otherwise, it wasn't empty.
     // In my example:
     // F = 0b1000_1000_1000_1000
     // x^(x&F) = 0b0101_0000_0000_0101
@@ -643,21 +537,18 @@ public class Util {
     // there will be a 0
     // after subtracting because msb of each cluster
     // "borrowed". Otherwise, there will be a 1.
-    // final long difference = F - (x ^ (x & F));
+    final long difference = F - (x ^ (x & F));
 
-    // 5. Note that in the non empty clusters, there will be the remainder of the
-    // difference, which
-    // is some noise we do not care about. In fact, the result we are looking for at
-    // the is stage
-    // is a word with 1 at the msb of the clusters that we non empty in x after we
-    // cleared the msb
+    // 5. Note that in the non empty clusters, there will be the remainder of the difference, which
+    // is some noise we do not care about. In fact, the result we are looking for at this stage is
+    // a word with 1 at the msb of the clusters that we non empty in x after we cleared the msb
     // of each cluster of x. So we negate that result and we AND it with F.
     // In my example:
     // F-(x^(x&F)) = 0b0abc_1000_1000_0xyz
     // ~(F-(x^(x&F))) = 0b1abc_0111_0111_1xyz
     // F = 0b1000_1000_1000_1000
     // ~(F-(x^(x&F))) & F = 0b1000_0000_0000_1000
-    final long noLeadingBitsNonEmptyClusters = (~(F - (x ^ (x & F)))) & F;
+    final long noLeadingBitsNonEmptyClusters = (~difference) & F;
 
     // 6. In order to get all the information about the whole x word, we need only
     // to OR with the
@@ -672,13 +563,9 @@ public class Util {
     // Or in a single operation:
     // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
 
-    print("Clusters empty/non-empty");
-    printBin(res, blockSize);
-
     // 7. Perfect sketch: I want to have all these leading bits consecutive
     // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that
-    // multiplying by m
-    // makes all the important bits consecutive with no gaps.
+    // multiplying by m makes all the important bits consecutive with no gaps.
     // to do that, we shift to the right result by (block size - 1);
 
     // In my example:
@@ -686,27 +573,21 @@ public class Util {
     // >>> (sqrt(w) - 1 = 4 - 1 = 3)= 0b0001_0000_0001_0001
 
     res >>>= (blockSize - 1);
-    print("Clusters shifted (res >>> (sqrt(w) - 1)");
-    printBin(res, blockSize);
+    // println("Clusters shifted (res >>> (sqrt(w) - 1)");
+    // println(bin(res, blockSize));
 
     // 8. Sketch compression.
-    // We find C, which is a word that will put all the important bits in the same
-    // cluster.
+    // We find C, which is a word that will put all the important bits in the same cluster.
     // Then we multiply by C.
-    // Let the clusters be indexed from most significant position 0 to least
-    // significant position i.
-    // Let the cluster also be indexed from 0 to i where cluster 0 is the most
-    // significant cluster.
-    // Them C is word where every cluster i has bit i set, and all the other bits
-    // are 0.
+    // Let the clusters be indexed from most significant position 0 to least significant position i.
+    // Let the cluster also be indexed from 0 to i where cluster 0 is the most significant cluster.
+    // Them C is word where every cluster i has bit i set, and all the other bits are 0.
 
     // In my example:
     // C = 0b0001_0010_0100_1000
 
     final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
     res *= C;
-    print("Clusters summarized in the first cluster (res * 00001_00010_...)");
-    printBin(res, blockSize);
 
     // 9. The sketch is now compressed, but it is stored in the first cluster. So we
     // shift all the
@@ -715,8 +596,6 @@ public class Util {
     // In my example:
     // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
-    print("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
-    printBin(res, blockSize);
 
     // So do parallel comparison between 1011 and:
     // {1000, 0100, 0010, 0001}
@@ -729,102 +608,13 @@ public class Util {
     // res = 0b1011;
     // res * m = 0b1011_1011_1011_1011;
 
-    // HIGH:
-    //
+    final int cluster = parallelComparison64(res);
 
-    print("Summary copied and padded with 0's");
-    final long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
-    printBin(m * res, 9);
-    // System.out.println();
+    x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
 
-    print("Highest first half of the powers of 2 padded with 1's");
-    final long hiIndices = 0b1_10000000_1_01000000_1_00100000_1_00010000L;
-    printBin(hiIndices, 9);
-    // System.out.println();
+    final int d = parallelComparison(x);
 
-    print("Low half of the powers of 2 padded with 1's");
-    final long loIndices = 0b1_00001000_1_00000100_1_00000010_1_00000000L;
-    printBin(loIndices, 9);
-    // System.out.println();
-
-    print("Diff (High powers of 2, Summary)");
-    long hi = hiIndices - (m * res);
-    printBin(hi, 9);
-    // System.out.println();
-
-    print("Diff (lo powers of 2, Summary)");
-    long lo = loIndices - (m * res);
-    printBin(lo, 9);
-    // System.out.println();
-
-    final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
-    print("hi cleared of clutter ((hi & mask) ^ mask))");
-    hi = (hi & mask) ^ mask;
-    printBin(hi, 9);
-    // System.out.println();
-
-    print("lo cleared of clutter ((hi & mask) ^ mask))");
-    lo = (lo & mask) ^ mask;
-    printBin(lo, 9);
-    // System.out.println();
-
-    hi >>>= blockSize;
-    print("hi >>> 8 (msb -> lsb)");
-    printBin(hi, 9);
-    // System.out.println();
-
-    lo >>>= blockSize;
-    print("lo >>> 8 (msb -> lsb)");
-    printBin(lo, 9);
-    // System.out.println();
-
-    print("D:");
-    final long d = 0b000100000_001000000_010000000_100000000L;
-    // long d = F >>> 2 * blockSize;
-    printBin(d, 9);
-    // System.out.println();
-
-    print("hi with a summary on the first cluster");
-    hi *= d;
-    printBin(hi, 9);
-    // System.out.println();
-
-    print("lo with a summary on the first cluster");
-    lo *= d;
-    printBin(lo, 9);
-    // System.out.println();
-
-    print("fectching mask");
-    printBin(0b1111L << (3 * (blockSize + 1) + 5), blockSize + 1);
-    // System.out.println();
-
-    print("hi//cluster cleaned and pushed to the right");
-    // printBin(hi, 9);
-    hi &= (0b1111L << (3 * (blockSize + 1) + 5));
-    // printBin(hi, 9);
-    hi >>>= (3 * (blockSize + 1) + 1); // + 4
-    printBin(hi, blockSize);
-    // System.out.println();
-    // hi <<= 28;
-    // hi >>>= 59;
-    // printBin(hi, 4);
-
-    print("lo//cluster cleaned and pushed to the right");
-    // printBin(hi, 9);
-    lo &= (0b1111L << (3 * (blockSize + 1) + 5));
-    // printBin(hi, 9);
-    lo >>>= (3 * (blockSize + 1) + 5); // + 4
-    printBin(lo, blockSize);
-    // System.out.println();
-
-    print("result:");
-    final long hiLo = hi | lo;
-    printBin(hiLo, blockSize);
-
-    print("by method:");
-    print(parallelComparison64(res));
-
-    return hiLo / blockSize;
+    return cluster * blockSize + d;
   }
 
   public static long msbNelsonShort(long x) {
@@ -994,44 +784,130 @@ public class Util {
     return msb;
   }
 
+  private static int parallelComparison64(final long cluster) {
+
+    final int blockSize = 8;
+
+    // Copying mask:
+    final long m = 0b0_00000001_0_00000001_0_00000001_0_00000001L; // copy x and pad it with zeroes
+
+    // Summarizing mask:
+    final long d = 0b000100000_001000000_010000000_100000000L;
+    // final long d = 0b00010000_00100000_01000000_10000000L;
+
+    // Clearing mask:
+    final long mask = 0b1_00000000_1_00000000_1_00000000_1_00000000L;
+
+    // Fetching mask:
+    final long fetch = 0b1111L << (4 * blockSize);
+
+    final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
+    final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
+
+    // final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>>
+    // blockSize) * d) & fetch)
+    // >>> (3 * (blockSize + 1) + 1);
+    // final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>>
+    // blockSize) * d) & fetch)
+    // >>> (3 * (blockSize + 1) + 5);
+
+    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> (3 * blockSize
+        + 4);
+    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> (4 * blockSize);
+
+    // System.out.print("hi summ = ");
+    // printBin(((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d,
+    // blockSize + 1);
+    // System.out.print("lo summ = ");
+    // printBin(((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d,
+    // blockSize + 1);
+    // System.out.print("hi | lo = ");
+    // printBin((int) (hi | lo), blockSize);
+
+    switch ((int) (hi | lo)) {
+      case 0b11111111:
+        return 0;
+      case 0b01111111:
+        return 1;
+      case 0b00111111:
+        return 2;
+      case 0b00011111:
+        return 3;
+      case 0b00001111:
+        return 4;
+      case 0b00000111:
+        return 5;
+      case 0b00000011:
+        return 6;
+      case 0b00000001:
+        return 7;
+      default:
+        return -1;
+    }
+  }
+
+
+
+  public static int M(final int b, final int w) {
+    int M = 1;
+    for (int i = 1; i < (w / b); i++) {
+      M |= 1 << (i * b);
+    }
+    return M;
+  }
+
+  public static void rank_lemma_1() {
+    final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+    final int blockSize = 4;
+    System.out.print("           A = ");
+    println(bin(A, 4));
+    // int x = 0b0001; // a key which rank I'm looking for
+    final int x = 0b0100;
+
+    System.out.print("           x = ");
+    println(bin(x, 4));
+
+    final int w = 16;
+    final int b = 4; // block size
+    // with this block size and we can index 16 different keys (0..15)
+
+    final int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
+    // it's 8
+
+    // !!!!!
+
+    final int M = M(b, w);
+
+    System.out.print("           M = ");
+    println(bin(M, 4));
+
+    System.out.print("       M * x = ");
+    println(bin(M * x, 4));
+
+    final int d = A - (M * x);
+
+    System.out.print(" A - (M * x) = ");
+    println(bin(d, 4));
+
+    // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
+    final int mask = 0b1000 * M;
+
+    System.out.print("        mask = ");
+    println(bin(mask, 4));
+
+    System.out.print("(d&mask)^mask= ");
+    println(bin((d & mask) ^ mask, 4));
+
+    println("     msb / b = " + (Integer.SIZE - msb((d & mask) ^ mask)) / b);
+
+    // The rank of x is equal to the number of blocks whose left-most bit is 1
+  }
+
   /**
    * Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
-    // long[] clusters = new long[]{0b00000001, 0b00000011, 0b00000111, 0b00001111,
-    // 0b00011111, 0b00111111, 0b01111111, 0b11111111};
-    // for (int i = 0; i < clusters.length; i++) {
-    // print(parallelComparison64(clusters[i]));
-    // }
-
-    // print(msbNelsonShort(1));
-    print(parallelComparison(0b011));
-
-    final Random rand = new Random();
-
-    // for (int i = 0; i < 8; i++) {
-    //   int iter = (-1 >>> (Integer.SIZE - i - 1));
-    //   iter ^= 1 << (rand.nextInt(i + 1) - 1); 
-    //   printBin(iter, 8);
-    //   print(parallelComparison64(iter));
-    //   System.out.println();
-    // }
-
-    // print(parallelComparison16(0b111));
-
-
-    // print(0b1000);
-    // rank_lemma_1();
-    // print(msbLibrary(10L));
-
-    // printBin(0b1011_1011_1011_1011, 4);
-    // printBin(0b1000_0100_0010_0001, 4);
-    // printBin((0b1000_0100_0010_0001 - 0b1011_1011_1011_1011), 4);
-    // printBin(M(5, 32),);
-    // System.out.println(0b0011);
-
   }
-
 }

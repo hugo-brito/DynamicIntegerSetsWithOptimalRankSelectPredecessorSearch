@@ -270,12 +270,12 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     // Util.print(ceilLgK);
     DynamicFusionNode node = new DynamicFusionNode();
     node.insert(10);
-    Util.printBin(node.index, ceilLgK);
+    Util.println(Util.bin(node.index, ceilLgK));
     node.insert(12);
-    Util.printBin(node.index, ceilLgK);
+    Util.println(Util.bin(node.index, ceilLgK));
     node.insert(42);
-    Util.printBin(node.index, ceilLgK);
-    Util.print(node.getIndex(2));
+    Util.println(Util.bin(node.index, ceilLgK));
+    Util.println(node.getIndex(2));
 
   }
 }
