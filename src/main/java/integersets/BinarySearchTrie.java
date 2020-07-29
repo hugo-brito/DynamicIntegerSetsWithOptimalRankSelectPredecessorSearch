@@ -1,4 +1,4 @@
-package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+package integersets;
 
 public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 

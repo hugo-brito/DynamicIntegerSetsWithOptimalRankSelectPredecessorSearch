@@ -1,6 +1,6 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.Util;
+import integersets.Util;
 import org.junit.jupiter.api.Test;
 
 class UtilTest {

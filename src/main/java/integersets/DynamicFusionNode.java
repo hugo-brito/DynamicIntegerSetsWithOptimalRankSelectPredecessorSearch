@@ -1,4 +1,4 @@
-package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+package integersets;
 
 /** For this version of indexing, which comes described in page 5 of the paper,
   * we have selected w = 64, e. g. with word is made up of 64 bits. The reason

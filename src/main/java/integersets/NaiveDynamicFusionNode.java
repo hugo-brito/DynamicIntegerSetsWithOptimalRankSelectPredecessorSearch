@@ -1,4 +1,4 @@
-package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+package integersets;
 
 /**
  * Naive version of Dynamic Fusion Node.

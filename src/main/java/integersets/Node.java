@@ -1,4 +1,4 @@
-package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+package integersets;
 
 abstract class Node<E> {
 

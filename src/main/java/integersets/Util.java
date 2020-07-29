@@ -1,4 +1,4 @@
-package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+package integersets;
 
 /**
  * Utility class, containing many helful functions.
@@ -660,10 +660,17 @@ public class Util {
     return cluster * blockSize + d;
   }
   
-  public static int M(final int b, final int w) {
-    int M = 1;
+  /**
+   * Produces a {@code long} word with at {@code 1}-bit set every {@code b} position, up to
+   * {@code w-positions}. The first set position is the least significant position of the word.
+   * @param b the block size
+   * @param w the word size
+   * @return
+   */
+  public static long M(final int b, final int w) {
+    long M = 1L;
     for (int i = 1; i < (w / b); i++) {
-      M |= 1 << (i * b);
+      M |= 1L << (i * b);
     }
     return M;
   }
@@ -688,7 +695,7 @@ public class Util {
 
     // !!!!!
 
-    final int M = M(b, w);
+    final int M = (int) M(b, w);
 
     System.out.print("           M = ");
     println(bin(M, 4));
@@ -716,13 +723,67 @@ public class Util {
   }
 
   /**
+   * Let mb <= w. If we are given a b-bit number x and a word A with m b-bit numbers stored in
+   * sorted order, then in constant time we can find the rank of x in A, denoted rank(x, A).
+   * @param x
+   * @param A
+   * @param w
+   * @param blockSize
+   */
+  public static void rank_lemma_1(long x, long A, int w, int blockSize) {
+    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+    // final int blockSize = 4;
+    print("           A = ");
+    println(bin(A, blockSize));
+    // int x = 0b0001; // a key which rank I'm looking for
+    // final int x = 0b0100;
+
+    print("           x = ");
+    println(bin(x, blockSize));
+
+    // final int w = 16;
+    // with this block size and we can index 16 different keys (0..15)
+
+    // final int m = Integer.SIZE / blockSize; // #keys in Long.SIZE with b size
+
+    // !!!!!
+
+    final long M = M(blockSize, w);
+
+    System.out.print("           M = ");
+    println(bin(M, 4));
+
+    System.out.print("       M * x = ");
+    println(bin(M * x, 4));
+
+    final long d = A - (M * x);
+
+    print(" A - (M * x) = ");
+    println(bin(d, blockSize));
+
+    // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
+    final long mask = (1L << blockSize) * M;
+
+    print("        mask = ");
+    println(bin(mask, 4));
+
+    print("(d&mask)^mask= ");
+    println(bin((d & mask) ^ mask, 4));
+
+    println("     msb / b = " + (Long.SIZE - msb((d & mask) ^ mask)) / blockSize);
+
+    // The rank of x is equal to the number of blocks whose left-most bit is 1
+  }
+
+  /**
    * Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
+    long A = 0b10000000_10000000_10000000_10000000_00000000_00000000_00000000_00000000L;
+    // long x = 0b
     rank_lemma_1();
 
-    // print(msb)
   }
 }

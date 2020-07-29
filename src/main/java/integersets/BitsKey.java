@@ -1,4 +1,4 @@
-package DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch;
+package integersets;
 
 public class BitsKey implements Comparable<BitsKey> {
   /** BitsKey class created to conveniently store keys at the nodes in the Binary Search Trie.
