@@ -730,10 +730,10 @@ public class Util {
    * also be sorted.
    * @param x the query of b size
    * @param A the A word
-   * @param w mb
-   * @param blockSize b
+   * @param m the number of keys in A
+   * @param blockSize the lenght of each key in A excluding padding bits
    */
-  public static void rank_lemma_1(long x, long A, int w, int blockSize) {
+  public static void rank_lemma_1(long x, long A, int m, int blockSize) {
     // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
     // final int blockSize = 4;
     print("           A = ");
@@ -744,7 +744,7 @@ public class Util {
     print("           x = ");
     println(bin(x, blockSize + 1));
 
-    final long M = M(blockSize + 1, w);
+    final long M = M(blockSize + 1, m * blockSize + m);
 
     System.out.print("           M = ");
     println(bin(M, blockSize + 1));
@@ -777,12 +777,16 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    long A = 0b1_1110010_1_1101101_1_1100111_1_1001010_1_0100101_1_0100011_1_0011110_1_0001100L;
-    // [114, 109, 103, 74, 37, 35, 30, 12] // 8 keys of 7 bits each
-    long x = 0b0_1010101L; // 85, rank 5
-    println(x);
-    rank_lemma_1(x, A, 64, 7);
+    // long A = 0b1_1110010_1_1101101_1_1100111_1_1001010_1_0100101_1_0100011_1_0011110_1_0001100L;
+    // // [114, 109, 103, 74, 37, 35, 30, 12] // 8 keys of 7 bits each
+    // long x = 0b0_1010101L; // 85, rank 5
+    // println(x);
+    // rank_lemma_1(x, A, 8, 7);
 
+
+    long A = 0b1_1110_1_1101_1_1010_1_1001; // compressed keys in descending sorted order!
+    long x = 0b0_1100;
+    rank_lemma_1(x, A, 4, 4);
 
   }
 }
