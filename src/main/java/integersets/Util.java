@@ -801,51 +801,50 @@ public class Util {
     // 2 scenarios: // actually don't need this because leading bits already checks for this.
     // the leading bit of x is 1.
 
-    {
-      long leadingBits = x & (1L << blockSize - 1); // info about the leading bit of x
-      leadingBits *= M; // copied;
-      print("leading bits = ");
-      println(bin(leadingBits, blockSize));
+    long d;
+    final long mask = (1L << blockSize - 1) * M;
 
-      long dLeading = A - leadingBits;
-      print(" A - leading = ");
-      println(bin(dLeading, blockSize));
+    long leadingBits = x * M; // m copies of x // info about the leading bit of x
+    print("leading bits = ");
+    println(bin(leadingBits, blockSize));
 
-      final long mask = (1L << blockSize - 1) * M;
-      print("        mask = ");
-      println(bin(mask, blockSize));
-
-      print("(d&mask)^mask= "); // difference cleared of clutter
-      println(bin((dLeading & mask) ^ mask, blockSize)); // if we get a 1, then the leading bit was
-      // the same in A and in x
-      // in such case, the difference must lie in the remaining bits.
-
-    }
-
-    // System.out.print("       M * x = ");
-    // println(bin(M * x, blockSize));
+    long dLeading = A - leadingBits;
+    print(" A - leading = ");
+    println(bin(dLeading, blockSize));
 
 
+    print("        mask = ");
+    println(bin(mask, blockSize));
 
-    // // the leading bit of x is 0.
+    print("(d&mask)^mask= "); // difference cleared of clutter
+    println(bin((dLeading & mask) ^ mask, blockSize)); // if we get a 1, then the leading bit was
+    // the same in A and in x
+    // in such case, the difference must lie in the remaining bits.
 
-    // final long d = A - (M * x);
+    // Another way to get this result is:
+    // A & (x * M) & mask
 
-    // print(" A - (M * x) = ");
-    // println(bin(d, blockSize + 1));
+    d = (dLeading & mask) ^ mask;
 
-    // // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
-    // final long mask = (1L << blockSize) * M;
 
-    // print("        mask = ");
-    // println(bin(mask, blockSize + 1));
+    long remainingBits = (x * M) & ~mask;
+    print("remaini bits = ");
+    println(bin(remainingBits, blockSize));
 
-    // print("(d&mask)^mask= ");
-    // println(bin((d & mask) ^ mask, blockSize + 1));
+    long dRemaining = (A | mask) - remainingBits; // we make the leading bit of each cluster 1
+    print("A - remaining= ");
+    println(bin(dRemaining, blockSize));
 
-    // println("     msb / b = " + (Long.SIZE - msb((d & mask) ^ mask)) / (blockSize + 1));
+    
+    print("(d&mask)^mask= "); // difference cleared of clutter
+    println(bin((dRemaining & mask) ^ mask, blockSize)); // if we get a 1, then the leading bit was
 
-    // The rank of x is equal to the number of blocks whose left-most bit is 1
+
+    d = (d | ((dRemaining & mask) ^ mask)) & ((dRemaining & mask) ^ mask);
+    print("dLead & dRema= "); // difference cleared of clutter
+    println(bin(d, blockSize)); // if we get a 1, then the leading bit was
+
+    println("     msb / b = " + ((Long.SIZE - msb(d)) / blockSize));
   }
 
   /**
@@ -861,13 +860,13 @@ public class Util {
     // println(x);
     // rank_lemma_1(x, A, 8, 7);
 
-    // Works:
+    // // Works:
     // long A = 0b1_1110_1_1101_1_1010_1_1001; // compressed keys in descending sorted order!
     // long x = 0b0_1100;
     // rank_lemma_1(x, A, 4, 4);
 
-    long A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
-    long x = 0b0_1100;
+    long A = 0b0110_0011_0010_0001; // compressed keys in descending sorted order!
+    long x = 0b0_1101;
     rank_lemma_1_2(x, A, 4, 4);
 
   }
