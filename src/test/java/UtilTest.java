@@ -77,17 +77,31 @@ class UtilTest {
   }
 
   @Test
-  void msbConstant() {
+  void msbConstant64() {
     for (long i = longLowerBound; i < 0; i++) {
       assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
     assertEquals(-1, Util.msbConstant(0));
-    for (long i = 1; i <= longUpperBound; i = i + 2) {
+    for (long i = 1; i <= longUpperBound; i++) {
       assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
   }
+
+  @Test
+  void msbConstant32() {
+    for (int i = intLowerBound; i < 0; i++) {
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbConstant(i),
+          "Failed for " + i);
+    }
+    assertEquals(-1, Util.msbConstant(0));
+    for (int i = 1; i <= intUpperBound; i++) {
+      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbConstant(i),
+          "Failed for " + i);
+    }
+  }
+
 
   @Test
   void msbConstantCommented() {
