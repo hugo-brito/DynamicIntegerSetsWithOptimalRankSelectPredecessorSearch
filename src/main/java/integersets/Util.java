@@ -757,7 +757,6 @@ public class Util {
     print(" A - (M * x) = ");
     println(bin(d, blockSize + 1));
 
-    // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
     final long mask = (1L << blockSize) * M;
 
     print("        mask = ");
@@ -771,22 +770,105 @@ public class Util {
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
 
+  /** No padding version of rank_lemma_1 
+   * Lemma 1:
+   * Let mb <= w. If we are given a b-bit number x and a word A with m b-bit numbers stored in
+   * sorted order, then in constant time we can find the rank of x in A, denoted rank(x, A).
+   * In order for this method to give plausible results, the following requirements *must* be
+   * fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and the words in A must
+   * also be sorted.
+   * @param x the query of b size
+   * @param A the A word
+   * @param m the number of keys in A
+   * @param blockSize the lenght of each key in A excluding padding bits
+   */
+  public static void rank_lemma_1_2(long x, long A, int m, int blockSize) {
+    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+    // final int blockSize = 4;
+    print("           A = ");
+    println(bin(A, blockSize));
+    // int x = 0b0001; // a key which rank I'm looking for
+    // final int x = 0b0100;
+
+    print("           x = ");
+    println(bin(x, blockSize));
+
+    final long M = M(blockSize, m * blockSize);
+
+    System.out.print("           M = ");
+    println(bin(M, blockSize));
+
+    // 2 scenarios: // actually don't need this because leading bits already checks for this.
+    // the leading bit of x is 1.
+
+    {
+      long leadingBits = x & (1L << blockSize - 1); // info about the leading bit of x
+      leadingBits *= M; // copied;
+      print("leading bits = ");
+      println(bin(leadingBits, blockSize));
+
+      long dLeading = A - leadingBits;
+      print(" A - leading = ");
+      println(bin(dLeading, blockSize));
+
+      final long mask = (1L << blockSize - 1) * M;
+      print("        mask = ");
+      println(bin(mask, blockSize));
+
+      print("(d&mask)^mask= "); // difference cleared of clutter
+      println(bin((dLeading & mask) ^ mask, blockSize)); // if we get a 1, then the leading bit was
+      // the same in A and in x
+      // in such case, the difference must lie in the remaining bits.
+
+    }
+
+    // System.out.print("       M * x = ");
+    // println(bin(M * x, blockSize));
+
+
+
+    // // the leading bit of x is 0.
+
+    // final long d = A - (M * x);
+
+    // print(" A - (M * x) = ");
+    // println(bin(d, blockSize + 1));
+
+    // // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
+    // final long mask = (1L << blockSize) * M;
+
+    // print("        mask = ");
+    // println(bin(mask, blockSize + 1));
+
+    // print("(d&mask)^mask= ");
+    // println(bin((d & mask) ^ mask, blockSize + 1));
+
+    // println("     msb / b = " + (Long.SIZE - msb((d & mask) ^ mask)) / (blockSize + 1));
+
+    // The rank of x is equal to the number of blocks whose left-most bit is 1
+  }
+
   /**
    * Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
+    // Works:
     // long A = 0b1_1110010_1_1101101_1_1100111_1_1001010_1_0100101_1_0100011_1_0011110_1_0001100L;
     // // [114, 109, 103, 74, 37, 35, 30, 12] // 8 keys of 7 bits each
     // long x = 0b0_1010101L; // 85, rank 5
     // println(x);
     // rank_lemma_1(x, A, 8, 7);
 
+    // Works:
+    // long A = 0b1_1110_1_1101_1_1010_1_1001; // compressed keys in descending sorted order!
+    // long x = 0b0_1100;
+    // rank_lemma_1(x, A, 4, 4);
 
-    long A = 0b1_1110_1_1101_1_1010_1_1001; // compressed keys in descending sorted order!
+    long A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
     long x = 0b0_1100;
-    rank_lemma_1(x, A, 4, 4);
+    rank_lemma_1_2(x, A, 4, 4);
 
   }
 }
