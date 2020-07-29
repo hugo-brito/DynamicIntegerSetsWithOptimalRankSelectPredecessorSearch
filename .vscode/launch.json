@@ -6,6 +6,20 @@
 	"configurations": [
 		{
 			"type": "java",
+			"name": "CodeLens (Launch) - Util",
+			"request": "launch",
+			"mainClass": "integersets.Util",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
+			"name": "CodeLens (Launch) - Util",
+			"request": "launch",
+			"mainClass": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.Util",
+			"projectName": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch"
+		},
+		{
+			"type": "java",
 			"name": "CodeLens (Launch) - DynamicFusionNode",
 			"request": "launch",
 			"mainClass": "DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch.DynamicFusionNode",

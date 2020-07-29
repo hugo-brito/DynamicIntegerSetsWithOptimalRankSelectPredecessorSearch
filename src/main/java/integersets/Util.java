@@ -722,55 +722,51 @@ public class Util {
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
 
-  /**
+  /** Lemma 1:
    * Let mb <= w. If we are given a b-bit number x and a word A with m b-bit numbers stored in
    * sorted order, then in constant time we can find the rank of x in A, denoted rank(x, A).
-   * @param x
-   * @param A
-   * @param w
-   * @param blockSize
+   * In order for this method to give plausible results, the following requirements *must* be
+   * fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and the words in A must
+   * also be sorted.
+   * @param x the query of b size
+   * @param A the A word
+   * @param w mb
+   * @param blockSize b
    */
   public static void rank_lemma_1(long x, long A, int w, int blockSize) {
     // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
     // final int blockSize = 4;
     print("           A = ");
-    println(bin(A, blockSize));
+    println(bin(A, blockSize + 1));
     // int x = 0b0001; // a key which rank I'm looking for
     // final int x = 0b0100;
 
     print("           x = ");
-    println(bin(x, blockSize));
+    println(bin(x, blockSize + 1));
 
-    // final int w = 16;
-    // with this block size and we can index 16 different keys (0..15)
-
-    // final int m = Integer.SIZE / blockSize; // #keys in Long.SIZE with b size
-
-    // !!!!!
-
-    final long M = M(blockSize, w);
+    final long M = M(blockSize + 1, w);
 
     System.out.print("           M = ");
-    println(bin(M, 4));
+    println(bin(M, blockSize + 1));
 
     System.out.print("       M * x = ");
-    println(bin(M * x, 4));
+    println(bin(M * x, blockSize + 1));
 
     final long d = A - (M * x);
 
     print(" A - (M * x) = ");
-    println(bin(d, blockSize));
+    println(bin(d, blockSize + 1));
 
     // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
     final long mask = (1L << blockSize) * M;
 
     print("        mask = ");
-    println(bin(mask, 4));
+    println(bin(mask, blockSize + 1));
 
     print("(d&mask)^mask= ");
-    println(bin((d & mask) ^ mask, 4));
+    println(bin((d & mask) ^ mask, blockSize + 1));
 
-    println("     msb / b = " + (Long.SIZE - msb((d & mask) ^ mask)) / blockSize);
+    println("     msb / b = " + (Long.SIZE - msb((d & mask) ^ mask)) / (blockSize + 1));
 
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
@@ -781,9 +777,12 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    long A = 0b10000000_10000000_10000000_10000000_00000000_00000000_00000000_00000000L;
-    // long x = 0b
-    rank_lemma_1();
+    long A = 0b1_1110010_1_1101101_1_1100111_1_1001010_1_0100101_1_0100011_1_0011110_1_0001100L;
+    // [114, 109, 103, 74, 37, 35, 30, 12] // 8 keys of 7 bits each
+    long x = 0b0_1010101L; // 85, rank 5
+    println(x);
+    rank_lemma_1(x, A, 64, 7);
+
 
   }
 }
