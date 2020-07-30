@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import integersets.Util;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +17,7 @@ class UtilTest {
   int intUpperBound = 100_000_000;
   long longLowerBound = -10_000_000L + Integer.MIN_VALUE;
   long longUpperBound = 10_000_000L + Integer.MAX_VALUE;
-  int passes = 20;
+  int passes = 1000;
   long seed = 42;
   int loB = 3;
   int hiB = 10;
@@ -142,7 +144,17 @@ class UtilTest {
         int m = (int) Math.min(Math.pow(2, b), Long.SIZE / b);
         Random passRand = new Random(random.nextLong());
         
-        TreeSet<Integer> keys = new TreeSet<>(new Comparator<Integer>() {
+        Set<Integer> keys = new HashSet<>();
+
+        while (keys.size() < m) {
+          keys.add(passRand.nextInt((int) Math.pow(2, b)));
+        }
+
+        int x = passRand.nextInt((int) Math.pow(2, b));
+
+        // put them in an array or list
+        ArrayList<Integer> keyList = new ArrayList<>(keys);
+        keyList.sort(new Comparator<Integer>() {
           @Override
           public int compare(Integer o1, Integer o2) {
             if (o1 > o2) {
@@ -154,18 +166,10 @@ class UtilTest {
           }
         });
 
-        while (keys.size() < m) {
-          keys.add(passRand.nextInt((int) Math.pow(2, b)));
-        }
-
-        int x = passRand.nextInt((int) Math.pow(2, b));
-
-        // put them in an array or list
-        ArrayList<Integer> keyList = new ArrayList<>(keys);
-
         for (int i = 0; i < keyList.size() - 1; i++) {
           assertTrue(keyList.get(i) > keyList.get(i + 1),
-              "List of keys is not sorted in descending order!");
+              "Pass " + (p + 1) + "/" + passes
+              + " | List of keys is not sorted in descending order!\nList: " + keyList.toString());
         }
 
         // produce A and x from such array
@@ -182,7 +186,8 @@ class UtilTest {
         }
 
         // use the function from Util to test it.
-        assertEquals(rankX, Util.rank_lemma_1_2(x, A, m, b));
+        assertEquals(rankX, Util.rank_lemma_1_2(x, A, m, b), "Pass " + (p + 1) + "/" + passes
+            + "\nA = " + Util.bin(A, b) + "\nx = " + Util.bin(x, b));
 
       }
 

@@ -820,6 +820,12 @@ public class Util {
     
     // If the leading bit of x is one:
     if (leadingBitOfX == 1) {
+      
+      if (numClustersW0 == m) { // case where all clusters start w/ 0 and the query starts with 1
+        println("   rank(x,A) = " + m);
+        return m;
+      }
+
       // 1) remove the clusters of A which have a non-leading bit
       
       A >>>= blockSize * numClustersW0;
@@ -864,6 +870,12 @@ public class Util {
       return res;
 
     } else {
+
+      if (numClustersW0 == 0) { // case where all clusters start w/ 1 and the query starts with 0
+        println("   rank(x,A) = 0");
+        return 0;
+      }
+
       // 1) remove the clusters of A which leading bit is one
 
       A = (A << Long.SIZE - (blockSize * numClustersW0))
@@ -939,9 +951,13 @@ public class Util {
     long x = 0b0_0111;
     rank_lemma_1_2(x, A, 4, 4);
 
-    for (int b = 1; b < 34; b++) {
-      int m = (int) Math.min(Math.pow(2, b), Long.SIZE / b);
-      println("b = " + b + ", m = " + m);
-    }
+        
+    A = 0b11111101_11111001_11100010_11011010_11010101_10110010_10100111_10001011L;
+    x = 0b00000000_00000000_00000000_00010100;
+
+    rank_lemma_1_2(x, A, 8, 8);
+
+
+    
   }
 }
