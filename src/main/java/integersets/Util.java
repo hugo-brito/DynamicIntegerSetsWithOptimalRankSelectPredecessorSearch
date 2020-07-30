@@ -414,16 +414,14 @@ public class Util {
 
     final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
 
-    long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> 4 * blockSize;
+    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> 4 * blockSize;
 
     if (hi > 0) {
       return parallelLookup((int) hi);
     }
 
     final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
-    long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
-        >>> 4 * blockSize;
+    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> 4 * blockSize;
 
     return 4 + parallelLookup((int) lo);
   }
@@ -431,7 +429,7 @@ public class Util {
   /**
    * Lookup table for the parallel comparison.
    */
-  private static int parallelLookup(int pow) {
+  private static int parallelLookup(final int pow) {
     switch (pow) {
       case 0b1111:
         return 0;
@@ -447,12 +445,13 @@ public class Util {
   }
 
   /**
-   * Most significant bit in constant time. This implementation follows the Jelani Nelson and
-   * Erik Demaine's lecture notes.
+   * Most significant bit in constant time. This implementation follows the Jelani
+   * Nelson and Erik Demaine's lecture notes.
+   * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
-  public static int msbConstant(int x) {
+  public static int msbConstant(final int x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
@@ -464,8 +463,9 @@ public class Util {
   }
 
   /**
-   * Most significant bit in constant time. This implementation follows the Jelani Nelson and
-   * Erik Demaine's lecture notes.
+   * Most significant bit in constant time. This implementation follows the Jelani
+   * Nelson and Erik Demaine's lecture notes.
+   * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
@@ -482,8 +482,7 @@ public class Util {
     final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
     final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
 
-    final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C)
-        >>> (w - blockSize);
+    final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C) >>> (w - blockSize);
 
     final int cluster = parallelComparison(summary);
 
@@ -495,7 +494,9 @@ public class Util {
   }
 
   /**
-   * Most significant bit in constant time. Commented version of {@code msbConstant(x)}.
+   * Most significant bit in constant time. Commented version of
+   * {@code msbConstant(x)}.
+   * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
@@ -519,7 +520,7 @@ public class Util {
 
     // 1. Find F
     // F is a w-bit word (same size as x) with 1 at the most significant positions
-    // of each sqrt(w)  cluster
+    // of each sqrt(w) cluster
     // In my example,
     // F = 0b1000_1000_1000_1000
     final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
@@ -532,7 +533,8 @@ public class Util {
     // F = 0b1000_1000_1000_1000
     // x&F = 0b0000_0000_1000_1000
     final long leadingBits = x & F;
-    // now I know that the last and the second to last clusters are non-zero. In particular because
+    // now I know that the last and the second to last clusters are non-zero. In
+    // particular because
     // of their first bit.
 
     // 3. We set the leading bits of each block in x to 0, effectively clearing the
@@ -545,11 +547,15 @@ public class Util {
     // x^(x&F) = 0b0101_0000_0000_0101
     final long noLeadingBits = x ^ (x & F);
 
-    // 4. We subtract F to the previous result. Since F has 1 set at every msb of  every cluster, by
-    // subtracting the previous result to F, eg subtracting x after having all the msb of every
-    // cluster set to 0 to F, we will have the information about if that cluster was empty (all
+    // 4. We subtract F to the previous result. Since F has 1 set at every msb of
+    // every cluster, by
+    // subtracting the previous result to F, eg subtracting x after having all the
+    // msb of every
+    // cluster set to 0 to F, we will have the information about if that cluster was
+    // empty (all
     // zeros) or not. This information is given by the bit that remains at the msb.
-    // If a 1 remains, then it means that we have subtracted by 0, which means that such cluster was
+    // If a 1 remains, then it means that we have subtracted by 0, which means that
+    // such cluster was
     // empty. Otherwise, it wasn't empty.
     // In my example:
     // F = 0b1000_1000_1000_1000
@@ -560,9 +566,12 @@ public class Util {
     // "borrowed". Otherwise, there will be a 1.
     final long difference = F - (x ^ (x & F));
 
-    // 5. Note that in the non empty clusters, there will be the remainder of the difference, which
-    // is some noise we do not care about. In fact, the result we are looking for at this stage is
-    // a word with 1 at the msb of the clusters that we non empty in x after we cleared the msb
+    // 5. Note that in the non empty clusters, there will be the remainder of the
+    // difference, which
+    // is some noise we do not care about. In fact, the result we are looking for at
+    // this stage is
+    // a word with 1 at the msb of the clusters that we non empty in x after we
+    // cleared the msb
     // of each cluster of x. So we negate that result and we AND it with F.
     // In my example:
     // F-(x^(x&F)) = 0b0abc_1000_1000_0xyz
@@ -600,11 +609,15 @@ public class Util {
     println(bin(res, blockSize));
 
     // 8. Sketch compression.
-    // We find C, which is a word that will put all the important bits in the same cluster.
+    // We find C, which is a word that will put all the important bits in the same
+    // cluster.
     // Then we multiply by C.
-    // Let the clusters be indexed from most significant position 0 to least significant position i.
-    // Let the cluster also be indexed from 0 to i where cluster 0 is the most significant cluster.
-    // Them C is word where every cluster i has bit i set, and all the other bits are 0.
+    // Let the clusters be indexed from most significant position 0 to least
+    // significant position i.
+    // Let the cluster also be indexed from 0 to i where cluster 0 is the most
+    // significant cluster.
+    // Them C is word where every cluster i has bit i set, and all the other bits
+    // are 0.
 
     // In my example:
     // C = 0b0001_0010_0100_1000
@@ -634,7 +647,7 @@ public class Util {
     // M = 0b0001_0001_0001_0001; // integer that repeats the vector
     // res = 0b1011;
     // res * m = 0b1011_1011_1011_1011;
-    
+
     println("Cluster (0..7):");
     final int cluster = parallelComparison(res);
     println(cluster);
@@ -659,10 +672,12 @@ public class Util {
 
     return cluster * blockSize + d;
   }
-  
+
   /**
-   * Produces a {@code long} word with at {@code 1}-bit set every {@code b} position, up to
-   * {@code w-positions}. The first set position is the least significant position of the word.
+   * Produces a {@code long} word with at {@code 1}-bit set every {@code b}
+   * position, up to {@code w-positions}. The first set position is the least
+   * significant position of the word.
+   * 
    * @param b the block size
    * @param w the word size
    * @return
@@ -722,19 +737,22 @@ public class Util {
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
 
-  /** Lemma 1:
-   * Let mb <= w. If we are given a b-bit number x and a word A with m b-bit numbers stored in
-   * sorted order, then in constant time we can find the rank of x in A, denoted rank(x, A).
-   * In order for this method to give plausible results, the following requirements *must* be
-   * fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and the words in A must
-   * also be sorted.
-   * @param x the query of b size
-   * @param A the A word
-   * @param m the number of keys in A
+  /**
+   * Lemma 1: Let mb <= w. If we are given a b-bit number x and a word A with m
+   * b-bit numbers stored in sorted order, then in constant time we can find the
+   * rank of x in A, denoted rank(x, A). In order for this method to give
+   * plausible results, the following requirements *must* be fulfilled: Each b-bit
+   * word in A must be prefixed (padded) with a 1, and the words in A must also be
+   * sorted.
+   * 
+   * @param x         the query of b size
+   * @param A         the A word
+   * @param m         the number of keys in A
    * @param blockSize the lenght of each key in A excluding padding bits
    */
-  public static void rank_lemma_1(long x, long A, int m, int blockSize) {
-    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+  public static void rank_lemma_1(final long x, final long A, final int m, final int blockSize) {
+    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
+    // order!
     // final int blockSize = 4;
     print("           A = ");
     println(bin(A, blockSize + 1));
@@ -770,20 +788,22 @@ public class Util {
     // The rank of x is equal to the number of blocks whose left-most bit is 1
   }
 
-  /** No padding version of rank_lemma_1 
-   * Lemma 1:
-   * Let mb <= w. If we are given a b-bit number x and a word A with m b-bit numbers stored in
-   * sorted order, then in constant time we can find the rank of x in A, denoted rank(x, A).
-   * In order for this method to give plausible results, the following requirements *must* be
-   * fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and the words in A must
-   * also be sorted.
-   * @param x the query of b size
-   * @param A the A word
-   * @param m the number of keys in A
+  /**
+   * No padding version of rank_lemma_1 Lemma 1: Let mb <= w. If we are given a
+   * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
+   * in constant time we can find the rank of x in A, denoted rank(x, A). In order
+   * for this method to give plausible results, the following requirements *must*
+   * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
+   * the words in A must also be sorted.
+   * 
+   * @param x         the query of b size
+   * @param A         the A word
+   * @param m         the number of keys in A
    * @param blockSize the lenght of each key in A excluding padding bits
    */
-  public static int rank_lemma_1_2(long x, long A, int m, int blockSize) {
-    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
+  public static int rank_lemma_1_2(long x, long A, final int m, final int blockSize) {
+    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
+    // order!
     // final int blockSize = 4;
     print("           A = ");
     println(bin(A, blockSize));
@@ -799,7 +819,8 @@ public class Util {
 
     // First figure out how many clusters of A have leading bit zero.
     // One way to do so is to compute the LSB of A & leading_bits.
-    // Alternatively, this number can also be stored and maintained alongside the data structure in
+    // Alternatively, this number can also be stored and maintained alongside the
+    // data structure in
     // an extra variable.
 
     print("    A & 1000 = ");
@@ -808,26 +829,25 @@ public class Util {
     int numClustersW0 = m;
     if ((A & (M << (blockSize - 1))) != 0) {
       numClustersW0 = (Long.SIZE - lsb(A & (M << (blockSize - 1)))) / blockSize - 1; // works
-    } 
+    }
 
     print("#lead zeroes = ");
     println(numClustersW0);
 
-    
-    int leadingBitOfX = bit(x, Long.SIZE - blockSize);
+    final int leadingBitOfX = bit(x, Long.SIZE - blockSize);
     print("x leading bit= ");
     println(leadingBitOfX);
-    
+
     // If the leading bit of x is one:
     if (leadingBitOfX == 1) {
-      
+
       if (numClustersW0 == m) { // case where all clusters start w/ 0 and the query starts with 1
         println("   rank(x,A) = " + m);
         return m;
       }
 
       // 1) remove the clusters of A which have a non-leading bit
-      
+
       A >>>= blockSize * numClustersW0;
       print("A w/o 0-leadC= ");
       println(bin(A, blockSize));
@@ -836,7 +856,7 @@ public class Util {
       M >>>= blockSize * numClustersW0;
       print("       new M = ");
       println(bin(M, blockSize));
-      
+
       x &= ~(1 << (blockSize - 1));
       print("x w/o leadBit= ");
       println(bin(x, blockSize));
@@ -845,15 +865,14 @@ public class Util {
       print("    x copied = ");
       println(bin(x, blockSize));
 
-      
-      long d = A - x;
+      final long d = A - x;
       print("   d = A - x = ");
       println(bin(d, blockSize));
 
-      long mask = (1L << (blockSize - 1)) * M;
+      final long mask = (1L << (blockSize - 1)) * M;
       print("        mask = ");
       println(bin(mask, blockSize));
-      
+
       print("    d & mask = ");
       println(bin((d & mask), blockSize));
 
@@ -861,7 +880,7 @@ public class Util {
 
       if ((d & mask) != 0) {
         print("#clusters <x = ");
-        int numClustersSmallerThanX = ((Long.SIZE - lsb(d & mask)) / blockSize) - 1;
+        final int numClustersSmallerThanX = ((Long.SIZE - lsb(d & mask)) / blockSize) - 1;
         println(numClustersSmallerThanX);
         res = numClustersW0 + numClustersSmallerThanX;
       }
@@ -878,13 +897,12 @@ public class Util {
 
       // 1) remove the clusters of A which leading bit is one
 
-      A = (A << Long.SIZE - (blockSize * numClustersW0))
-          >>> (Long.SIZE - (blockSize * numClustersW0));
+      A = (A << Long.SIZE - (blockSize * numClustersW0)) >>> (Long.SIZE - (blockSize * numClustersW0));
       print("A w/o 1-leadC= ");
       println(bin(A, blockSize));
 
       // we need to do the same on M
-      M >>>= blockSize * (m -  numClustersW0);
+      M >>>= blockSize * (m - numClustersW0);
       print("       new M = ");
       println(bin(M, blockSize));
 
@@ -900,8 +918,7 @@ public class Util {
       print("    A | mask = ");
       println(bin(A, blockSize));
 
-      
-      long d = A - x;
+      final long d = A - x;
       print("   d = A - x = ");
       println(bin(d, blockSize));
 
@@ -915,9 +932,8 @@ public class Util {
 
       if ((d & M) != 0) {
 
-
         print("#clusters >x = ");
-        int numClustersLargerThanX = numClustersW0 - ((Long.SIZE - lsb(d & M)) / blockSize);
+        final int numClustersLargerThanX = numClustersW0 - ((Long.SIZE - lsb(d & M)) / blockSize);
         println(numClustersLargerThanX);
         res -= numClustersLargerThanX + 1;
       }
@@ -927,6 +943,71 @@ public class Util {
       return res;
     }
 
+  }
+
+  /**
+   * No padding version of rank_lemma_1 Lemma 1: Let mb <= w. If we are given a
+   * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
+   * in constant time we can find the rank of x in A, denoted rank(x, A). In order
+   * for this method to give plausible results, the following requirements *must*
+   * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
+   * the words in A must also be sorted.
+   * 
+   * @param x         the query of b size
+   * @param A         the A word
+   * @param m         the number of keys in A
+   * @param blockSize the lenght of each key in A excluding padding bits
+   */
+  public static int rank_lemma_1_2_3(long x, long A, final int m, final int blockSize) {
+    long M = M(blockSize, m * blockSize);
+    // copying integer
+
+    int numClustersLeadingBitIs0 = m;
+    final long leadingBitOfEachCluster = A & (M << (blockSize - 1));
+    // Checks the leading bit of each cluster
+
+    if (leadingBitOfEachCluster != 0) {
+      numClustersLeadingBitIs0 = (Long.SIZE - lsb(leadingBitOfEachCluster))
+          / blockSize - 1; // works
+    }
+
+    if (bit(x, Long.SIZE - blockSize) == 1) { // leading bit of x is 1
+      if (numClustersLeadingBitIs0 == m) {
+        // case where all clusters start w/ 0 and the query starts with 1
+        return m;
+      }
+
+      A >>>= blockSize * numClustersLeadingBitIs0;
+      M >>>= blockSize * numClustersLeadingBitIs0;
+      x = (x & ~(1 << (blockSize - 1))) * M;
+      M *= 1L << (blockSize - 1);
+
+      final long d = (A - x) & M;
+
+      if (d != 0) {
+        return numClustersLeadingBitIs0 + ((Long.SIZE - lsb(d)) / blockSize) - 1;
+      }
+      return m;
+
+    } else {
+      if (numClustersLeadingBitIs0 == 0) {
+        // case where all clusters start w/ 1 and the query starts with 0
+        return 0;
+      }
+
+      M >>>= blockSize * (m - numClustersLeadingBitIs0);
+      x *= M;
+      M *= 1L << (blockSize - 1);
+      A = ((A << Long.SIZE - (blockSize * numClustersLeadingBitIs0)) >>> (Long.SIZE
+          - (blockSize * numClustersLeadingBitIs0))) | M;
+
+      final long d = (A - x) & M;
+
+      if (d != 0) {
+        return (Long.SIZE - lsb(d)) / blockSize - 1;
+      }
+      return numClustersLeadingBitIs0;
+    }
   }
 
   /**
