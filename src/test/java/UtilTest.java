@@ -1,7 +1,13 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import integersets.Util;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
+
 
 class UtilTest {
 
@@ -9,6 +15,10 @@ class UtilTest {
   int intUpperBound = 100_000_000;
   long longLowerBound = -10_000_000L + Integer.MIN_VALUE;
   long longUpperBound = 10_000_000L + Integer.MAX_VALUE;
+  int passes = 20;
+  long seed = 42;
+  int loB = 3;
+  int hiB = 10;
 
   @Test
   void msb32Obvious() {
@@ -120,6 +130,64 @@ class UtilTest {
   void splitMerge() {
     for (long i = -100_000_000_000L; i <= 100_000_000_000L; i++) {
       assertEquals(i, Util.mergeInts(Util.splitLong(i)));
+    }
+  }
+
+  @Test
+  void rankLemma1Test() {
+    Random random = new Random(seed);
+    for (int p = 0; p < passes; p++) {
+      for (int b = loB; b < hiB + 1; b++) { // we vary the number of bits per key
+        // generate m distinct keys of b size + 1 key
+        int m = (int) Math.min(Math.pow(2, b), Long.SIZE / b);
+        Random passRand = new Random(random.nextLong());
+        
+        TreeSet<Integer> keys = new TreeSet<>(new Comparator<Integer>() {
+          @Override
+          public int compare(Integer o1, Integer o2) {
+            if (o1 > o2) {
+              return -1;
+            } else if (o1 == o2) {
+              return 0;
+            }
+            return 1;
+          }
+        });
+
+        while (keys.size() < m) {
+          keys.add(passRand.nextInt((int) Math.pow(2, b)));
+        }
+
+        int x = passRand.nextInt((int) Math.pow(2, b));
+
+        // put them in an array or list
+        ArrayList<Integer> keyList = new ArrayList<>(keys);
+
+        for (int i = 0; i < keyList.size() - 1; i++) {
+          assertTrue(keyList.get(i) > keyList.get(i + 1),
+              "List of keys is not sorted in descending order!");
+        }
+
+        // produce A and x from such array
+        long A = 0L;
+        int rankX = 0;
+        boolean foundRankX = false;
+        for (int i = 0; i < keyList.size(); i++) {
+          A <<= b;
+          A |= keyList.get(i);
+          if (!foundRankX && keyList.get(i) < x) {
+            foundRankX = true;
+            rankX = keyList.size() - i;
+          }
+        }
+
+        // use the function from Util to test it.
+        assertEquals(rankX, Util.rank_lemma_1_2(x, A, m, b));
+
+      }
+
+
+
     }
   }
 }

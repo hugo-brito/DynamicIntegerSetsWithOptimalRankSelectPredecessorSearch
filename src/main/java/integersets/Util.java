@@ -831,24 +831,33 @@ public class Util {
       print("       new M = ");
       println(bin(M, blockSize));
       
-      x *= M;
-      print("       M * x = ");
+      x &= ~(1 << (blockSize - 1));
+      print("x w/o leadBit= ");
       println(bin(x, blockSize));
 
+      x *= M;
+      print("    x copied = ");
+      println(bin(x, blockSize));
+
+      
+      long d = A - x;
+      print("   d = A - x = ");
+      println(bin(d, blockSize));
 
       long mask = (1L << (blockSize - 1)) * M;
       print("        mask = ");
       println(bin(mask, blockSize));
-
-      long d = A - x;
-
+      
       print("    d & mask = ");
       println(bin((d & mask), blockSize));
 
-      int res = numClustersW0;
+      int res = m;
 
       if ((d & mask) != 0) {
-        res += ((Long.SIZE - msb(d & mask)) / blockSize);
+        print("#clusters <x = ");
+        int numClustersSmallerThanX = ((Long.SIZE - lsb(d & mask)) / blockSize) - 1;
+        println(numClustersSmallerThanX);
+        res = numClustersW0 + numClustersSmallerThanX;
       }
       println("   rank(x,A) = " + res);
 
@@ -895,10 +904,10 @@ public class Util {
       if ((d & M) != 0) {
 
 
-        print("clusters > x = ");
-        int numClustersLargerThanX = numClustersW0 - ((Long.SIZE - lsb(d & M)) / blockSize - 1);
+        print("#clusters >x = ");
+        int numClustersLargerThanX = numClustersW0 - ((Long.SIZE - lsb(d & M)) / blockSize);
         println(numClustersLargerThanX);
-        res -= numClustersLargerThanX;
+        res -= numClustersLargerThanX + 1;
       }
 
       println("   rank(x,A) = " + res);
@@ -930,5 +939,9 @@ public class Util {
     long x = 0b0_0111;
     rank_lemma_1_2(x, A, 4, 4);
 
+    for (int b = 1; b < 34; b++) {
+      int m = (int) Math.min(Math.pow(2, b), Long.SIZE / b);
+      println("b = " + b + ", m = " + m);
+    }
   }
 }
