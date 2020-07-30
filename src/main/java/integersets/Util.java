@@ -782,7 +782,7 @@ public class Util {
    * @param m the number of keys in A
    * @param blockSize the lenght of each key in A excluding padding bits
    */
-  public static void rank_lemma_1_2(long x, long A, int m, int blockSize) {
+  public static int rank_lemma_1_2(long x, long A, int m, int blockSize) {
     // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
     // final int blockSize = 4;
     print("           A = ");
@@ -793,58 +793,119 @@ public class Util {
     print("           x = ");
     println(bin(x, blockSize));
 
-    final long M = M(blockSize, m * blockSize);
-
-    System.out.print("           M = ");
+    long M = M(blockSize, m * blockSize); // copying integer
+    print("           M = ");
     println(bin(M, blockSize));
 
-    // 2 scenarios: // actually don't need this because leading bits already checks for this.
-    // the leading bit of x is 1.
+    // First figure out how many clusters of A have leading bit zero.
+    // One way to do so is to compute the LSB of A & leading_bits.
+    // Alternatively, this number can also be stored and maintained alongside the data structure in
+    // an extra variable.
 
-    long d;
-    final long mask = (1L << blockSize - 1) * M;
+    print("    A & 1000 = ");
+    println(bin(A & (M << (blockSize - 1)), blockSize));
 
-    long leadingBits = x * M; // m copies of x // info about the leading bit of x
-    print("leading bits = ");
-    println(bin(leadingBits, blockSize));
+    int numClustersW0 = m;
+    if ((A & (M << (blockSize - 1))) != 0) {
+      numClustersW0 = (Long.SIZE - lsb(A & (M << (blockSize - 1)))) / blockSize - 1; // works
+    } 
 
-    long dLeading = A - leadingBits;
-    print(" A - leading = ");
-    println(bin(dLeading, blockSize));
-
-
-    print("        mask = ");
-    println(bin(mask, blockSize));
-
-    print("(d&mask)^mask= "); // difference cleared of clutter
-    println(bin((dLeading & mask) ^ mask, blockSize)); // if we get a 1, then the leading bit was
-    // the same in A and in x
-    // in such case, the difference must lie in the remaining bits.
-
-    // Another way to get this result is:
-    // A & (x * M) & mask
-
-    d = (dLeading & mask) ^ mask;
-
-
-    long remainingBits = (x * M) & ~mask;
-    print("remaini bits = ");
-    println(bin(remainingBits, blockSize));
-
-    long dRemaining = (A | mask) - remainingBits; // we make the leading bit of each cluster 1
-    print("A - remaining= ");
-    println(bin(dRemaining, blockSize));
+    print("#lead zeroes = ");
+    println(numClustersW0);
 
     
-    print("(d&mask)^mask= "); // difference cleared of clutter
-    println(bin((dRemaining & mask) ^ mask, blockSize)); // if we get a 1, then the leading bit was
+    int leadingBitOfX = bit(x, Long.SIZE - blockSize);
+    print("x leading bit= ");
+    println(leadingBitOfX);
+    
+    // If the leading bit of x is one:
+    if (leadingBitOfX == 1) {
+      // 1) remove the clusters of A which have a non-leading bit
+      
+      A >>>= blockSize * numClustersW0;
+      print("A w/o 0-leadC= ");
+      println(bin(A, blockSize));
+
+      // we need to do the same on M
+      M >>>= blockSize * numClustersW0;
+      print("       new M = ");
+      println(bin(M, blockSize));
+      
+      x *= M;
+      print("       M * x = ");
+      println(bin(x, blockSize));
 
 
-    d = (d | ((dRemaining & mask) ^ mask)) & ((dRemaining & mask) ^ mask);
-    print("dLead & dRema= "); // difference cleared of clutter
-    println(bin(d, blockSize)); // if we get a 1, then the leading bit was
+      long mask = (1L << (blockSize - 1)) * M;
+      print("        mask = ");
+      println(bin(mask, blockSize));
 
-    println("     msb / b = " + ((Long.SIZE - msb(d)) / blockSize));
+      long d = A - x;
+
+      print("    d & mask = ");
+      println(bin((d & mask), blockSize));
+
+      int res = numClustersW0;
+
+      if ((d & mask) != 0) {
+        res += ((Long.SIZE - msb(d & mask)) / blockSize);
+      }
+      println("   rank(x,A) = " + res);
+
+      return res;
+
+    } else {
+      // 1) remove the clusters of A which leading bit is one
+
+      A = (A << Long.SIZE - (blockSize * numClustersW0))
+          >>> (Long.SIZE - (blockSize * numClustersW0));
+      print("A w/o 1-leadC= ");
+      println(bin(A, blockSize));
+
+      // we need to do the same on M
+      M >>>= blockSize * (m -  numClustersW0);
+      print("       new M = ");
+      println(bin(M, blockSize));
+
+      x *= M;
+      print("    x copied = ");
+      println(bin(x, blockSize));
+
+      M *= 1L << (blockSize - 1);
+      print("        mask = ");
+      println(bin(M, blockSize));
+
+      A |= M;
+      print("    A | mask = ");
+      println(bin(A, blockSize));
+
+      
+      long d = A - x;
+      print("   d = A - x = ");
+      println(bin(d, blockSize));
+
+      print("    d & mask = ");
+      println(bin((d & M), blockSize));
+
+      int res = numClustersW0; // the total number of blocks minus the ones that are larger
+      // than x
+      print("  canditates = ");
+      println(res);
+
+      if ((d & M) != 0) {
+
+
+        print("clusters > x = ");
+        int numClustersLargerThanX = numClustersW0 - ((Long.SIZE - lsb(d & M)) / blockSize - 1);
+        println(numClustersLargerThanX);
+        res -= numClustersLargerThanX;
+      }
+
+      println("   rank(x,A) = " + res);
+
+      return res;
+    }
+
   }
 
   /**
@@ -865,8 +926,8 @@ public class Util {
     // long x = 0b0_1100;
     // rank_lemma_1(x, A, 4, 4);
 
-    long A = 0b0110_0011_0010_0001; // compressed keys in descending sorted order!
-    long x = 0b0_1101;
+    long A = 0b1110_0101_0010_0001; // compressed keys in descending sorted order!
+    long x = 0b0_0111;
     rank_lemma_1_2(x, A, 4, 4);
 
   }
