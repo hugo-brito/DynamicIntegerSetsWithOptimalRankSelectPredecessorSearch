@@ -131,7 +131,7 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 
 \subsection{Most significant set bit}
 
-Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we have looked at different ways to achieve this result efficiently. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully.
+Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we have looked at different ways to achieve this result efficiently. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully. Let the most significant set bit of $x$ be denoted msb$(x)$.
 
 \subsubsection{Naive}
 
@@ -147,18 +147,25 @@ When a query comes, it is split in 8-bit parts and the algorithm looks at the fi
 
 Otherwise, if the first block of 8 bits is 0, the algorithm looks at the second 8-bit block and does the same operation as described in the previous paragraph, subtracting now 8 bits less to the answer.
 
-This approach takes $O(1)$ after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
+This approach takes $O(1)$ time after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
 
 \subsubsection{Constant time with parallel comparison}
 
-This operation consists of 3 steps. Let $x$ be the query for the most significant set bit:
+This operation consists of 4 steps. Let $x$ be the query for the most significant set bit:
 \begin{enumerate}
-    \item We divide $x$ in $\sqrt{w}$ blocks of $\sqrt{w}$ bits. Let those blocks be called clusters. The goal is to find a summary word of $\sqrt{w}$ bits in size which bits inform of which clusters of $x$ are not empty.
-    \item Then we do parallel comparison of the summary word to find the first non-empty cluster of $x$, because it will be on that cluster that the answer will lie.
-    \item We use the same technique as in the previous bullet point, but now on the first non-empty cluster of $x$.
+    \item
+    We divide $x$ in $\sqrt{w}$ blocks of $\sqrt{w}$ bits. Let those blocks be called clusters. The goal is to summarize the clusters in $x$. If a cluster is not empty, then its summary is $1$ and $0$  (zero) otherwise.
+    \item
+    We compress the summary such that it fits in a single $\sqrt{w}$-bits cluster. The resulting cluster will have all the leading bits of the summary word consecutive.
+    \item
+    Then we do parallel comparison of the summary word to find the first non-empty cluster of $x$, because it will be on that cluster that the answer will lie.
+    \item
+    We use the same technique as in the previous bullet point, but now on the first non-empty cluster of $x$. We end with simple arithmetic to return the most significant set bit. 
 \end{enumerate}
 
 We will run a small example where every step will be illustrated. For simplicity, let $w=16$. This implies that we will have $\sqrt{16} = 4$ clusters of $4$ bits in size each. Let us also assume that our query $x = 0101\ 0000\ 1000\ 1101_2$.
+
+This approach takes $O(1)$ time and requires a small lookup table of $\sqrt{w}/2$ size, which can easily be explicitly stored together with the algorithm.
 
 \paragraph{Step 1 --- Summarize the query clusters} \label{sec:summaryClusters}
 
@@ -304,13 +311,15 @@ At this stage the goal is to know the first non-empty cluster of $x$. To do so, 
             t_{20} = t_{18} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
             \cline{1-2}
             t_{hi} = t_{19} \gg (\sqrt{w} + \sqrt{w}/2) = 00\ 0000\ \underline{11}00_2 &\\
-            t_{lo} = t_{20} \gg (2\cdot \sqrt{w}) = 00\ 0000\ 00 \underline{11}_2 &\\
+            t_{lo} = t_{20} \gg (\sqrt{w} \cdot \sqrt{w} / 2) = 00\ 0000\ 00 \underline{11}_2 &\\
             \cline{1-2}
             t_{q} = t_{hi} \vee t_{lo} = \underline{1111}_2 &\\
         \end{align*}
     \end{enumerate}
     \item
-    Note that $t_q$ can only be one of four possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $0$ (zero), meaning, the method should now look at cluster $c_0$.
+    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ in to a single cluster, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table in this case will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we just return the value in the lookup table. Should it be $0$, then we do the lookup for $t_{lo}$, adding a constant to that result, since we index the bits in a word from left to right.
+    
+    In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $0$ (zero), meaning, the method should now look at cluster $c_0$.
 \end{enumerate}
 
 \paragraph{Step 4 --- Final result}
@@ -329,14 +338,84 @@ After learning in which cluster lies the most significant bit, we now run the sa
     We run another parallel comparison with $0101_2$. Let $d$ be the result of computing the parallel comparison of the first non-empty cluster of $x$, then in our example $d = 1$.
     \item
     We can now compute the overall most significant bit of $x$. The final result is given the expression:
-    \begin{align*}
-        \text{MSB}(x) = d + i\cdot\sqrt{w}
-    \end{align*}
+    \begin{equation*}
+        \text{msb}(x) = d + i\cdot\sqrt{w}
+    \end{equation*}
     In our example, this will evaluate to:
-    \begin{align*}
-        \text{MSB}(0101\ 0000\ 1000\ 1101_2) = 1 + 0\cdot\sqrt{16} = 1
-    \end{align*}
+    \begin{equation*}
+        \text{msb}(0101\ 0000\ 1000\ 1101_2) = 1 + 0\cdot\sqrt{16} = 1
+    \end{equation*}
 \end{enumerate}
+
+\subsection{Least significant set bit}
+
+Let lsb$(x)$ denote the least significant set bit of $x$. As presented in \cite{patrascu2014dynamic}, after computing the msb$(x)$ we can in $O(1)$ time compute lsb$(x)$ with the expression:
+\begin{equation*}
+    \text{lsb}(x) = \text{msb}((x - 1) \oplus x)
+\end{equation*}
+
+\subsection{Rank Lemma 1}
+
+Another important operation for the purpose of the implementing the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. To achieve the latter, subroutines are established and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
+\begin{lemma} \label{lemma1}
+Let $m \cdot b \leq w$. If we are given a b-bit number x and a word A with m b-bit numbers stored in sorted order, that is, $A\langle 0 \rangle_b < A\langle 1 \rangle_b < \dots < A\langle m - 1 \rangle_b$, then in constant time, we can find the rank of x in A, denoted rank(x,A).
+\end{lemma}
+An algorithm that implements rank$(x,A)$ works as the following:
+\begin{enumerate}
+    \item
+    Computing how many clusters in $A$ have zero as their leading bit.
+    
+    \item
+    Computing the leading bit o $x$.
+    
+    \item
+    If the leading bit of $x$ is zero, then:
+    \begin{enumerate}
+        \item
+        We bit-shift and/or mask $A$ such that the clusters whose leading bit is one are no longer present in $A$.
+        
+        \item
+        We compute a word consisting of as many concatenated copies of $x$ as there are clusters left in $A$.
+        
+        \item
+        We do parallel comparison between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining clusters of $A$ to one and computing the difference between those words.
+        
+        \item
+        The result of rank$(x,A)$ is given by the number of clusters whose leading bit is now zero because if the leading bit (that has been set to one in the previous step) is borrowed in the subtraction, then $x$ is larger than the key stored at that cluster.
+    \end{enumerate}
+    
+    Otherwise, if the leading bit of $x$ is one, then:
+    \begin{enumerate}
+        \item
+        We bit-shift and/or mask $A$ such that the clusters whose leading bit is zero are no longer present in $A$, storing the number of clusters removed from $A$ on a local variable.
+        
+        \item
+		We set the leading bit of $x$ to zero and compute a word consisting of as many concatenated copies of $x$ as there are clusters left in $A$.
+		
+		\item
+        We do parallel comparison between the remaining clusters in $A$ and the word we computed just before.
+        
+        \item
+        The result of rank$(x,A)$ is given by the number of clusters whose leading bit was zero just before $A$ was shifted/masked plus the number of clusters whose leading bit is zero after the parallel comparison.
+    \end{enumerate}
+    
+\end{enumerate}
+
+We will run an example of this algorithm, explaining its intricacies.
+
+\subsubsection{Parameters}
+
+Let $x$ be the query, and $A$ the concatenation of the keys of $S = \{0101_2, 0110_2, 1100_2, 1110_2 \}$. Note that if key $x_i < x_j$, then $x_i$ will be present in $A$ on a lesser significant position than $x_j$.
+\begin{align*}
+    A &= \underbrace{1110}_{A\langle 3 \rangle_4}\ \underbrace{1100}_{A\langle 2 \rangle_4}\ \underbrace{0110}_{A\langle 1\rangle_4}\ \underbrace{0101}_{A\langle 0 \rangle_4}{}_2 \\
+    x &= 1100_2 \\
+    b &= 4 \\
+    m &= 4
+\end{align*}
+
+\subsubsection{Step}
+
+
 
 \chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 
