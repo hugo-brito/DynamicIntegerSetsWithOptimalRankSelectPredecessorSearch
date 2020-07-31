@@ -96,17 +96,17 @@ public class Util {
     if (blockSize > 0) {
       final int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
       for (int i = 0; i < r; i++) {
-        res.append(bit(x, i));
+        res.append(bit(i, x));
       }
       for (int i = r; i < Long.SIZE; i += blockSize) {
         res.append("_");
         for (int j = i; j < i + blockSize; j++) {
-          res.append(bit(x, j));
+          res.append(bit(j, x));
         }
       }
     } else {
       for (int i = 0; i < Long.SIZE; i++) {
-        res.append(bit(x, i));
+        res.append(bit(i, x));
       }
     }
     return res.toString();
@@ -116,11 +116,11 @@ public class Util {
    * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
    * are indexed 0..63.
    * 
-   * @param val the long value to have the digit extracted from
    * @param d   the digit index
+   * @param val the long value to have the digit extracted from
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
-  public static int bit(final long val, final int d) {
+  public static int bit(final int d, final long val) {
     return (int) (val >> (63 - d)) & 1;
   }
 
@@ -128,11 +128,11 @@ public class Util {
    * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
    * are indexed 0..63.
    * 
-   * @param val the long value to have the digit extracted from
    * @param d   the digit index
+   * @param val the long value to have the digit extracted from
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
-  public static int bit(final int val, final int d) {
+  public static int bit(final int d, final int val) {
     return (val >> (31 - d)) & 1;
   }
 
@@ -690,104 +690,6 @@ public class Util {
     return M;
   }
 
-  public static void rank_lemma_1() {
-    final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted order!
-    final int blockSize = 4;
-    System.out.print("           A = ");
-    println(bin(A, 4));
-    // int x = 0b0001; // a key which rank I'm looking for
-    final int x = 0b0100;
-
-    System.out.print("           x = ");
-    println(bin(x, 4));
-
-    final int w = 16;
-    final int b = 4; // block size
-    // with this block size and we can index 16 different keys (0..15)
-
-    final int m = Integer.SIZE / b; // #keys in Integer.SIZE with b size
-    // it's 8
-
-    // !!!!!
-
-    final int M = (int) M(b, w);
-
-    System.out.print("           M = ");
-    println(bin(M, 4));
-
-    System.out.print("       M * x = ");
-    println(bin(M * x, 4));
-
-    final int d = A - (M * x);
-
-    System.out.print(" A - (M * x) = ");
-    println(bin(d, 4));
-
-    // int mask = (M << (Integer.SIZE + b - 1 - w)) >>> (Integer.SIZE - w);
-    final int mask = 0b1000 * M;
-
-    System.out.print("        mask = ");
-    println(bin(mask, 4));
-
-    System.out.print("(d&mask)^mask= ");
-    println(bin((d & mask) ^ mask, 4));
-
-    println("     msb / b = " + (Integer.SIZE - msb((d & mask) ^ mask)) / b);
-
-    // The rank of x is equal to the number of blocks whose left-most bit is 1
-  }
-
-  /**
-   * Lemma 1: Let mb <= w. If we are given a b-bit number x and a word A with m
-   * b-bit numbers stored in sorted order, then in constant time we can find the
-   * rank of x in A, denoted rank(x, A). In order for this method to give
-   * plausible results, the following requirements *must* be fulfilled: Each b-bit
-   * word in A must be prefixed (padded) with a 1, and the words in A must also be
-   * sorted.
-   * 
-   * @param x         the query of b size
-   * @param A         the A word
-   * @param m         the number of keys in A
-   * @param blockSize the lenght of each key in A excluding padding bits
-   */
-  public static void rank_lemma_1(final long x, final long A, final int m, final int blockSize) {
-    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
-    // order!
-    // final int blockSize = 4;
-    print("           A = ");
-    println(bin(A, blockSize + 1));
-    // int x = 0b0001; // a key which rank I'm looking for
-    // final int x = 0b0100;
-
-    print("           x = ");
-    println(bin(x, blockSize + 1));
-
-    final long M = M(blockSize + 1, m * blockSize + m);
-
-    System.out.print("           M = ");
-    println(bin(M, blockSize + 1));
-
-    System.out.print("       M * x = ");
-    println(bin(M * x, blockSize + 1));
-
-    final long d = A - (M * x);
-
-    print(" A - (M * x) = ");
-    println(bin(d, blockSize + 1));
-
-    final long mask = (1L << blockSize) * M;
-
-    print("        mask = ");
-    println(bin(mask, blockSize + 1));
-
-    print("(d&mask)^mask= ");
-    println(bin((d & mask) ^ mask, blockSize + 1));
-
-    println("     msb / b = " + (Long.SIZE - msb((d & mask) ^ mask)) / (blockSize + 1));
-
-    // The rank of x is equal to the number of blocks whose left-most bit is 1
-  }
-
   /**
    * No padding version of rank_lemma_1 Lemma 1: Let mb <= w. If we are given a
    * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
@@ -799,193 +701,36 @@ public class Util {
    * @param x         the query of b size
    * @param A         the A word
    * @param m         the number of keys in A
-   * @param blockSize the lenght of each key in A excluding padding bits
+   * @param b the lenght of each key in A excluding padding bits
    */
-  public static int rank_lemma_1_2(long x, long A, final int m, final int blockSize) {
-    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
-    // order!
-    // final int blockSize = 4;
-    print("           A = ");
-    println(bin(A, blockSize));
-    // int x = 0b0001; // a key which rank I'm looking for
-    // final int x = 0b0100;
-
-    print("           x = ");
-    println(bin(x, blockSize));
-
-    long M = M(blockSize, m * blockSize); // copying integer
-    print("           M = ");
-    println(bin(M, blockSize));
-
-    // First figure out how many clusters of A have leading bit zero.
-    // One way to do so is to compute the LSB of A & leading_bits.
-    // Alternatively, this number can also be stored and maintained alongside the
-    // data structure in
-    // an extra variable.
-
-    print("    A & 1000 = ");
-    println(bin(A & (M << (blockSize - 1)), blockSize));
-
-    int numClustersW0 = m;
-    if ((A & (M << (blockSize - 1))) != 0) {
-      numClustersW0 = (Long.SIZE - lsb(A & (M << (blockSize - 1)))) / blockSize - 1; // works
-    }
-
-    print("#lead zeroes = ");
-    println(numClustersW0);
-
-    final int leadingBitOfX = bit(x, Long.SIZE - blockSize);
-    print("x leading bit= ");
-    println(leadingBitOfX);
-
-    // If the leading bit of x is one:
-    if (leadingBitOfX == 1) {
-
-      if (numClustersW0 == m) { // case where all clusters start w/ 0 and the query starts with 1
-        println("   rank(x,A) = " + m);
-        return m;
-      }
-
-      // 1) remove the clusters of A which have a non-leading bit
-
-      A >>>= blockSize * numClustersW0;
-      print("A w/o 0-leadC= ");
-      println(bin(A, blockSize));
-
-      // we need to do the same on M
-      M >>>= blockSize * numClustersW0;
-      print("       new M = ");
-      println(bin(M, blockSize));
-
-      x &= ~(1 << (blockSize - 1));
-      print("x w/o leadBit= ");
-      println(bin(x, blockSize));
-
-      x *= M;
-      print("    x copied = ");
-      println(bin(x, blockSize));
-
-      final long d = A - x;
-      print("   d = A - x = ");
-      println(bin(d, blockSize));
-
-      final long mask = (1L << (blockSize - 1)) * M;
-      print("        mask = ");
-      println(bin(mask, blockSize));
-
-      print("    d & mask = ");
-      println(bin((d & mask), blockSize));
-
-      int res = m;
-
-      if ((d & mask) != 0) {
-        print("#clusters <x = ");
-        final int numClustersSmallerThanX = ((Long.SIZE - lsb(d & mask)) / blockSize) - 1;
-        println(numClustersSmallerThanX);
-        res = numClustersW0 + numClustersSmallerThanX;
-      }
-      println("   rank(x,A) = " + res);
-
-      return res;
-
-    } else {
-
-      if (numClustersW0 == 0) { // case where all clusters start w/ 1 and the query starts with 0
-        println("   rank(x,A) = 0");
-        return 0;
-      }
-
-      // 1) remove the clusters of A which leading bit is one
-
-      A = (A << Long.SIZE - (blockSize * numClustersW0)) >>> (Long.SIZE - (blockSize * numClustersW0));
-      print("A w/o 1-leadC= ");
-      println(bin(A, blockSize));
-
-      // we need to do the same on M
-      M >>>= blockSize * (m - numClustersW0);
-      print("       new M = ");
-      println(bin(M, blockSize));
-
-      x *= M;
-      print("    x copied = ");
-      println(bin(x, blockSize));
-
-      M *= 1L << (blockSize - 1);
-      print("        mask = ");
-      println(bin(M, blockSize));
-
-      A |= M;
-      print("    A | mask = ");
-      println(bin(A, blockSize));
-
-      final long d = A - x;
-      print("   d = A - x = ");
-      println(bin(d, blockSize));
-
-      print("    d & mask = ");
-      println(bin((d & M), blockSize));
-
-      int res = numClustersW0; // the total number of blocks minus the ones that are larger
-      // than x
-      print("  canditates = ");
-      println(res);
-
-      if ((d & M) != 0) {
-
-        print("#clusters >x = ");
-        final int numClustersLargerThanX = numClustersW0 - ((Long.SIZE - lsb(d & M)) / blockSize);
-        println(numClustersLargerThanX);
-        res -= numClustersLargerThanX + 1;
-      }
-
-      println("   rank(x,A) = " + res);
-
-      return res;
-    }
-
-  }
-
-  /**
-   * No padding version of rank_lemma_1 Lemma 1: Let mb <= w. If we are given a
-   * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
-   * in constant time we can find the rank of x in A, denoted rank(x, A). In order
-   * for this method to give plausible results, the following requirements *must*
-   * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
-   * the words in A must also be sorted.
-   * 
-   * @param x         the query of b size
-   * @param A         the A word
-   * @param m         the number of keys in A
-   * @param blockSize the lenght of each key in A excluding padding bits
-   */
-  public static int rank_lemma_1_2_3(long x, long A, final int m, final int blockSize) {
-    long M = M(blockSize, m * blockSize);
+  public static int rankLemma1(long x, long A, final int m, final int b) {
+    long M = M(b, m * b);
     // copying integer
 
     int numClustersLeadingBitIs0 = m;
-    final long leadingBitOfEachCluster = A & (M << (blockSize - 1));
+    final long leadingBitOfEachCluster = A & (M << (b - 1));
     // Checks the leading bit of each cluster
 
     if (leadingBitOfEachCluster != 0) {
       numClustersLeadingBitIs0 = (Long.SIZE - lsb(leadingBitOfEachCluster))
-          / blockSize - 1; // works
+          / b - 1; // works
     }
 
-    if (bit(x, Long.SIZE - blockSize) == 1) { // leading bit of x is 1
+    if (bit(Long.SIZE - b, x) == 1) { // leading bit of x is 1
       if (numClustersLeadingBitIs0 == m) {
         // case where all clusters start w/ 0 and the query starts with 1
         return m;
       }
 
-      A >>>= blockSize * numClustersLeadingBitIs0;
-      M >>>= blockSize * numClustersLeadingBitIs0;
-      x = (x & ~(1 << (blockSize - 1))) * M;
-      M *= 1L << (blockSize - 1);
+      A >>>= b * numClustersLeadingBitIs0;
+      M >>>= b * numClustersLeadingBitIs0;
+      x = (x & ~(1 << (b - 1))) * M;
+      M *= 1L << (b - 1);
 
       final long d = (A - x) & M;
 
       if (d != 0) {
-        return numClustersLeadingBitIs0 + ((Long.SIZE - lsb(d)) / blockSize) - 1;
+        return numClustersLeadingBitIs0 + ((Long.SIZE - lsb(d)) / b) - 1;
       }
       return m;
 
@@ -995,17 +740,175 @@ public class Util {
         return 0;
       }
 
-      M >>>= blockSize * (m - numClustersLeadingBitIs0);
+      M >>>= b * (m - numClustersLeadingBitIs0);
       x *= M;
-      M *= 1L << (blockSize - 1);
-      A = ((A << Long.SIZE - (blockSize * numClustersLeadingBitIs0)) >>> (Long.SIZE
-          - (blockSize * numClustersLeadingBitIs0))) | M;
+      M *= 1L << (b - 1);
+      A = ((A << Long.SIZE - (b * numClustersLeadingBitIs0))
+          >>> (Long.SIZE - (b * numClustersLeadingBitIs0))) | M;
 
       final long d = (A - x) & M;
 
       if (d != 0) {
-        return (Long.SIZE - lsb(d)) / blockSize - 1;
+        return (Long.SIZE - lsb(d)) / b - 1;
       }
+      return numClustersLeadingBitIs0;
+    }
+  }
+
+  /**
+   * No padding version of rank_lemma_1 with terminal comments.
+   * Lemma 1: Let mb <= w. If we are given a
+   * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
+   * in constant time we can find the rank of x in A, denoted rank(x, A). In order
+   * for this method to give plausible results, the following requirements *must*
+   * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
+   * the words in A must also be sorted.
+   * 
+   * @param x         the query of b size
+   * @param A         the A word
+   * @param m         the number of keys in A
+   * @param b the lenght of each key in A excluding padding bits
+   */
+  public static int rankLemma1Commented(long x, long A, final int m, final int b) {
+    // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
+    // order!
+    // final int blockSize = 4;
+    print("           A = ");
+    println(bin(A, b));
+    // int x = 0b0001; // a key which rank I'm looking for
+    // final int x = 0b0100;
+
+    print("           x = ");
+    println(bin(x, b));
+
+    long M = M(b, m * b); // copying integer
+    print("           M = ");
+    println(bin(M, b));
+
+    // First figure out how many clusters of A have leading bit zero.
+    // One way to do so is to compute the LSB of A & leading_bits.
+    // Alternatively, this number can also be stored and maintained alongside the
+    // data structure in
+    // an extra variable.
+
+    int numClustersLeadingBitIs0 = m;
+    
+    print("    A & 1000 = ");
+    final long leadingBitOfEachCluster = A & (M << (b - 1));
+    println(bin(leadingBitOfEachCluster, b));
+
+    if (leadingBitOfEachCluster != 0) {
+      numClustersLeadingBitIs0 = (Long.SIZE - lsb(leadingBitOfEachCluster)) / b - 1;
+    }
+
+    print("#lead zeroes = ");
+    println(numClustersLeadingBitIs0);
+
+    final int leadingBitOfX = bit(Long.SIZE - b, x);
+    print("x leading bit= ");
+    println(leadingBitOfX);
+
+    // If the leading bit of x is one:
+    if (leadingBitOfX == 1) {
+
+      if (numClustersLeadingBitIs0 == m) {
+        // case where all clusters start w/ 0 and the query starts with 1
+        println("   rank(x,A) = " + m);
+        return m;
+      }
+
+      // 1) remove the clusters of A which have a non-leading bit
+
+      A >>>= b * numClustersLeadingBitIs0;
+      print("A w/o 0-leadC= ");
+      println(bin(A, b));
+
+      // we need to do the same on M
+      M >>>= b * numClustersLeadingBitIs0;
+      print("       new M = ");
+      println(bin(M, b));
+
+      x &= ~(1 << (b - 1));
+      print("x w/o leadBit= ");
+      println(bin(x, b));
+
+      x *= M;
+      print("    x copied = ");
+      println(bin(x, b));
+      
+      M *= (1L << (b - 1));
+      print("        mask = ");
+      println(bin(M, b));
+
+      long d = A - x;
+      print("   d = A - x = ");
+      println(bin(d, b));
+
+      d &= M;
+      print("    d & mask = ");
+      println(bin(d, b));
+
+      if (d != 0) {
+        print("#clusters <x = ");
+        final int numClustersSmallerThanX = ((Long.SIZE - lsb(d & M)) / b) - 1;
+        println(numClustersSmallerThanX);
+        println("   rank(x,A) = " + (numClustersLeadingBitIs0 + numClustersSmallerThanX));
+        return numClustersLeadingBitIs0 + numClustersSmallerThanX;
+      }
+      
+      println("   rank(x,A) = " + m);
+      return m;
+
+    } else {
+
+      if (numClustersLeadingBitIs0 == 0) {
+        // case where all clusters start w/ 1 and the query starts with 0
+        println("   rank(x,A) = 0");
+        return 0;
+      }
+
+      // 1) remove the clusters of A which leading bit is one
+
+      A = (A << Long.SIZE - (b * numClustersLeadingBitIs0))
+        >>> (Long.SIZE - (b * numClustersLeadingBitIs0));
+      print("A w/o 1-leadC= ");
+      println(bin(A, b));
+
+      // we need to do the same on M
+      M >>>= b * (m - numClustersLeadingBitIs0);
+      print("       new M = ");
+      println(bin(M, b));
+
+      x *= M;
+      print("    x copied = ");
+      println(bin(x, b));
+
+      M *= 1L << (b - 1);
+      print("        mask = ");
+      println(bin(M, b));
+
+      A |= M;
+      print("    A | mask = ");
+      println(bin(A, b));
+
+      long d = A - x;
+      print("   d = A - x = ");
+      println(bin(d, b));
+
+      d &= M;
+      print("    d & mask = ");
+      println(bin(d, b));
+
+      if (d != 0) {
+        final int numClustersLargerThanX = numClustersLeadingBitIs0
+            - ((Long.SIZE - lsb(d & M)) / b);
+        print("#clusters >x = ");
+        println(numClustersLargerThanX);
+        println("   rank(x,A) = " + ((Long.SIZE - lsb(d)) / b - 1));
+        return (Long.SIZE - lsb(d)) / b - 1;
+      }
+
+      println("   rank(x,A) = " + numClustersLeadingBitIs0);
       return numClustersLeadingBitIs0;
     }
   }
@@ -1028,16 +931,15 @@ public class Util {
     // long x = 0b0_1100;
     // rank_lemma_1(x, A, 4, 4);
 
-    long A = 0b1110_0101_0010_0001; // compressed keys in descending sorted order!
-    long x = 0b0_0111;
-    rank_lemma_1_2(x, A, 4, 4);
+    long A = 0b1110_1100_0110_0101; // compressed keys in descending sorted order!
+    long x = 0b0_1100;
+    rankLemma1Commented(x, A, 4, 4);
 
-        
-    A = 0b11111101_11111001_11100010_11011010_11010101_10110010_10100111_10001011L;
-    x = 0b00000000_00000000_00000000_00010100;
 
-    rank_lemma_1_2(x, A, 8, 8);
+    println(64 / 4);
+    println(lsb(0b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_1000_1000_0000_0000L) / 4);
 
+    println((16 - 4) / 4 - 1);
 
     
   }
