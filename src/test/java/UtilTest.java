@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import integersets.Util;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Random;
@@ -24,105 +25,111 @@ class UtilTest {
   @Test
   void msb32Obvious() {
     for (int i = intLowerBound; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbObvious(i));
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
     assertEquals(-1, Util.msbObvious(0));
     for (int i = 1; i <= intUpperBound; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbObvious(i));
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
   }
 
   @Test
   void msb64Obvious() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbObvious(i));
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
     assertEquals(-1, Util.msbObvious(0));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbObvious(i));
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbObvious(i));
     }
   }
 
   @Test
   void msb64LookupDistributedOutput() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i),
+          Util.msbLookupDistributedOutput(i));
     }
     assertEquals(-1, Util.msbLookupDistributedOutput(0L));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i),
+          Util.msbLookupDistributedOutput(i));
     }
   }
 
   @Test
   void msb64LookupDistributedInput() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
     }
     assertEquals(-1, Util.msbLookupDistributedInput(0L));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
     }
   }
 
   @Test
   void msb32LookupDistributedOutput() {
     for (int i = Integer.MIN_VALUE; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i),
+          Util.msbLookupDistributedOutput(i));
     }
     assertEquals(-1, Util.msbLookupDistributedOutput(0));
     for (int i = 1; i <= Integer.MAX_VALUE - 1; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedOutput(i));
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i),
+          Util.msbLookupDistributedOutput(i));
     }
   }
 
   @Test
   void msb32LookupDistributedInput() {
     for (int i = Integer.MIN_VALUE; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i),
+          Util.msbLookupDistributedInput(i));
     }
     assertEquals(-1, Util.msbLookupDistributedInput(0));
     for (int i = 1; i <= Integer.MAX_VALUE - 1; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbLookupDistributedInput(i));
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i),
+          Util.msbLookupDistributedInput(i));
     }
   }
 
   @Test
-  void msbConstant64() {
+  void msb64Constant() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstant(i),
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
     assertEquals(-1, Util.msbConstant(0));
     for (long i = 1; i <= longUpperBound; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstant(i),
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
   }
 
   @Test
-  void msbConstant32() {
+  void msb32Constant() {
     for (int i = intLowerBound; i < 0; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbConstant(i),
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
     assertEquals(-1, Util.msbConstant(0));
     for (int i = 1; i <= intUpperBound; i++) {
-      assertEquals(Integer.numberOfLeadingZeros(i), Util.msbConstant(i),
+      assertEquals(Integer.SIZE - 1 - Integer.numberOfLeadingZeros(i), Util.msbConstant(i),
           "Failed for " + i);
     }
   }
 
 
   @Test
-  void msbConstantCommented() {
+  void msb64ConstantCommented() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstantCommented(i),
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstantCommented(i),
           "Failed for " + i);
     }
     assertEquals(-1, Util.msbConstantCommented(0));
     for (long i = 1; i <= longUpperBound; i = i + 2) {
-      assertEquals(Long.numberOfLeadingZeros(i), Util.msbConstantCommented(i),
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstantCommented(i),
           "Failed for " + i);
     }
   }
@@ -134,8 +141,26 @@ class UtilTest {
     }
   }
 
+  // @Test
+  // void binTest32() {
+  //   Random random = new Random(seed);
+  //   Set<Long> seeds = new HashSet<>();
+  //   while (seeds.size() < passes) {
+  //     seeds.add(random.nextLong());
+  //   }
+
+  //   ArrayList<Long> seedList = new ArrayList<>(seeds);
+  //   for (int p = 0; p < passes; p++) {
+  //     Random passRand = new Random(seedList.get(p));
+  //     for (long i = 0; i < longUpperBound; i++) {
+  //       // Long.
+  //       passRand.nextLong();
+  //     }
+  //   }
+  // }
+
   @Test
-  void rankLemma1CommentedTest() {
+  void rankLemma1Commented() {
     Random random = new Random(seed);
     Set<Long> seeds = new HashSet<>();
     while (seeds.size() < passes) {
@@ -147,7 +172,7 @@ class UtilTest {
       for (int b = loB; b < hiB + 1; b++) { // we vary the number of bits per key
         // generate m distinct keys of b size + 1 key
         int m = (int) Math.min(Math.pow(2, b), Long.SIZE / b);
-        Random passRand = new Random(seedList.get(0));
+        Random passRand = new Random(seedList.get(p));
         
         Set<Integer> keys = new HashSet<>();
 
@@ -192,13 +217,14 @@ class UtilTest {
 
         // use the function from Util to test it.
         assertEquals(rankX, Util.rankLemma1Commented(x, A, m, b), "Pass " + (p + 1) + "/" + passes
-            + "\nA = " + Util.bin(A, b) + "\nx = " + Util.bin(x, b));
+            + " | Seed: " + seedList.get(p) + "\nA = " + Util.bin(A, b)
+            + "\nx = " + Util.bin(x, b));
       }
     }
   }
 
   @Test
-  void rankLemma1Test() {
+  void rankLemma1() {
     Random random = new Random(seed);
     Set<Long> seeds = new HashSet<>();
     while (seeds.size() < passes) {
@@ -210,7 +236,7 @@ class UtilTest {
       for (int b = loB; b < hiB + 1; b++) { // we vary the number of bits per key
         // generate m distinct keys of b size + 1 key
         int m = (int) Math.min(Math.pow(2, b), Long.SIZE / b);
-        Random passRand = new Random(seedList.get(0));
+        Random passRand = new Random(seedList.get(p));
         
         Set<Integer> keys = new HashSet<>();
 
@@ -255,7 +281,8 @@ class UtilTest {
 
         // use the function from Util to test it.
         assertEquals(rankX, Util.rankLemma1(x, A, m, b), "Pass " + (p + 1) + "/" + passes
-            + "\nA = " + Util.bin(A, b) + "\nx = " + Util.bin(x, b));
+            + " | Seed: " + seedList.get(p) + "\nA = " + Util.bin(A, b)
+            + "\nx = " + Util.bin(x, b));
       }
     }
   }

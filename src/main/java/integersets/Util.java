@@ -54,7 +54,11 @@ public class Util {
    */
   public static String bin(final int x, final int blockSize) {
     final StringBuilder res = new StringBuilder("0b");
-    if (blockSize > 0) {
+    if (blockSize <= 0 || blockSize >= Integer.SIZE) {
+      for (int i = Integer.SIZE - 1; i > -1; i--) {
+        res.append(bit(x, i));
+      }
+    } else {
       final int r = Integer.SIZE % blockSize == 0 ? blockSize : Integer.SIZE % blockSize;
       for (int i = 0; i < r; i++) {
         res.append(bit(x, i));
@@ -64,10 +68,6 @@ public class Util {
         for (int j = i; j < i + blockSize; j++) {
           res.append(bit(x, j));
         }
-      }
-    } else {
-      for (int i = 0; i < Integer.SIZE; i++) {
-        res.append(bit(x, i));
       }
     }
     return res.toString();
@@ -93,59 +93,103 @@ public class Util {
    */
   public static String bin(final long x, final int blockSize) {
     final StringBuilder res = new StringBuilder("0b");
-    if (blockSize > 0) {
-      final int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
-      for (int i = 0; i < r; i++) {
+    if (blockSize <= 0 || blockSize >= Integer.SIZE) {
+      for (int i = Long.SIZE - 1; i > -1; i--) {
         res.append(bit(i, x));
       }
-      for (int i = r; i < Long.SIZE; i += blockSize) {
+    } else {
+      final int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
+      for (int i = Long.SIZE - 1; i > Long.SIZE - 1 - r; i--) {
+        res.append(bit(i, x));
+      }
+      for (int i = Long.SIZE - 1 - r; i > -1; i -= blockSize) {
         res.append("_");
-        for (int j = i; j < i + blockSize; j++) {
+        for (int j = i; j > i - blockSize; j--) {
           res.append(bit(j, x));
         }
       }
-    } else {
-      for (int i = 0; i < Long.SIZE; i++) {
-        res.append(bit(i, x));
-      }
     }
-    return res.toString();
+    return res.append("L").toString();
   }
 
   /**
    * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed 0..63.
+   * are indexed w-1..0.
    * 
    * @param d   the digit index
-   * @param val the long value to have the digit extracted from
+   * @param x the long value to have the digit extracted from
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
-  public static int bit(final int d, final long val) {
-    return (int) (val >> (63 - d)) & 1;
+  public static int bit(final int d, final long x) {
+    return (int) ((x >>> d) & 1);
   }
 
   /**
    * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed 0..63.
+   * are indexed w-1..0.
    * 
    * @param d   the digit index
-   * @param val the long value to have the digit extracted from
+   * @param x the long value to have the digit extracted from
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
-  public static int bit(final int d, final int val) {
-    return (val >> (31 - d)) & 1;
+  public static int bit(final int d, final int x) {
+    return (x >>> d) & 1;
   }
 
   /**
-   * Sets bit at position {@code bit} to 1 and returns the key {@code key}.
+   * Sets bit at position {@code d} to 1 and returns the key {@code target}.
    * 
    * @param target the key to have the bit altered
-   * @param bit    the bit to be set to 1
+   * @param d the index of the bit to be set to 1
    * @return the key with the bit altered
    */
-  public static long setBit(final long target, final int bit) {
-    assert ((target >>> (63 - bit)) & 1) == 0; // checks if the bit at position bit is 0!
-    return target | (1L << (63 - bit));
+  public static long setBit(long target, final int d) {
+    if (d >= 0 || d < Long.SIZE) {
+      target |= 1L << d;
+    }
+    return target;
+  }
+
+  /**
+   * Sets bit at position {@code d} to 1 and returns the key {@code target}.
+   * 
+   * @param target the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static int setBit(int target, final int d) {
+    if (d >= 0 || d < Integer.SIZE) {
+      target |=  1 << d;
+    }
+    return target;
+  }
+
+  /**
+   * Sets bit at position {@code d} to 0 and returns the key {@code target}.
+   * 
+   * @param target the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static long deleteBit(long target, final int d) {
+    if (d >= 0 || d < Long.SIZE) {
+      target &=  ~(1 << d);
+    }
+    return target;
+  }
+
+  /**
+   * Sets bit at position {@code d} to 0 and returns the key {@code target}.
+   * 
+   * @param target the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static int deleteBit(int target, final int d) {
+    if (d >= 0 || d < Integer.SIZE) {
+      target &=  ~(1 << d);
+    }
+    return target;
   }
 
   public static void print(final Object o) {
@@ -219,7 +263,7 @@ public class Util {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
-    return Integer.numberOfLeadingZeros(x);
+    return Integer.SIZE - 1 - Integer.numberOfLeadingZeros(x);
   }
 
   /**
@@ -232,7 +276,7 @@ public class Util {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
-    return Long.numberOfLeadingZeros(x);
+    return Long.SIZE - 1 - Long.numberOfLeadingZeros(x);
   }
 
   /**
@@ -243,15 +287,11 @@ public class Util {
    * @return the index of the most significant bit of {@code x}
    */
   public static int msbObvious(int x) {
-    if (x == 0) {
-      return -1; // convention
-    }
-
-    int r = Integer.SIZE; // r will be lg(v)
+    int r = -1; // r will be lg(v)
 
     while (x != 0) {
       x >>>= 1;
-      r--;
+      r++;
     }
     return r;
   }
@@ -264,15 +304,11 @@ public class Util {
    * @return the index of the most significant bit of {@code x}
    */
   public static int msbObvious(long x) {
-    if (x == 0) {
-      return -1;
-    }
-
-    int r = Long.SIZE; // r will be lg(v)
+    int r = -1; // r will be lg(v)
 
     while (x != 0) {
       x >>>= 1;
-      r--;
+      r++;
     }
     return r;
   }
@@ -318,7 +354,7 @@ public class Util {
       t = x >>> 8;
       r = (t != 0) ? 8 + LogTable256[t] : LogTable256[x];
     }
-    return 31 - r;
+    return r;
   }
 
   /**
@@ -337,10 +373,10 @@ public class Util {
     final int high = msbLookupDistributedOutput(aux[0]);
 
     if (high == -1) {
-      return msbLookupDistributedOutput(aux[1]) + 32;
+      return msbLookupDistributedOutput(aux[1]);
     }
 
-    return high;
+    return Integer.SIZE + high;
   }
 
   /**
@@ -371,7 +407,7 @@ public class Util {
     } else {
       r = LogTable256[x];
     }
-    return 31 - r;
+    return r;
   }
 
   /**
@@ -390,10 +426,10 @@ public class Util {
     final int high = msbLookupDistributedInput(aux[0]);
 
     if (high == -1) {
-      return msbLookupDistributedInput(aux[1]) + 32;
+      return msbLookupDistributedInput(aux[1]);
     }
 
-    return high;
+    return Integer.SIZE + high;
   }
 
   private static int parallelComparison(final long cluster) {
@@ -414,16 +450,18 @@ public class Util {
 
     final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
 
-    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> 4 * blockSize;
+    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+        >>> 4 * blockSize;
 
     if (hi > 0) {
-      return parallelLookup((int) hi);
+      return 4 + parallelLookup((int) hi);
     }
 
     final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
-    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch) >>> 4 * blockSize;
+    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+        >>> 4 * blockSize;
 
-    return 4 + parallelLookup((int) lo);
+    return parallelLookup((int) lo);
   }
 
   /**
@@ -432,13 +470,13 @@ public class Util {
   private static int parallelLookup(final int pow) {
     switch (pow) {
       case 0b1111:
-        return 0;
-      case 0b0111:
-        return 1;
-      case 0b0011:
-        return 2;
-      case 0b0001:
         return 3;
+      case 0b0111:
+        return 2;
+      case 0b0011:
+        return 1;
+      case 0b0001:
+        return 0;
       default:
         return -1;
     }
@@ -456,10 +494,10 @@ public class Util {
       return -1; // because 0 has no 1 bits
     }
     if (x < 0) {
-      return 0;
+      return Integer.SIZE - 1;
     }
 
-    return msbConstant(Integer.toUnsignedLong(x)) - Integer.SIZE;
+    return msbConstant(Integer.toUnsignedLong(x));
   }
 
   /**
@@ -474,7 +512,7 @@ public class Util {
       return -1; // because 0 has no 1 bits
     }
     if (x < 0) {
-      return 0;
+      return Long.SIZE - 1;
     }
 
     final int w = Long.SIZE;
@@ -482,11 +520,12 @@ public class Util {
     final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
     final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
 
-    final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C) >>> (w - blockSize);
+    final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C)
+        >>> (w - blockSize);
 
     final int cluster = parallelComparison(summary);
 
-    x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
+    x = (x >>> (cluster * blockSize)) & 0b11111111L;
 
     final int d = parallelComparison(x);
 
@@ -505,7 +544,7 @@ public class Util {
       return -1; // because 0 has no 1 bits
     }
     if (x < 0) {
-      return 0;
+      return Long.SIZE - 1;
     }
     // MSB (x)
     final int w = Long.SIZE; // 64
@@ -515,8 +554,8 @@ public class Util {
     // It this particular example, let's assume w = 16. Let
     // x = 0b0101_0000_1000_1101
 
-    println("Query");
-    println(bin(x, blockSize));
+    // println("Query");
+    // println(bin(x, blockSize));
 
     // 1. Find F
     // F is a w-bit word (same size as x) with 1 at the most significant positions
@@ -592,8 +631,8 @@ public class Util {
     long res = leadingBits | noLeadingBitsNonEmptyClusters;
     // Or in a single operation:
     // final long res = (x & F) | (~(F - (x ^ (x & F))) & F);
-    println("Clusters empty/non-empty");
-    println(bin(res, blockSize));
+    // println("Clusters empty/non-empty");
+    // println(bin(res, blockSize));
 
     // 7. Perfect sketch: I want to have all these leading bits consecutive
     // Lemma: When the bi are i*sqrt(w) + sqrt(w) - 1, there is an m such that
@@ -605,8 +644,8 @@ public class Util {
     // >>> (sqrt(w) - 1 = 4 - 1 = 3)= 0b0001_0000_0001_0001
 
     res >>>= (blockSize - 1);
-    println("Clusters shifted (res >>> (sqrt(w) - 1)");
-    println(bin(res, blockSize));
+    // println("Clusters shifted (res >>> (sqrt(w) - 1)");
+    // println(bin(res, blockSize));
 
     // 8. Sketch compression.
     // We find C, which is a word that will put all the important bits in the same
@@ -624,8 +663,8 @@ public class Util {
 
     final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
     res *= C;
-    println("Clusters summarized in the first cluster (res * 00001_00010_...)");
-    println(bin(res, blockSize));
+    // println("Clusters summarized in the first cluster (res * 00001_00010_...)");
+    // println(bin(res, blockSize));
 
     // 9. The sketch is now compressed, but it is stored in the first cluster. So we
     // shift all the
@@ -634,8 +673,8 @@ public class Util {
     // In my example:
     // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
-    println("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
-    println(bin(res, blockSize));
+    // println("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
+    // println(bin(res, blockSize));
 
     // So do parallel comparison between 1011 and:
     // {1000, 0100, 0010, 0001}
@@ -648,27 +687,27 @@ public class Util {
     // res = 0b1011;
     // res * m = 0b1011_1011_1011_1011;
 
-    println("Cluster (0..7):");
+    // println("Cluster (7..0):");
     final int cluster = parallelComparison(res);
-    println(cluster);
-    // 0..7
+    // println(cluster);
+    // 7..0
 
-    println("Block shifts to make (0..8..64)= " + (7 - cluster));
+    // println("Block shifts>>> to make (64..8..0)= " + (cluster * blockSize));
 
-    print("The query before the shift: ");
-    println(bin(x, blockSize));
+    // print("The query before the shift: ");
+    // println(bin(x, blockSize));
 
-    x = (x >>> (blockSize - 1 - cluster) * blockSize) & 0b11111111L;
+    x = (x >>> (cluster * blockSize)) & 0b11111111L;
 
-    print("The query AFTER the shift: ");
-    println(bin(x, blockSize));
+    // print("The query AFTER the shift: ");
+    // println(bin(x, blockSize));
 
-    println("the cluster: " + bin(x, blockSize));
+    // println("the cluster: " + bin(x, blockSize));
 
     final int d = parallelComparison(x);
 
-    println("d (0..7): " + d);
-    // 0..7
+    // println("d (7..0): " + d);
+    // 7..0
 
     return cluster * blockSize + d;
   }
@@ -712,11 +751,10 @@ public class Util {
     // Checks the leading bit of each cluster
 
     if (leadingBitOfEachCluster != 0) {
-      numClustersLeadingBitIs0 = (Long.SIZE - lsb(leadingBitOfEachCluster))
-          / b - 1; // works
+      numClustersLeadingBitIs0 = lsb(leadingBitOfEachCluster) / b; // works
     }
 
-    if (bit(Long.SIZE - b, x) == 1) { // leading bit of x is 1
+    if (bit(b - 1, x) == 1) { // leading bit of x is 1
       if (numClustersLeadingBitIs0 == m) {
         // case where all clusters start w/ 0 and the query starts with 1
         return m;
@@ -730,7 +768,7 @@ public class Util {
       final long d = (A - x) & M;
 
       if (d != 0) {
-        return numClustersLeadingBitIs0 + ((Long.SIZE - lsb(d)) / b) - 1;
+        return numClustersLeadingBitIs0 + lsb(d) / b;
       }
       return m;
 
@@ -749,7 +787,7 @@ public class Util {
       final long d = (A - x) & M;
 
       if (d != 0) {
-        return (Long.SIZE - lsb(d)) / b - 1;
+        return lsb(d) / b;
       }
       return numClustersLeadingBitIs0;
     }
@@ -798,13 +836,13 @@ public class Util {
     println(bin(leadingBitOfEachCluster, b));
 
     if (leadingBitOfEachCluster != 0) {
-      numClustersLeadingBitIs0 = (Long.SIZE - lsb(leadingBitOfEachCluster)) / b - 1;
+      numClustersLeadingBitIs0 = lsb(leadingBitOfEachCluster) / b;
     }
 
     print("#lead zeroes = ");
     println(numClustersLeadingBitIs0);
 
-    final int leadingBitOfX = bit(Long.SIZE - b, x);
+    final int leadingBitOfX = bit(b - 1, x);
     print("x leading bit= ");
     println(leadingBitOfX);
 
@@ -850,7 +888,7 @@ public class Util {
 
       if (d != 0) {
         print("#clusters <x = ");
-        final int numClustersSmallerThanX = ((Long.SIZE - lsb(d & M)) / b) - 1;
+        final int numClustersSmallerThanX = lsb(d & M) / b;
         println(numClustersSmallerThanX);
         println("   rank(x,A) = " + (numClustersLeadingBitIs0 + numClustersSmallerThanX));
         return numClustersLeadingBitIs0 + numClustersSmallerThanX;
@@ -901,11 +939,11 @@ public class Util {
 
       if (d != 0) {
         final int numClustersLargerThanX = numClustersLeadingBitIs0
-            - ((Long.SIZE - lsb(d & M)) / b);
+            - (lsb(d & M)) / b;
         print("#clusters >x = ");
         println(numClustersLargerThanX);
-        println("   rank(x,A) = " + ((Long.SIZE - lsb(d)) / b - 1));
-        return (Long.SIZE - lsb(d)) / b - 1;
+        println("   rank(x,A) = " + (lsb(d) / b));
+        return lsb(d) / b;
       }
 
       println("   rank(x,A) = " + numClustersLeadingBitIs0);
@@ -919,28 +957,6 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    // Works:
-    // long A = 0b1_1110010_1_1101101_1_1100111_1_1001010_1_0100101_1_0100011_1_0011110_1_0001100L;
-    // // [114, 109, 103, 74, 37, 35, 30, 12] // 8 keys of 7 bits each
-    // long x = 0b0_1010101L; // 85, rank 5
-    // println(x);
-    // rank_lemma_1(x, A, 8, 7);
-
-    // // Works:
-    // long A = 0b1_1110_1_1101_1_1010_1_1001; // compressed keys in descending sorted order!
-    // long x = 0b0_1100;
-    // rank_lemma_1(x, A, 4, 4);
-
-    long A = 0b1110_1100_0110_0101; // compressed keys in descending sorted order!
-    long x = 0b0_1100;
-    rankLemma1Commented(x, A, 4, 4);
-
-
-    println(64 / 4);
-    println(lsb(0b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_1000_1000_0000_0000L) / 4);
-
-    println((16 - 4) / 4 - 1);
-
-    
+    msbConstantCommented(1L);    
   }
 }
