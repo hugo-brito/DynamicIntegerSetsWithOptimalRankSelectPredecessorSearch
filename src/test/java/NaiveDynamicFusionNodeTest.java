@@ -60,7 +60,7 @@ class NaiveDynamicFusionNodeTest {
   }
   
   @Test
-  void deletTest() {
+  void deleteTest() {
     test.deleteTest(set);
   }
 
