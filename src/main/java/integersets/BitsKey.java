@@ -12,13 +12,14 @@ public class BitsKey implements Comparable<BitsKey> {
 
   /** Helper function.
    * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit.
-   * Digits are indexed 0..63.
+   * Digits are indexed 63..0.
    * 
    * @param d the digit index
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
   public int bit(final int d) {
-    return (int) (val >>> (Long.SIZE - 1 - d)) & 1;
+    return Util.bit(d, val);
+    // return (int) (val >>> (Long.SIZE - 1 - d)) & 1;
   }
 
   /** Naive way of calculating compareTo.
@@ -82,11 +83,7 @@ public class BitsKey implements Comparable<BitsKey> {
    * @return
    */
   public String bin() {
-    final StringBuilder res = new StringBuilder(Long.SIZE);
-    for (int i = 0; i < Long.SIZE; i++) {
-      res.append(bit(i));
-    }
-    return res.toString();
+    return Util.bin(val);
   }
 
   public String toString() {

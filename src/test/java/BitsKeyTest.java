@@ -17,11 +17,11 @@ class BitsKeyTest {
     for (int i = 0; i < 64; i++) {
       BitsKey v = new BitsKey(1L << i);
       for (int j = 0; j < i; j++) {
-        assertEquals(0, v.bit(63 - j));
+        assertEquals(0, v.bit(j));
       }
-      assertEquals(1, v.bit(63 - i));
+      assertEquals(1, v.bit(i));
       for (int j = i + 1; j < 64; j++) {
-        assertEquals(0, v.bit(63 - j));
+        assertEquals(0, v.bit(j));
       }
     }
   }
@@ -60,8 +60,9 @@ class BitsKeyTest {
   @Test
   void bin() {
     for (long i = -10_000_000L; i <= 10_000_000L; i++) {
-      assertEquals(String.format("%64s",
-          Long.toBinaryString(i)).replace(' ', '0'), new BitsKey(i).bin());
+      StringBuilder sb = new StringBuilder("0b")
+          .append(String.format("%64s", Long.toBinaryString(i)).replace(' ', '0')).append("L");
+      assertEquals(sb.toString(), new BitsKey(i).bin());
     }
   }
 }
