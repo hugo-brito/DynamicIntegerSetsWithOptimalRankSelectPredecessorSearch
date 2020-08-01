@@ -48,7 +48,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
     // We create the BitsKey at this stage because later we conveniently have access
     // to the bit(d) method
-    root = insert(root, new BitsKey(x), 0);
+    root = insert(root, new BitsKey(x), BitsKey.w - 1);
 
     updateLeavesBelow(root);
 
@@ -68,9 +68,9 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
 
     if (v.bit(d) == 0) {
-      curr.left = insert(curr.left, v, d + 1);
+      curr.left = insert(curr.left, v, d - 1);
     } else {
-      curr.right = insert(curr.right, v, d + 1);
+      curr.right = insert(curr.right, v, d - 1);
     }
 
     // after insertion checking the number of leaves before insertion
@@ -93,7 +93,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
      */
     switch (v.bit(d) * 2 + w.bit(d)) {
       case 0:
-        t.left = split(p, q, d + 1);
+        t.left = split(p, q, d - 1);
         break;
       case 1:
         t.left = p;
@@ -104,7 +104,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
         t.left = q;
         break;
       case 3:
-        t.right = split(p, q, d + 1);
+        t.right = split(p, q, d - 1);
         break;
       default:
         break;
@@ -131,7 +131,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
   @Override
   public void delete(final long x) {
     final BitsKey delete = new BitsKey(x);
-    root = delete(root, delete, 0);
+    root = delete(root, delete, BitsKey.w - 1);
   }
 
   private BSTrieNode<BitsKey> delete(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
@@ -149,9 +149,9 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
     } else if (v.bit(d) == 0) {
       // else if (next bit says to go left) leftchild = deleteR(leftchild, ..)
-      curr.left = delete(curr.left, v, d + 1);
+      curr.left = delete(curr.left, v, d - 1);
     } else {
-      curr.right = delete(curr.right, v, d + 1);
+      curr.right = delete(curr.right, v, d - 1);
     }
 
     // if there is only one child AND the child is a leaf,
@@ -173,7 +173,7 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
   @Override
   public boolean member(final long x) {
     final BitsKey searchKey = new BitsKey(x);
-    final BSTrieNode<BitsKey> res = search(root, searchKey, 0);
+    final BSTrieNode<BitsKey> res = search(root, searchKey, BitsKey.w - 1);
     return res != null && res.key.equals(searchKey);
   }
 
@@ -190,15 +190,15 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
     // Node with children, keep searching recursively.
     if (v.bit(d) == 0) {
-      return search(curr.left, v, d + 1);
+      return search(curr.left, v, d - 1);
     } else {
-      return search(curr.right, v, d + 1);
+      return search(curr.right, v, d - 1);
     }
   }
 
   @Override
   public long rank(final long x) {
-    return rank(root, new BitsKey(x), 0);
+    return rank(root, new BitsKey(x), BitsKey.w - 1);
   }
 
   private long rank(final BSTrieNode<BitsKey> curr, final BitsKey v, final int d) {
@@ -217,13 +217,13 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
     if (v.bit(d) == 0) {
       // If the bit is zero go left, and don't do anything,
-      return rank(curr.left, v, d + 1);
+      return rank(curr.left, v, d - 1);
     } else {
       // If the bit is one go right, we add the number of keys on the left subtree rank.
       if (curr.children() == 1 || curr.children() == 3) {
-        return curr.left.leavesBelow + rank(curr.right, v, d + 1);
+        return curr.left.leavesBelow + rank(curr.right, v, d - 1);
       } else {
-        return rank(curr.right, v, d + 1);
+        return rank(curr.right, v, d - 1);
       }
     }
   }
