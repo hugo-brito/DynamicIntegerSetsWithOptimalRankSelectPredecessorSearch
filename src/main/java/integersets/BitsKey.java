@@ -32,9 +32,9 @@ public class BitsKey implements Comparable<BitsKey> {
       return 0;
     }
     
-    int i = 0;
+    int i = w - 1;
     while (this.bit(i) == that.bit(i)) {
-      i++;
+      i--;
     }
     
     if (this.bit(i) > that.bit(i)) {
