@@ -61,6 +61,9 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     n = 0;
     // bitmap containing the empty spots. 1 if it is empty, 0 if it is taken.
     bKey = -1; // because -1 in java binary is 1111..11
+    for (int i = k; i < Integer.SIZE; i++) {
+      bKey = Util.deleteBit(bKey, i);
+    } 
   }
 
   /** Sets S = S union {x}.
@@ -149,7 +152,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void fillSlot(final int j) {
     if (j >= 0 && j < k) {
-      bKey &= ~(1L << (31 - j));
+      bKey = Util.deleteBit(bKey, j);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
@@ -162,8 +165,8 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void vacantSlot(int j) {
     if (j >= 0 && j < k) {
-      j = j + Util.msb(~bKey << j);
-      bKey |= 1L << (31 - j);
+      j += Util.msb(bKey);
+      bKey = Util.setBit(bKey, j);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
