@@ -61,9 +61,6 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     n = 0;
     // bitmap containing the empty spots. 1 if it is empty, 0 if it is taken.
     bKey = -1; // because -1 in java binary is 1111..11
-    for (int i = k; i < Integer.SIZE; i++) {
-      bKey = Util.deleteBit(bKey, i);
-    } 
   }
 
   /** Sets S = S union {x}.
@@ -138,7 +135,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @return the index in KEY of the first empty slot.
    */
   public int firstEmptySlot() {
-    final int res = Util.msb(bKey);
+    final int res = Util.lsb(bKey);
     if (res < k) {
       return res;
     }
@@ -165,7 +162,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void vacantSlot(int j) {
     if (j >= 0 && j < k) {
-      j += Util.msb(bKey);
+      j += Util.lsb(~(bKey >>> j));
       bKey = Util.setBit(bKey, j);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
@@ -180,7 +177,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @return the index in KEY of the key with rank {@code i}
    */
   public int getIndex(final long i) {
-    return (int) ((index << (i * ceilLgK)) >>> ((k - 1) * ceilLgK));
+    return (int) Util.getField(index, (int) i, ceilLgK);
   }
 
   /**
@@ -192,12 +189,12 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void updateIndex(final int rank) {
     if (rank >= 0 && rank < k) {
-      final long lo = (index << ((rank + 1) * ceilLgK)) >>> (rank * ceilLgK);
+      final long hi = Util.getFields(index, rank + 1, ceilLgK) << (rank * ceilLgK);
       if (rank > 0) {
-        final long hi = (index >>> ((k - rank) * ceilLgK)) << (((k - rank) * ceilLgK));
+        final long lo = Util.getFields(index, 0, rank, ceilLgK);
         index = hi | lo;
       } else {
-        index = lo;
+        index = hi;
       }
     } else {
       throw new IndexOutOfBoundsException("Invalid rank");
@@ -210,19 +207,18 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * and the position where such key is stored in KEY {@code slot} and saves that
    * information in Index.
    * 
-   * @param i    the rank of the key that has been put in KEY
+   * @param rank the rank of the key that has been put in KEY
    * @param slot the real position of the key in KEY
    */
-  public void updateIndex(final int i, final int slot) {
-    if (i >= 0 && i < k && slot >= 0 && slot < k) {
-      final long lo = (index << (i * ceilLgK)) >>> ((i + 1) * ceilLgK);
-      // long mid = ((long) slot) << (ceilLgK * (k - rank - 1));
-      final long mid = Integer.toUnsignedLong(slot) << ((k - 1 - i) * ceilLgK);
-      if (i > 0) {
-        final long hi = (index >>> ((k - i) * ceilLgK)) << (((k - i) * ceilLgK));
+  public void updateIndex(final int rank, final int slot) {
+    if (rank >= 0 && rank < k && slot >= 0 && slot < k) {
+      final long hi = Util.getFields(index, rank, ceilLgK) << ((rank + 1) * ceilLgK);
+      final long mid = Integer.toUnsignedLong(slot) << (rank * ceilLgK);
+      if (rank > 0) {
+        final long lo = Util.getFields(index, 0, rank, ceilLgK);
         index = hi | mid | lo;
       } else {
-        index = mid | lo;
+        index = mid | hi;
       }
     } else {
       throw new IndexOutOfBoundsException("Invalid rank or slot");
@@ -273,12 +269,9 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     // Util.print(ceilLgK);
     DynamicFusionNode node = new DynamicFusionNode();
     node.insert(10);
-    Util.println(Util.bin(node.index, ceilLgK));
     node.insert(12);
-    Util.println(Util.bin(node.index, ceilLgK));
     node.insert(42);
-    Util.println(Util.bin(node.index, ceilLgK));
-    Util.println(node.getIndex(2));
-
+    node.insert(54);
+    node.delete(42);
   }
 }
