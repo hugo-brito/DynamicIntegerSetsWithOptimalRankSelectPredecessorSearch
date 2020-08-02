@@ -224,7 +224,7 @@ public class Util {
    */
   public static Long getField(final long target, final int i, final int f) {
     if (i * f < Long.SIZE) {
-      return (target >>> (i * f)) & ((1 << f) - 1);
+      return (target >>> (i * f)) & ((1L << f) - 1);
     } else {
       return null;
     }
@@ -242,6 +242,23 @@ public class Util {
   public Integer getFields(final int target, final int i, final int j, final int f) {
     if (i < j) {
       return (target >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
+   * {@code target}, whose fields have length {@code f}.
+   * @param target The word containing fields
+   * @param i The smallest field (inclusive), the right most field to be included
+   * @param j The largest field (inclusive), the left most field to be included
+   * @param f The length of the fields in {@code target}
+   * @return A word containing the specified field range shifted to the least significant positions
+   */
+  public Long getFields(final long target, final int i, final int j, final int f) {
+    if (i < j) {
+      return (target >>> (i * f)) & ((1L << ((j - i) * f)) - 1);
     } else {
       return null;
     }
@@ -289,7 +306,7 @@ public class Util {
    * @return returns the word {@code target} after the operation
    */
   public static long setField(final long target, final int i, final long y, final int f) {
-    final long m = ((1 << f) - 1) << (i * f);
+    final long m = ((1L << f) - 1) << (i * f);
     return (target & ~m) | (y << (i * f) & m);
   }
 
@@ -1072,6 +1089,11 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    msbConstantCommented(1L);    
+    for (int f = 0; f < 10; f++) {
+      println((1 << f) - 1);
+    }
+
+    int A = 0;
+    Util.setField(A, 0, 0b1010, 4);
   }
 }

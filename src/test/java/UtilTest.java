@@ -3,24 +3,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import integersets.Util;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
 class UtilTest {
 
+  static int passes = 1_000_000;
+  static long seed = 42;
+  static List<Long> seedList;
+
   int intLowerBound = -100_000_000;
   int intUpperBound = 100_000_000;
   long longLowerBound = -10_000_000L + Integer.MIN_VALUE;
   long longUpperBound = 10_000_000L + Integer.MAX_VALUE;
-  int passes = 1_000;
-  long seed = 42;
   int loB = 3;
   int hiB = 10;
+
+  @BeforeAll
+  static void generateSeeds() {
+    Random random = new Random(seed);
+    Set<Long> seeds = new HashSet<>();
+    while (seeds.size() < passes) {
+      seeds.add(random.nextLong());
+    }
+
+    seedList = new ArrayList<>(seeds);
+  }
 
   @Test
   void msb32Obvious() {
@@ -141,6 +155,54 @@ class UtilTest {
     }
   }
 
+  @Test
+  void setAndGetField32() {
+    for (int p = 0; p < passes; p++) {
+      Random passRand = new Random(seedList.get(p));
+      for (int f = 1; f < Integer.SIZE; f++) {
+        int m = Integer.SIZE / f;
+        int[] fields = new int[m];
+        int A = 0;
+        for (int i = 0; i < m; i++) {
+          int field = passRand.nextInt((1 << f) - 1);
+          fields[i] = field;
+          assertEquals(0, (int) Util.getField(A, i, f), "Field " + i + " was not empty.");
+          A = Util.setField(A, i, field, f);
+          assertEquals(field, (int) Util.getField(A, i, f),
+              "Field " + i + " returned wrong value.");
+        }
+        for (int i = 0; i < m; i++) {
+          assertEquals(fields[i], (int) Util.getField(A, i, f),
+              "Field " + i + " returned wrong value.");
+        }
+      }
+    }
+  }
+
+  @Test
+  void setAndGetField64() {
+    for (int p = 0; p < passes; p++) {
+      Random passRand = new Random(seedList.get(p));
+      for (int f = 1; f < Integer.SIZE; f++) {
+        int m = Long.SIZE / f;
+        int[] fields = new int[m];
+        long A = 0;
+        for (int i = 0; i < m; i++) {
+          int field = passRand.nextInt((1 << f) - 1);
+          fields[i] = field;
+          assertEquals(0, (long) Util.getField(A, i, f), "Field " + i + " was not empty.");
+          A = Util.setField(A, i, field, f);
+          assertEquals(field, (long) Util.getField(A, i, f),
+              "Field " + i + " returned wrong value.");
+        }
+        for (int i = 0; i < m; i++) {
+          assertEquals((long) fields[i], (long) Util.getField(A, i, f),
+              "Field " + i + " returned wrong value.");
+        }
+      }
+    }
+  }
+
   // @Test
   // void binTest32() {
   //   Random random = new Random(seed);
@@ -161,13 +223,6 @@ class UtilTest {
 
   @Test
   void rankLemma1Commented() {
-    Random random = new Random(seed);
-    Set<Long> seeds = new HashSet<>();
-    while (seeds.size() < passes) {
-      seeds.add(random.nextLong());
-    }
-
-    ArrayList<Long> seedList = new ArrayList<>(seeds);
     for (int p = 0; p < passes; p++) {
       for (int b = loB; b < hiB + 1; b++) { // we vary the number of bits per key
         // generate m distinct keys of b size + 1 key
@@ -225,13 +280,6 @@ class UtilTest {
 
   @Test
   void rankLemma1() {
-    Random random = new Random(seed);
-    Set<Long> seeds = new HashSet<>();
-    while (seeds.size() < passes) {
-      seeds.add(random.nextLong());
-    }
-
-    ArrayList<Long> seedList = new ArrayList<>(seeds);
     for (int p = 0; p < passes; p++) {
       for (int b = loB; b < hiB + 1; b++) { // we vary the number of bits per key
         // generate m distinct keys of b size + 1 key
