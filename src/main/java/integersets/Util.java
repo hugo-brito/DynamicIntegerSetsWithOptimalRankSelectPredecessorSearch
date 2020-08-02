@@ -56,17 +56,17 @@ public class Util {
     final StringBuilder res = new StringBuilder("0b");
     if (blockSize <= 0 || blockSize >= Integer.SIZE) {
       for (int i = Integer.SIZE - 1; i > -1; i--) {
-        res.append(bit(x, i));
+        res.append(bit(i, x));
       }
     } else {
       final int r = Integer.SIZE % blockSize == 0 ? blockSize : Integer.SIZE % blockSize;
-      for (int i = 0; i < r; i++) {
-        res.append(bit(x, i));
+      for (int i = Integer.SIZE - 1; i > Integer.SIZE - 1 - r; i--) {
+        res.append(bit(i, x));
       }
-      for (int i = r; i < Integer.SIZE; i += blockSize) {
+      for (int i = Integer.SIZE - 1 - r; i > -1; i -= blockSize) {
         res.append("_");
-        for (int j = i; j < i + blockSize; j++) {
-          res.append(bit(x, j));
+        for (int j = i; j > i - blockSize; j--) {
+          res.append(bit(j, x));
         }
       }
     }
@@ -109,7 +109,7 @@ public class Util {
         }
       }
     }
-    return res.append("L").toString();
+    return res.append("l").toString();
   }
 
   /**
@@ -206,12 +206,8 @@ public class Util {
    * @param f The length of the fields in {@code target}
    * @return The field at the specified position in the {@code target} word
    */
-  public static Integer getField(final int target, final int i, final int f) {
-    if (i * f < Integer.SIZE) {
-      return (target >>> (i * f)) & ((1 << f) - 1);
-    } else {
-      return null;
-    }
+  public static int getField(final int target, final int i, final int f) {
+    return (target >>> (i * f)) & ((1 << f) - 1);
   }
 
   /**
@@ -222,12 +218,8 @@ public class Util {
    * @param f The length of the fields in {@code target}
    * @return The field at the specified position in the {@code target} word
    */
-  public static Long getField(final long target, final int i, final int f) {
-    if (i * f < Long.SIZE) {
-      return (target >>> (i * f)) & ((1L << f) - 1);
-    } else {
-      return null;
-    }
+  public static long getField(final long target, final int i, final int f) {
+    return (target >>> (i * f)) & ((1L << f) - 1);
   }
 
   /**
@@ -1094,6 +1086,10 @@ public class Util {
     }
 
     int A = 0;
-    Util.setField(A, 0, 0b1010, 4);
+    for (int i = 0; i < 5; i++) {
+      // Util.setField(target, i, y, f)
+      Util.println(bin(A, 4));
+      A = Util.setField(A, i, 0b0110, 4);
+    }
   }
 }

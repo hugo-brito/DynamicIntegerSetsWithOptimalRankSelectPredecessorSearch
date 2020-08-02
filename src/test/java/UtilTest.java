@@ -203,23 +203,29 @@ class UtilTest {
     }
   }
 
-  // @Test
-  // void binTest32() {
-  //   Random random = new Random(seed);
-  //   Set<Long> seeds = new HashSet<>();
-  //   while (seeds.size() < passes) {
-  //     seeds.add(random.nextLong());
-  //   }
+  @Test
+  void binTest32() {
+    for (int p = 0; p < passes; p++) {
+      Random passRand = new Random(seedList.get(p));
+      int key = passRand.nextInt();
+      for (int i = 0; i < Integer.SIZE; i++) {
+        String bin = Util.bin(key, i).replace("0b", "").replace("_", "");
+        assertEquals(key, Integer.parseUnsignedInt(bin, 2));
+      }
+    }
+  }
 
-  //   ArrayList<Long> seedList = new ArrayList<>(seeds);
-  //   for (int p = 0; p < passes; p++) {
-  //     Random passRand = new Random(seedList.get(p));
-  //     for (long i = 0; i < longUpperBound; i++) {
-  //       // Long.
-  //       passRand.nextLong();
-  //     }
-  //   }
-  // }
+  @Test
+  void binTest64() {
+    for (int p = 0; p < passes; p++) {
+      Random passRand = new Random(seedList.get(p));
+      long key = passRand.nextLong();
+      for (int i = 0; i < Long.SIZE; i++) {
+        String bin = Util.bin(key, i).replace("0b", "").replace("_", "").replace("l", "");
+        assertEquals(key, Long.parseUnsignedLong(bin, 2));
+      }
+    }
+  }
 
   @Test
   void rankLemma1Commented() {
