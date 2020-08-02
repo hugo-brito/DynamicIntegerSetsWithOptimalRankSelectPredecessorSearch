@@ -171,8 +171,8 @@ public class Util {
    * @param d the index of the bit to be set to 1
    * @return the key with the bit altered
    */
-  public static long deleteBit(long target, final int d) {
-    if (d >= 0 || d < Long.SIZE) {
+  public static int deleteBit(int target, final int d) {
+    if (d >= 0 || d < Integer.SIZE) {
       target &=  ~(1 << d);
     }
     return target;
@@ -185,11 +185,126 @@ public class Util {
    * @param d the index of the bit to be set to 1
    * @return the key with the bit altered
    */
-  public static int deleteBit(int target, final int d) {
-    if (d >= 0 || d < Integer.SIZE) {
-      target &=  ~(1 << d);
+  public static long deleteBit(long target, final int d) {
+    if (d >= 0 || d < Long.SIZE) {
+      target &= ~(1 << d);
     }
     return target;
+  }
+
+  /* Often we view words as divided into fields of some length f. We then use x(i)_f to denote the
+   * ith field, starting from the right with x(0)_f the right most field. Thus x represents the
+   * integer E^(w−1)_(i=0) 2^i x(i)1.
+   * Note that fields can easily be masked out using regular instructions, e.g
+   */
+
+  /**
+   * Field retrieval function. This function returns field {@code i} in the word {@code target},
+   * whose fields have length {@code f}.
+   * @param target The word containing fields
+   * @param i The position of the field
+   * @param f The length of the fields in {@code target}
+   * @return The field at the specified position in the {@code target} word
+   */
+  public static Integer getField(final int target, final int i, final int f) {
+    if (i * f < Integer.SIZE) {
+      return (target >>> (i * f)) & ((1 << f) - 1);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Field retrieval function. This function returns field {@code i} in the word {@code target},
+   * whose fields have length {@code f}.
+   * @param target The word containing fields
+   * @param i The position of the field
+   * @param f The length of the fields in {@code target}
+   * @return The field at the specified position in the {@code target} word
+   */
+  public static Long getField(final long target, final int i, final int f) {
+    if (i * f < Long.SIZE) {
+      return (target >>> (i * f)) & ((1 << f) - 1);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
+   * {@code target}, whose fields have length {@code f}.
+   * @param target The word containing fields
+   * @param i The smallest field (inclusive), the right most field to be included
+   * @param j The largest field (inclusive), the left most field to be included
+   * @param f The length of the fields in {@code target}
+   * @return A word containing the specified field range shifted to the least significant positions
+   */
+  public Integer getFields(final int target, final int i, final int j, final int f) {
+    if (i < j) {
+      return (target >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
+   * in the word {@code target}, whose fields have length {@code f}.
+   * @param target The word containing fields
+   * @param i The position of the first field to return
+   * @param f The length of the fields in {@code target}
+   * @return A word containing the remaining fields after the operation
+   */
+  public Integer getFields(final int target, final int i, final int f) {
+    if (i * f < Integer.SIZE) {
+      return (target >>> (i * f));
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
+   * in the word {@code target}, whose fields have length {@code f}.
+   * @param target The word containing fields
+   * @param i The position of the first field to return
+   * @param f The length of the fields in {@code target}
+   * @return A word containing the remaining fields after the operation
+   */
+  public Long getFields(final long target, final int i, final int f) {
+    if (i * f < Long.SIZE) {
+      return (target >>> (i * f));
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Field assignment function. This function returns the {@code target} word after overwriting the
+   * field at position {@code i} with {@code y}. 
+   * @param target The word containing fields
+   * @param i The position of the first field to return
+   * @param y The field to be assigned in {@code target}
+   * @param f The length of the fields in {@code target}
+   * @return returns the word {@code target} after the operation
+   */
+  public static long setField(final long target, final int i, final long y, final int f) {
+    final long m = ((1 << f) - 1) << (i * f);
+    return (target & ~m) | (y << (i * f) & m);
+  }
+
+  /**
+   * Field assignment function. This function returns the {@code target} word after overwriting the
+   * field at position {@code i} with {@code y}. 
+   * @param target The word containing fields
+   * @param i The position of the first field to return
+   * @param y The field to be assigned in {@code target}
+   * @param f The length of the fields in {@code target}
+   * @return returns the word {@code target} after the operation
+   */
+  public static int setField(final int target, final int i, final int y, final int f) {
+    final int m = ((1 << f) - 1) << (i * f);
+    return (target & ~m) | (y << (i * f) & m);
   }
 
   public static void print(final Object o) {
