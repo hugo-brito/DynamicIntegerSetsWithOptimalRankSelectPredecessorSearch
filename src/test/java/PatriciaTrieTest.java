@@ -60,7 +60,7 @@ class PatriciaTrieTest {
   }
   
   @Test
-  void deletTest() {
+  void deleteTest() {
     test.deleteTest(set);
   }
 
