@@ -9,7 +9,7 @@ class DynamicFusionNodeTest {
 
   static final long seed = 42;
   static final int passes = 100_000;
-  static final int numKeys = 16;
+  static final int numKeys = 10;
 
   private DynamicFusionNode set;
   private static RankSelectPredecessorUpdateTest test;

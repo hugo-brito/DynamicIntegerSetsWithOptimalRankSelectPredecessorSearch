@@ -36,7 +36,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   * difference: We choose k = 16, such that we can fill a whole word to index all
   * the keys in KEY.
   */
-  private final int k = 16; // capacity
+  private final int k = 10; // capacity
 
   /* We will store our key set S in an unsorted array KEY with room for k w-bit integers */
   private final long[] key = new long[k];
