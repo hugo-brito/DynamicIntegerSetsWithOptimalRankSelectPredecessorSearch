@@ -231,12 +231,8 @@ public class Util {
    * @param f The length of the fields in {@code target}
    * @return A word containing the specified field range shifted to the least significant positions
    */
-  public Integer getFields(final int target, final int i, final int j, final int f) {
-    if (i < j) {
-      return (target >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
-    } else {
-      return null;
-    }
+  public static Integer getFields(final int target, final int i, final int j, final int f) {
+    return (target >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
   }
 
   /**
@@ -248,12 +244,8 @@ public class Util {
    * @param f The length of the fields in {@code target}
    * @return A word containing the specified field range shifted to the least significant positions
    */
-  public Long getFields(final long target, final int i, final int j, final int f) {
-    if (i < j) {
-      return (target >>> (i * f)) & ((1L << ((j - i) * f)) - 1);
-    } else {
-      return null;
-    }
+  public static long getFields(final long target, final int i, final int j, final int f) {
+    return (target >>> (i * f)) & ((1L << ((j - i) * f)) - 1);
   }
 
   /**
@@ -264,12 +256,8 @@ public class Util {
    * @param f The length of the fields in {@code target}
    * @return A word containing the remaining fields after the operation
    */
-  public Integer getFields(final int target, final int i, final int f) {
-    if (i * f < Integer.SIZE) {
-      return (target >>> (i * f));
-    } else {
-      return null;
-    }
+  public static int getFields(final int target, final int i, final int f) {
+    return (target >>> (i * f));
   }
 
   /**
@@ -280,12 +268,8 @@ public class Util {
    * @param f The length of the fields in {@code target}
    * @return A word containing the remaining fields after the operation
    */
-  public Long getFields(final long target, final int i, final int f) {
-    if (i * f < Long.SIZE) {
-      return (target >>> (i * f));
-    } else {
-      return null;
-    }
+  public static long getFields(final long target, final int i, final int f) {
+    return (target >>> (i * f));
   }
 
   /**
@@ -1088,8 +1072,10 @@ public class Util {
     int A = 0;
     for (int i = 0; i < 5; i++) {
       // Util.setField(target, i, y, f)
-      Util.println(bin(A, 4));
-      A = Util.setField(A, i, 0b0110, 4);
+      A = setField(A, i, 1 << i, 4);
     }
+    
+    println(bin(A, 4));
+    println(bin(getFields(A, 1, 3, 4), 4));
   }
 }
