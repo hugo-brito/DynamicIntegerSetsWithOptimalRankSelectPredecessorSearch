@@ -128,9 +128,13 @@ class RankSelectPredecessorUpdateTest {
     testSet.insert(12);
     testSet.insert(42);
     testSet.insert(-1337);
-    testSet.insert(-42);
+    if (numKeys > 4) {
+      testSet.insert(-42);
+      assertEquals(5, testSet.size(), "Expected size() == 5");
+    } else {
+      assertEquals(4, testSet.size(), "Expected size() == 4");
+    }
 
-    assertEquals(5, testSet.size(), "Expected size() == 5");
 
     {
       // Testing key 10
@@ -186,38 +190,62 @@ class RankSelectPredecessorUpdateTest {
 
       smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
     }
+    if (numKeys > 4) {
+      {
+        // Testing key -1000
+        final long key = -1000;
+        final boolean member = false;
+        final long rank = 4;
+        final Long predecessor = -1337L;
+        final Long successor = -42L;
+  
+        smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
+      }
 
-    {
-      // Testing key -1000
-      final long key = -1000;
-      final boolean member = false;
-      final long rank = 4;
-      final Long predecessor = -1337L;
-      final Long successor = -42L;
+      {
+        // Testing key -42
+        final long key = -42;
+        final boolean member = true;
+        final long rank = 4;
+        final Long predecessor = -1337L;
+        final Long successor = -42L;
 
-      smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
-    }
+        smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
+      }
 
-    {
-      // Testing key -42
-      final long key = -42;
-      final boolean member = true;
-      final long rank = 4;
-      final Long predecessor = -1337L;
-      final Long successor = -42L;
+      {
+        // Testing key -1
+        final long key = -1;
+        final boolean member = false;
+        final long rank = 5;
+        final Long predecessor = -42L;
+        final Long successor = null;
 
-      smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
-    }
+        smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
+      }
 
-    {
-      // Testing key -1
-      final long key = -1;
-      final boolean member = false;
-      final long rank = 5;
-      final Long predecessor = -42L;
-      final Long successor = null;
+    } else {
+      {
+        // Testing key -1000
+        final long key = -1000;
+        final boolean member = false;
+        final long rank = 4;
+        final Long predecessor = -1337L;
+        final Long successor = null;
+  
+        smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
+      }
 
-      smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
+      {
+        // Testing key -1
+        final long key = -1;
+        final boolean member = false;
+        final long rank = 4;
+        final Long predecessor = -1337L;
+        final Long successor = null;
+
+        smallCorrectnessTest(testSet, key, member, rank, predecessor, successor);
+      }
     }
   }
 
