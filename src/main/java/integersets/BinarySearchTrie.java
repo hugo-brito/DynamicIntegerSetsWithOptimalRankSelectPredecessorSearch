@@ -292,92 +292,10 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     return countLeafNodes(curr.left) + countLeafNodes(curr.right);
   }
 
-  public static void main(final String[] args) {
-    // BitsKey v = new BitsKey(6917529027641081855L);
-    // BitsKey w = new BitsKey(Long.MAX_VALUE);
-    // BitsKey x = new BitsKey(4611686018427387903L);
-    // System.out.println(v.toString());
-    // [Bin = 0101111111111111111111111111111111111111111111111111111111111111, Val = 6917529027641081855]
-    // System.out.println(w.toString());
-    // [Bin = 0111111111111111111111111111111111111111111111111111111111111111, Val = 9223372036854775807]
-    // System.out.println(x.toString());
-    // [Bin = 0011111111111111111111111111111111111111111111111111111111111111, Val = 4611686018427387903]
-
-    final BinarySearchTrie t = new BinarySearchTrie();
-    // t.insert(6917529027641081855L); // 01011
-    // t.insert(4611686018427387903L); // 00111
-    // t.insert(9223372036854775807L); // 01111
-    // t.insert(9223372036854775807L); // 01111
-    // t.insert(9223372036854775807L); // 01111
-    // System.out.println("10 is member = " + t.member(10));
-    // System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
-//    t.insert(Long.MAX_VALUE);
-//    System.out.println("10 is member = " + t.member(10));
-//    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
-//    t.delete(Long.MAX_VALUE);
-//    System.out.println("Long.MAX_VALUE is member = " + t.member(Long.MAX_VALUE));
-//    System.out.println("6917529027641081855 is member = " + t.member(6917529027641081855L));
-//    System.out.println("4611686018427387903 is member = " + t.member(4611686018427387903L));
-//    t.show();
-    // System.out.println(t.height());
-
-    t.insert(10);
-    t.insert(11);
-    t.insert(12);
-    t.insert(13);
-    // t.insert(-1);
-    // t.insert(8575393074845429264L);
-
-    long pred = 12;
-    long rank = 13;
-    long succ = 12;
-    long select = 4;
-    long member = -1;
-
-    // System.out.println("the predecessor of " + pred + " is " + t.predecessor(pred));
-    // System.out.println("the successor of " + succ + " is " + t.successor(succ));
-    // System.out.println("the rank of " + rank + " is " + t.rank(rank));
-    // System.out.println("the select of " + select + " is " + t.select(select));
-    System.out.println(member + " is member = " + t.member(member));
-
-    System.out.println(t.successor(member).equals(-1L));
-
-    // System.out.println("The first key is " + t.select(1));
-    // System.out.println("The second key is " + t.select(2));
-    // System.out.println("The third key is " + t.select(3));
-    // System.out.println("The forth key is " + t.select(4));
-    // System.out.println("The fifth key is " + t.select(5));
-    // System.out.println("The sixth key is " + t.select(6));
-    // System.out.println(t.select(t.rank(8575393074845429264L)));
-    // System.out.println(t.select(5));
-    // System.out.println(t.rank(12));
-
-    // System.out.println(String.format("%64s",
-    //     Long.toBinaryString(10)).replace(" ", "0"));
-    // System.out.println(String.format("%64s",
-    //     Long.toBinaryString(11)).replace(" ", "0"));
-    // System.out.println(String.format("%64s",
-    //     Long.toBinaryString(12)).replace(" ", "0"));
-    // System.out.println(String.format("%64s",
-    //     Long.toBinaryString(13)).replace(" ", "0"));
-    // System.out.println(String.format("%64s",
-    //     Long.toBinaryString(8575393074845429264L)).replace(" ", "0"));
-
-    // System.out.println(t.rank(13) == 3);
-    // System.out.println(t.rank(-1));
-//    System.out.println(t.select(3));
-    
-//     t.insert(5764607523034234880L); // 01010 (10)
-//     t.insert(6341068275337658368L); // 01011 (11)
-//     t.insert(6917529027641081856L); // 01100 (12)
-//     t.insert(7493989779944505344L); // 01101 (13) 000....
-//    System.err.println(t.rank(7493989779944505344L));
-    
-//    System.out.println("Inserting Long.MAX_VALUE");
-//    t.insert(Long.MAX_VALUE);
-//    t.insert(Long.MAX_VALUE - 1);
-//    System.out.println(t.rank(-1));
-
-    
+  /**
+   * Debuging.
+   * @param args --
+   */
+  public static void main(final String[] args) {    
   }
 }

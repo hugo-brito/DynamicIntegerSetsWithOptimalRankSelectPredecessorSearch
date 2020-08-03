@@ -6,6 +6,199 @@ package integersets;
 
 public class Util {
 
+  /* BIT OPERATIONS */
+
+  /**
+   * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
+   * are indexed w-1..0.
+   * 
+   * @param d   the digit index
+   * @param A the long value to have the digit extracted from
+   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   */
+  public static int bit(final int d, final int A) {
+    return (A >>> d) & 1;
+  }
+
+  /**
+   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
+   * are indexed w-1..0.
+   * 
+   * @param d   the digit index
+   * @param A the long value to have the digit extracted from
+   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   */
+  public static int bit(final int d, final long A) {
+    return (int) ((A >>> d) & 1);
+
+  }
+
+  /**
+   * Sets bit at position {@code d} to 1 and returns the key {@code A}.
+   * 
+   * @param A the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static int setBit(final int d, int A) {
+    if (d >= 0 || d < Integer.SIZE) {
+      A |=  1 << d;
+    }
+    return A;
+  }
+
+  /**
+   * Sets bit at position {@code d} to 1 and returns the key {@code A}.
+   * 
+   * @param A the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static long setBit(final int d, long A) {
+    if (d >= 0 || d < Long.SIZE) {
+      A |= 1L << d;
+    }
+    return A;
+  }
+
+  /**
+   * Sets bit at position {@code d} to 0 and returns the key {@code A}.
+   * 
+   * @param A the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static int deleteBit(final int d, int A) {
+    if (d >= 0 || d < Integer.SIZE) {
+      A &= ~(1 << d);
+    }
+    return A;
+  }
+
+  /**
+   * Sets bit at position {@code d} to 0 and returns the key {@code A}.
+   * 
+   * @param A the key to have the bit altered
+   * @param d the index of the bit to be set to 1
+   * @return the key with the bit altered
+   */
+  public static long deleteBit(final int d, long A) {
+    if (d >= 0 || d < Long.SIZE) {
+      A &= ~(1 << d);
+    }
+    return A;
+  }
+
+  /* FIELDS OF WORDS */
+  
+  /* Often we view words as divided into fields of some length f. We then use x(i)_f to denote the
+   * ith field, starting from the right with x(0)_f the right most field. Thus x represents the
+   * integer E^(w−1)_(i=0) 2^i x(i)1.
+   * Note that fields can easily be masked out using regular instructions, e.g
+   */
+
+  /**
+   * Field retrieval function. This function returns field {@code i} in the word {@code A},
+   * whose fields have length {@code f}.
+   * @param A The word containing fields
+   * @param i The position of the field
+   * @param f The length of the fields in {@code A}
+   * @return The field at the specified position in the {@code A} word
+   */
+  public static int getField(final int i, final int f, final int A) {
+    return (A >>> (i * f)) & ((1 << f) - 1);
+  }
+
+  /**
+   * Field retrieval function. This function returns field {@code i} in the word {@code A},
+   * whose fields have length {@code f}.
+   * @param A The word containing fields
+   * @param i The position of the field
+   * @param f The length of the fields in {@code A}
+   * @return The field at the specified position in the {@code A} word
+   */
+  public static long getField(final int i, final int f, final long A) {
+    return (A >>> (i * f)) & ((1L << f) - 1);
+  }
+
+  /**
+   * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
+   * {@code A}, whose fields have length {@code f}.
+   * @param A The word containing fields
+   * @param i The smallest field (inclusive), the right most field to be included
+   * @param j The largest field (exclusive), the left most field
+   * @param f The length of the fields in {@code A}
+   * @return A word containing the specified field range shifted to the least significant positions
+   */
+  public static Integer getFields(final int i, final int j, final int f, final int A) {
+    return (A >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
+  }
+
+  /**
+   * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
+   * {@code A}, whose fields have length {@code f}.
+   * @param A The word containing fields
+   * @param i The smallest field (inclusive), the right most field to be included
+   * @param j The largest field (exclusive), the left most fieldd
+   * @param f The length of the fields in {@code A}
+   * @return A word containing the specified field range shifted to the least significant positions
+   */
+  public static long getFields(final int i, final int j, final int f, final long A) {
+    return (A >>> (i * f)) & ((1L << ((j - i) * f)) - 1);
+  }
+
+  /**
+   * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
+   * in the word {@code A}, whose fields have length {@code f}.
+   * @param A The word containing fields
+   * @param i The position of the first field to return
+   * @param f The length of the fields in {@code A}
+   * @return A word containing the remaining fields after the operation
+   */
+  public static int getFields(final int i, final int f, final int A) {
+    return (A >>> (i * f));
+  }
+
+  /**
+   * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
+   * in the word {@code A}, whose fields have length {@code f}.
+   * @param A The word containing fields
+   * @param i The position of the first field to return
+   * @param f The length of the fields in {@code A}
+   * @return A word containing the remaining fields after the operation
+   */
+  public static long getFields(final int i, final int f, final long A) {
+    return (A >>> (i * f));
+  }
+
+  /**
+   * Field assignment function. This function returns the {@code A} word after overwriting the
+   * field at position {@code i} with {@code y}. 
+   * @param A The word containing fields
+   * @param i The position of the first field to return
+   * @param y The field to be assigned in {@code A}
+   * @param f The length of the fields in {@code A}
+   * @return returns the word {@code A} after the operation
+   */
+  public static long setField(final int i, final long y, final int f, final long A) {
+    final long m = ((1L << f) - 1) << (i * f);
+    return (A & ~m) | (y << (i * f) & m);
+  }
+
+  /**
+   * Field assignment function. This function returns the {@code A} word after overwriting the
+   * field at position {@code i} with {@code y}. 
+   * @param A The word containing fields
+   * @param i The position of the first field to return
+   * @param y The field to be assigned in {@code A}
+   * @param f The length of the fields in {@code A}
+   * @return returns the word {@code A} after the operation
+   */
+  public static int setField(final int i, final int y, final int f, final int A) {
+    final int m = ((1 << f) - 1) << (i * f);
+    return (A & ~m) | (y << (i * f) & m);
+  }
+
   /**
    * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array. The
    * most significant bits of x will be at position 0 of the array, whereas the
@@ -78,7 +271,7 @@ public class Util {
    * zeroes.
    * 
    * @param x the target
-   * @return a String representation of {@code x}
+   * @return a String representation of {@code A}
    */
   public static String bin(final long x) {
     return bin(x, 0);
@@ -112,194 +305,6 @@ public class Util {
     return res.append("l").toString();
   }
 
-  /**
-   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed w-1..0.
-   * 
-   * @param d   the digit index
-   * @param x the long value to have the digit extracted from
-   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
-   */
-  public static int bit(final int d, final long x) {
-    return (int) ((x >>> d) & 1);
-  }
-
-  /**
-   * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed w-1..0.
-   * 
-   * @param d   the digit index
-   * @param x the long value to have the digit extracted from
-   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
-   */
-  public static int bit(final int d, final int x) {
-    return (x >>> d) & 1;
-  }
-
-  /**
-   * Sets bit at position {@code d} to 1 and returns the key {@code target}.
-   * 
-   * @param target the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
-   */
-  public static long setBit(long target, final int d) {
-    if (d >= 0 || d < Long.SIZE) {
-      target |= 1L << d;
-    }
-    return target;
-  }
-
-  /**
-   * Sets bit at position {@code d} to 1 and returns the key {@code target}.
-   * 
-   * @param target the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
-   */
-  public static int setBit(int target, final int d) {
-    if (d >= 0 || d < Integer.SIZE) {
-      target |=  1 << d;
-    }
-    return target;
-  }
-
-  /**
-   * Sets bit at position {@code d} to 0 and returns the key {@code target}.
-   * 
-   * @param target the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
-   */
-  public static int deleteBit(int target, final int d) {
-    if (d >= 0 || d < Integer.SIZE) {
-      target &=  ~(1 << d);
-    }
-    return target;
-  }
-
-  /**
-   * Sets bit at position {@code d} to 0 and returns the key {@code target}.
-   * 
-   * @param target the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
-   */
-  public static long deleteBit(long target, final int d) {
-    if (d >= 0 || d < Long.SIZE) {
-      target &= ~(1 << d);
-    }
-    return target;
-  }
-
-  /* Often we view words as divided into fields of some length f. We then use x(i)_f to denote the
-   * ith field, starting from the right with x(0)_f the right most field. Thus x represents the
-   * integer E^(w−1)_(i=0) 2^i x(i)1.
-   * Note that fields can easily be masked out using regular instructions, e.g
-   */
-
-  /**
-   * Field retrieval function. This function returns field {@code i} in the word {@code target},
-   * whose fields have length {@code f}.
-   * @param target The word containing fields
-   * @param i The position of the field
-   * @param f The length of the fields in {@code target}
-   * @return The field at the specified position in the {@code target} word
-   */
-  public static int getField(final int target, final int i, final int f) {
-    return (target >>> (i * f)) & ((1 << f) - 1);
-  }
-
-  /**
-   * Field retrieval function. This function returns field {@code i} in the word {@code target},
-   * whose fields have length {@code f}.
-   * @param target The word containing fields
-   * @param i The position of the field
-   * @param f The length of the fields in {@code target}
-   * @return The field at the specified position in the {@code target} word
-   */
-  public static long getField(final long target, final int i, final int f) {
-    return (target >>> (i * f)) & ((1L << f) - 1);
-  }
-
-  /**
-   * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
-   * {@code target}, whose fields have length {@code f}.
-   * @param target The word containing fields
-   * @param i The smallest field (inclusive), the right most field to be included
-   * @param j The largest field (inclusive), the left most field to be included
-   * @param f The length of the fields in {@code target}
-   * @return A word containing the specified field range shifted to the least significant positions
-   */
-  public static Integer getFields(final int target, final int i, final int j, final int f) {
-    return (target >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
-  }
-
-  /**
-   * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
-   * {@code target}, whose fields have length {@code f}.
-   * @param target The word containing fields
-   * @param i The smallest field (inclusive), the right most field to be included
-   * @param j The largest field (inclusive), the left most field to be included
-   * @param f The length of the fields in {@code target}
-   * @return A word containing the specified field range shifted to the least significant positions
-   */
-  public static long getFields(final long target, final int i, final int j, final int f) {
-    return (target >>> (i * f)) & ((1L << ((j - i) * f)) - 1);
-  }
-
-  /**
-   * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
-   * in the word {@code target}, whose fields have length {@code f}.
-   * @param target The word containing fields
-   * @param i The position of the first field to return
-   * @param f The length of the fields in {@code target}
-   * @return A word containing the remaining fields after the operation
-   */
-  public static int getFields(final int target, final int i, final int f) {
-    return (target >>> (i * f));
-  }
-
-  /**
-   * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
-   * in the word {@code target}, whose fields have length {@code f}.
-   * @param target The word containing fields
-   * @param i The position of the first field to return
-   * @param f The length of the fields in {@code target}
-   * @return A word containing the remaining fields after the operation
-   */
-  public static long getFields(final long target, final int i, final int f) {
-    return (target >>> (i * f));
-  }
-
-  /**
-   * Field assignment function. This function returns the {@code target} word after overwriting the
-   * field at position {@code i} with {@code y}. 
-   * @param target The word containing fields
-   * @param i The position of the first field to return
-   * @param y The field to be assigned in {@code target}
-   * @param f The length of the fields in {@code target}
-   * @return returns the word {@code target} after the operation
-   */
-  public static long setField(final long target, final int i, final long y, final int f) {
-    final long m = ((1L << f) - 1) << (i * f);
-    return (target & ~m) | (y << (i * f) & m);
-  }
-
-  /**
-   * Field assignment function. This function returns the {@code target} word after overwriting the
-   * field at position {@code i} with {@code y}. 
-   * @param target The word containing fields
-   * @param i The position of the first field to return
-   * @param y The field to be assigned in {@code target}
-   * @param f The length of the fields in {@code target}
-   * @return returns the word {@code target} after the operation
-   */
-  public static int setField(final int target, final int i, final int y, final int f) {
-    final int m = ((1 << f) - 1) << (i * f);
-    return (target & ~m) | (y << (i * f) & m);
-  }
-
   public static void print(final Object o) {
     System.out.print(o);
   }
@@ -316,22 +321,22 @@ public class Util {
    * floating point numbers is that we avoid the universal constants depending on w used in [FW93].
    */
 
-  /** Returns the index of the most significant bit of the target {@code x}.
+  /** Returns the index of the most significant bit of the target {@code A}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param A the key to be evaluated
+   * @return the index of the most significant bit of {@code A}
    */
-  public static int msb(final int x) {
-    return msbConstant(x);
+  public static int msb(final int A) {
+    return msbConstant(A);
   }
 
-  /** Returns the index of the most significant bit of the target {@code x}.
+  /** Returns the index of the most significant bit of the target {@code A}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param A the key to be evaluated
+   * @return the index of the most significant bit of {@code A}
    */
-  public static int msb(final long x) {
-    return msbConstant(x);
+  public static int msb(final long A) {
+    return msbConstant(A);
   }
 
   /**
@@ -1072,10 +1077,10 @@ public class Util {
     int A = 0;
     for (int i = 0; i < 5; i++) {
       // Util.setField(target, i, y, f)
-      A = setField(A, i, 1 << i, 4);
+      A = setField(i, 1 << i, 4, A);
     }
     
     println(bin(A, 4));
-    println(bin(getFields(A, 1, 3, 4), 4));
+    println(bin(getFields(1, 3, 4, A), 4));
   }
 }

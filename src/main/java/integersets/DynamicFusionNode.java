@@ -149,7 +149,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void fillSlot(final int j) {
     if (j >= 0 && j < k) {
-      bKey = Util.deleteBit(bKey, j);
+      bKey = Util.deleteBit(j, bKey);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
@@ -163,7 +163,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   public void vacantSlot(int j) {
     if (j >= 0 && j < k) {
       j += Util.lsb(~(bKey >>> j));
-      bKey = Util.setBit(bKey, j);
+      bKey = Util.setBit(j, bKey);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
     }
@@ -177,7 +177,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @return the index in KEY of the key with rank {@code i}
    */
   public int getIndex(final long i) {
-    return (int) Util.getField(index, (int) i, ceilLgK);
+    return (int) Util.getField((int) i, ceilLgK, index);
   }
 
   /**
@@ -189,9 +189,9 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void updateIndex(final int rank) {
     if (rank >= 0 && rank < k) {
-      final long hi = Util.getFields(index, rank + 1, ceilLgK) << (rank * ceilLgK);
+      final long hi = Util.getFields(rank + 1, ceilLgK, index) << (rank * ceilLgK);
       if (rank > 0) {
-        final long lo = Util.getFields(index, 0, rank, ceilLgK);
+        final long lo = Util.getFields(0, rank, ceilLgK, index);
         index = hi | lo;
       } else {
         index = hi;
@@ -212,10 +212,10 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   public void updateIndex(final int rank, final int slot) {
     if (rank >= 0 && rank < k && slot >= 0 && slot < k) {
-      final long hi = Util.getFields(index, rank, ceilLgK) << ((rank + 1) * ceilLgK);
+      final long hi = Util.getFields(rank, ceilLgK, index) << ((rank + 1) * ceilLgK);
       final long mid = Integer.toUnsignedLong(slot) << (rank * ceilLgK);
       if (rank > 0) {
-        final long lo = Util.getFields(index, 0, rank, ceilLgK);
+        final long lo = Util.getFields(0, rank, ceilLgK, index);
         index = hi | mid | lo;
       } else {
         index = mid | hi;

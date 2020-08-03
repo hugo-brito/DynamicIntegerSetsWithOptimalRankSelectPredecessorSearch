@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class UtilTest {
 
-  static int passes = 1_000_000;
+  static int passes = 1_000;
   static long seed = 42;
   static List<Long> seedList;
 
@@ -166,13 +166,13 @@ class UtilTest {
         for (int i = 0; i < m; i++) {
           int field = passRand.nextInt((1 << f) - 1);
           fields[i] = field;
-          assertEquals(0, (int) Util.getField(A, i, f), "Field " + i + " was not empty.");
-          A = Util.setField(A, i, field, f);
-          assertEquals(field, (int) Util.getField(A, i, f),
+          assertEquals(0, (int) Util.getField(i, f, A), "Field " + i + " was not empty.");
+          A = Util.setField(i, field, f, A);
+          assertEquals(field, (int) Util.getField(i, f, A),
               "Field " + i + " returned wrong value.");
         }
         for (int i = 0; i < m; i++) {
-          assertEquals(fields[i], (int) Util.getField(A, i, f),
+          assertEquals(fields[i], (int) Util.getField(i, f, A),
               "Field " + i + " returned wrong value.");
         }
       }
@@ -190,13 +190,13 @@ class UtilTest {
         for (int i = 0; i < m; i++) {
           int field = passRand.nextInt((1 << f) - 1);
           fields[i] = field;
-          assertEquals(0, (long) Util.getField(A, i, f), "Field " + i + " was not empty.");
-          A = Util.setField(A, i, field, f);
-          assertEquals(field, (long) Util.getField(A, i, f),
+          assertEquals(0, (long) Util.getField(i, f, A), "Field " + i + " was not empty.");
+          A = Util.setField(i, field, f, A);
+          assertEquals(field, (long) Util.getField(i, f, A),
               "Field " + i + " returned wrong value.");
         }
         for (int i = 0; i < m; i++) {
-          assertEquals((long) fields[i], (long) Util.getField(A, i, f),
+          assertEquals((long) fields[i], (long) Util.getField(i, f, A),
               "Field " + i + " returned wrong value.");
         }
       }
