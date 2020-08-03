@@ -323,20 +323,20 @@ public class Util {
 
   /** Returns the index of the most significant bit of the target {@code A}.
    * 
-   * @param A the key to be evaluated
+   * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code A}
    */
-  public static int msb(final int A) {
-    return msbConstant(A);
+  public static int msb(final int x) {
+    return msbConstant(x);
   }
 
   /** Returns the index of the most significant bit of the target {@code A}.
    * 
-   * @param A the key to be evaluated
+   * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code A}
    */
-  public static int msb(final long A) {
-    return msbConstant(A);
+  public static int msb(final long x) {
+    return msbConstant(x);
   }
 
   /**
