@@ -33,7 +33,7 @@ The \cite{patrascu2014dynamic} paper presents a dynamic data structure for stori
 \section{Basic Concepts}
 
 \subsection{Word}
-A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$.
+A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$. The bits that make up a word are indexed from the least (left) to the most (right) significant bit, having the least significant bit index $0$ whereas the most significant has index $w-1$.
 
 \subsection{Universe}
 The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$. 
@@ -129,6 +129,111 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 
 \section{Summary of techniques used in the present implementation}
 
+\subsection{Bit operations} \label{sec:bit}
+
+Let $A$ be a $w$-bit length word. In this section we define a small set of functions that operate on $A$'s bits. All the algorithms presented in this section take $O(1)$ time.
+
+\subsubsection{Is the bit set}
+
+This operation is aimed at extracting the bit at position $d$ in $A$. e.g. getting the value of the bit at position $d$. Let us denote such operation by bit$(d, A)$, then bit$(d, A) = (A \gg d) \wedge 1$.
+Example:
+\begin{align*}
+    w = 16\\
+    d = 8\\
+    A = 0101\ 110\underline{1}\ 1100\ 0111_2& \\
+    \text{bit}(8,A) = (0101\ 110\underline{1}\ 1100\ 0111_2& \gg 8) \wedge 1 \\
+    \text{bit}(8,A) = (0000\ 0000\ 0101\ 110\underline{1}_2&) \wedge 1 \\
+    \cline{1-2}
+    \text{bit}(8,A) = 1 &
+\end{align*}
+
+\subsubsection{Set bit}
+This operation setting the bit at position $d$ in $A$ to one. Let us denote such operation by setBit$(d, A)$, then setBit$(d, A) = A \vee (1 \ll d)$.
+Example:
+\begin{align*}
+    w = 16\\
+    d = 4\\
+    A = 0101\ 1101\ 110\underline{0}\ 0111_2& \\
+    \text{setBit}(4,A) = 0101\ 1101\ 110\underline{0}\ 0111_2& \vee (1 \ll 4) \\
+    \text{setBit}(4,A) = 0101\ 1101\ 110\underline{0}\ 0111_2& \vee 0000\ 0000\ 000\underline{1}\ 0000_2 \\
+    \cline{1-2}
+    \text{setBit}(4,A) = 0101\ 1101\ 110\underline{1}\ 0111_2&
+\end{align*}
+
+\subsubsection{Delete bit}
+This operation setting the bit at position $d$ in $A$ to zero. Let us denote such operation by deleteBit$(d, A)$, then deleteBit$(d, A) = A \wedge \neg(1 \ll d)$.
+Example:
+\begin{align*}
+    w = 16\\
+    d = 6\\
+    A = 0101\ 1101\ 1\underline{1}00\ 0111_2& \\
+    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \wedge \neg(1 \ll 6) \\
+    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \wedge \neg(0000\ 0000\ 0\underline{1}00\ 0000_2) \\
+    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \wedge 1111\ 1111\ 1\underline{0}11\ 1111_2 \\
+    \cline{1-2}
+    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{0}00\ 0111_2&
+\end{align*}
+
+\subsection{Fields of words}
+
+We follow the definitions from \cite{patrascu2014dynamic} regarding viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is made up of fields, analogously to bit indexing of a word, its least significant field is the right most one, denoted $A\langle0\rangle_f$; its most significant field is the left most one, denoted $A\langle f-1\rangle_f$, and so on. All the algorithms described in this section take $O(1)$ time.
+
+\subsubsection{Field retrieval}
+
+This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by getField$(i, f, A)$. It is defined by getField$(i, f, A) = (A \gg (i \times f)) \wedge ((1 \ll f) - 1)$. Example:
+\begin{align*}
+    i = 1\\
+    f = 4\\
+    A = 0101\ 1101\ \underline{1100}\ 0111_2& \\
+    \text{getField}(1, 4, A) = (0101\ 1101\ \underline{1100}\ 0111_2& \gg (\underbrace{1 \times 4}_{4})) \wedge (\underbrace{(1 \ll 4) - 1}_{1111_2})\\
+    \text{getField}(1, 4, A) = 0000\ 0101\ 1101\ \underline{1100}_2& \wedge 0000\ 0000\ 0000\ 1111_2 \\
+    \cline{1-2}
+    \text{getField}(1, 4, A) = 0000\ 0000\ 0000\ \underline{1100}_2&
+\end{align*}
+
+A range of fields can be retrieved in a single operation. We denote by getFields$(i, j, f, A)$ the operation consisting of retrieving the fields $\{A\langle i\rangle_f,\dots , A\langle j-1\rangle_f\}$, which is defined by getFields$(i, j, f, A) = (A \gg (i \times f)) \wedge ((1 \ll ((j - i) \times f)) - 1)$. Example:
+\begin{align*}
+    i = 1\\
+    j = 3\\
+    f = 4\\
+    A = 0101\ \underline{1101}\ \underline{1100}\ 0111_2& \\
+    \text{getFields}(1, 2, 4, A) = (0101\ \underline{1101}\ \underline{1100}\ 0111_2& \gg (\underbrace{1 \times 4}_{4})) \wedge (\underbrace{(1 \ll ((3 - 1) \times 4)) - 1}_{1111\ 1111_2})\\
+    \text{getFields}(1, 2, 4, A) = 0101\ \underline{1101}\ \underline{1100}\ 0111_2& \wedge 0000\ 0000\ 1111\ 1111_2 \\
+    \cline{1-2}
+    \text{getFields}(1, 2, 4, A) = 0000\ 0000\ \underline{1101}\ \underline{1100}_2&
+\end{align*}
+
+We can also specify a lower field and retrieve all the fields from that position up to the end of the word. This operation is denoted by getFields$(i, f, A)$ and it is defined by getFields$(i, f, A) = A \gg (i \times f)$. Example:
+\begin{align*}
+    i = 2\\
+    f = 4\\
+    A = \underline{0101}\ \underline{1101}\ 1100\ 0111_2& \\
+    \text{getFields}(2, 4, A) = \underline{0101}\ \underline{1101}\ 1100\ 0111_2& \gg (\underbrace{2 \times 4}_{8})\\
+    \cline{1-2}
+    \text{getFields}(1, 2, 4, A) = 0000\ 0000\ \underline{0101}\ \underline{1101}_2&
+\end{align*}
+
+\subsubsection{Field Assignment}
+
+Conversely, it is also possible to assign a value to a particular field. To so, we need an auxiliary variable $m$, computed as a function of $i$ (the position of the field to be set) and $f$ (the length of the fields in $A$). Thus we have $m = ((1 \ll f) - 1) \ll (i \times f)$. Setting field $y$ in $A$, denoted by setField$(i, y, f, A)$ is defined by:
+\begin{equation*}
+    \text{setField}(i, y, f, A) = \underbrace{(A \wedge \neg m)}_{\text{(a) Reset field}} \vee \ \underbrace{(y \ll (i \times f) \wedge m)}_{\text{(b) Set field}}
+\end{equation*}
+Example:
+\begin{align*}
+    i = 1\\
+    y = 1001_2\\
+    f = 4\\
+    m = (\underbrace{(1 \ll 4)  - 1} _{1111_2}) \ll (\underbrace{1 \times 4}_{4}) = 0000\ 0000\ 1111\ 0000_2\\
+    A = 0101\ 1101\ \underline{1100}\ 0111_2& \\
+    \cline{1-2}
+    \text{(a)}\quad A \wedge \neg m = 0101\ 1101\ \underline{1100}\ 0111_2 & \wedge 1111\ 1111\ 0000\ 1111_2\\
+    \text{(b)}\quad y \ll (1 \times 4) \wedge m = 1001_2 \ll 4 & \wedge 0000\ 0000\ 1111\ 0000_2\\
+    \text{setField}(1, y, 4, A) = \text{(a)} \vee \text{(b)} = 0101\ 1101\ \underline{0000}\ 0111_2& \vee 0000\ 0000\ \underline{1001}\ 0000_2 \\
+    \cline{1-2}
+    \text{setField}(1, y, 4, A) = 0101\ 1101\ \underline{1001}\ 0111_2&
+\end{align*}
+
 \subsection{Most significant set bit}
 
 Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we have looked at different ways to achieve this result efficiently. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully. Let the most significant set bit of $x$ be denoted msb$(x)$.
@@ -154,29 +259,29 @@ This approach takes $O(1)$ time after the lookup table has been computed but, no
 This operation consists of 4 steps. Let $x$ be the query for the most significant set bit:
 \begin{enumerate}
     \item
-    We divide $x$ in $\sqrt{w}$ blocks of $\sqrt{w}$ bits. Let those blocks be called clusters. The goal is to summarize the clusters in $x$. If a cluster is not empty, then its summary is $1$ and $0$  (zero) otherwise.
+    We divide $x$ in $\sqrt{w}$ fields of $\sqrt{w}$ bits. The goal is to summarize the fields in $x$ such that if a field is not empty, then its summary is $1$ and $0$  (zero) otherwise.
     \item
-    We compress the summary such that it fits in a single $\sqrt{w}$-bits cluster. The resulting cluster will have all the leading bits of the summary word consecutive.
+    We compress the summary such that it fits in a single $\sqrt{w}$-bits field. The resulting field will have all the leading bits of the summary word consecutive.
     \item
-    Then we do parallel comparison of the summary word to find the first non-empty cluster of $x$, because it will be on that cluster that the answer will lie.
+    Then we do parallel comparison of the summary word to find the first non-empty field of $x$, because it will be on that field that the answer will lie.
     \item
-    We use the same technique as in the previous bullet point, but now on the first non-empty cluster of $x$. We end with simple arithmetic to return the most significant set bit. 
+    We use the same technique as in the previous bullet point, but now on the first non-empty field of $x$. We end with simple arithmetic to return the most significant set bit. 
 \end{enumerate}
 
-We will run a small example where every step will be illustrated. For simplicity, let $w=16$. This implies that we will have $\sqrt{16} = 4$ clusters of $4$ bits in size each. Let us also assume that our query $x = 0101\ 0000\ 1000\ 1101_2$.
+We will run a small example where every step will be illustrated. For simplicity, let $w=16$. This implies that we will have $\sqrt{16} = 4$ fields of $4$ bits in size each. Let us also assume that our query $x = 0101\ 0000\ 1000\ 1101_2$.
 
 This approach takes $O(1)$ time and requires a small lookup table of $\sqrt{w}/2$ size, which can easily be explicitly stored together with the algorithm.
 
-\paragraph{Step 1 --- Summarize the query clusters} \label{sec:summaryClusters}
+\paragraph{Step 1 --- Summarize the query fields} \label{sec:summaryfields}
 
-The goal of this step is to compute a summary word whose leading bit of each of its clusters is a summary of each cluster of the query word $x$. If in a given cluster $c_i$ the leading bit in the summary word is $1$, then $c_i$ in $x$ was not empty (one or more bits were set), and vice-versa.
+The goal of this step is to compute a summary word whose leading bit of each of its fields is a summary of each field of the query word $x$. If in a given field $f_i$ the leading bit in the summary word is $1$, then $f_i$ in $x$ was not empty (one or more bits were set), and vice-versa.
 
 \begin{enumerate}
     \item \label{blt:msb1}
-    We start by finding $F$. $F$ is a $w$-bit word where the most significant position of every cluster is set to $1$ and every other position is set to $0$. In this particular example $F = 1000\ 1000\ 1000\ 1000_2$
+    We start by finding $F$. $F$ is a $w$-bit word where the most significant position of every field is set to $1$ and every other position is set to $0$. In this particular example $F = 1000\ 1000\ 1000\ 1000_2$
     
     \item \label{blt:msb2}
-    In a local variable $t_1$, we store information about the leading bits of each cluster of $x$. This is done with $x \wedge F$.
+    In a local variable $t_1$, we store information about the leading bits of each field of $x$. This is done with $x \wedge F$.
     \begin{align*}
                        x &= \underline{0}101\ \underline{0}000\ \underline{1}000\ \underline{1}101_2 \\
                        F &= 1000\ 1000\ 1000\ 1000_2 \\ \cline{1-2} 
@@ -184,7 +289,7 @@ The goal of this step is to compute a summary word whose leading bit of each of 
     \end{align*}
     
     \item \label{blt:msb3}
-    In another local variable $t_2$, we store $x$ after setting the leading bits of each cluster to zero. This is done with $x \oplus t_1$.
+    In another local variable $t_2$, we store $x$ after setting the leading bits of each field to zero. This is done with $x \oplus t_1$.
     \begin{align*}
                          x &= 0\underline{101}\ 0\underline{000}\ 1\underline{000}\ 1\underline{101}_2 \\
                        t_1 &= 0000\ 0000\ 1000\ 1000_2 \\ \cline{1-2}
@@ -192,7 +297,7 @@ The goal of this step is to compute a summary word whose leading bit of each of 
     \end{align*}
     
     \item \label{blt:msb4}
-    We subtract $t_2$ from $F$ and save it to a local variable $t_3$. Since the leading bit of every cluster of $F$ is one, after subtracting $t_2$ to $F$ what remains is the information about if that cluster was empty (all zeros) or not. This information is given by the bit that remains at the most significant position of each resulting cluster. For any given cluster, if the most significant bit is one, then it means that the corresponding cluster in $x$ was empty. Otherwise, it was not empty. Since we only care about what remains of in the most significant position of each cluster, in the example below the remaining noise has been replaced with $?$.
+    We subtract $t_2$ from $F$ and save it to a local variable $t_3$. Since the leading bit of every field of $F$ is one, after subtracting $t_2$ to $F$ what remains is the information about if that field was empty (all zeros) or not. This information is given by the bit that remains at the most significant position of each resulting field. For any given field, if the most significant bit is one, then it means that the corresponding field in $x$ was empty. Otherwise, it was not empty. Since we only care about what remains of in the most significant position of each field, in the example below the remaining noise has been replaced with $?$.
     \begin{align*}
                     F &= 1000\ 1000\ 1000\ 1000_2 \\
                   t_2 &= 0\underline{101}\ 0\underline{000}\ 0\underline{000}\ 0\underline{101}_2 \\ \cline{1-2} 
@@ -200,7 +305,7 @@ The goal of this step is to compute a summary word whose leading bit of each of 
     \end{align*}
     
     \item \label{blt:msb5}
-    This step consists of clearing the noise from $t_3$ since we care only about knowing if which clusters in $x$ were empty or not. To do so, $(\neg t_3) \wedge F$.
+    This step consists of clearing the noise from $t_3$ since we care only about knowing if which fields in $x$ were empty or not. To do so, $(\neg t_3) \wedge F$.
     \begin{align*}
                        t_3 &= \underline{0}???\ \underline{1}000\ \underline{1}000\ \underline{0}???_2 \\ \cline{1-2} 
             t_4 = \neg t_3 &= \underline{1}???\ \underline{0}111\ \underline{0}111\ \underline{1}???_2 \\
@@ -209,7 +314,7 @@ The goal of this step is to compute a summary word whose leading bit of each of 
     \end{align*}
     
     \item \label{blt:msb6}
-    The value calculated in \ref{blt:msb2} for $t_1$ holds information about the leading bits of each cluster, whereas $t_5$ from \ref{blt:msb5} contains the information about the non-leading bits. By merging both words, the resulting word will hold information about the whole word $x$. We achieve this with $t_1 \vee t_5$.
+    The value calculated in \ref{blt:msb2} for $t_1$ holds information about the leading bits of each field, whereas $t_5$ from \ref{blt:msb5} contains the information about the non-leading bits. By merging both words, the resulting word will hold information about the whole word $x$. We achieve this with $t_1 \vee t_5$.
     \begin{align*}
                        t_1 &= \underline{0}000\ \underline{0}000\ \underline{1}000\ \underline{1}000_2 \\
                        t_5 &= \underline{1}000\ \underline{0}000\ \underline{0}000\ \underline{1}000_2 \\ \cline{1-2} 
@@ -225,24 +330,24 @@ In fact, once $F$ is known, steps \ref{blt:msb2} to \ref{blt:msb5} can be comput
 \paragraph{Step 2 --- Summary compression} \label{sec:summaryCompression}
 % minuto 1.12: https://www.youtube.com/watch?v=xSGorVW8j6Q&list=PLUl4u3cNGP61hsJNdULdudlRL493b-XZf&index=12
 
-The goal of this step is to compress the summary word down to a single cluster.
+The goal of this step is to compress the summary word down to a single field.
 
 \begin{enumerate}
     \item \label{blt:summCompression1}
-    The first step consists of shifting the leading bits of each cluster to the least significant position of each cluster. This is done with $t_6 \gg (\sqrt{w} - 1)$. 
+    The first step consists of shifting the leading bits of each field to the least significant position of each field. This is done with $t_6 \gg (\sqrt{w} - 1)$. 
     \begin{align*}
                     t_6 &= \underline{1}000\ \underline{0}000\ \underline{1}000\ \underline{1}000_2 \\ \cline{1-2} 
         t_7 = t_6 \gg 3 &= 000\underline{1}\ 000\underline{0}\ 000\underline{1}\ 000\underline{1}_2
     \end{align*}
     
     \item \label{blt:summCompression2}
-    We wish now to copy the least significant bit of each cluster to a single cluster, keeping their relative order.
-    Similarly to \ref{sec:summaryClusters}.\ref{blt:msb1}, we need to find a word $C$ which when multiplied by $t_6$ will produce the result we are looking for.
-    Let $C$ be also partitioned in clusters indexed $\{c_0, ..., c_{\sqrt{w} - 1}\}$ where $c_0$ is the most significant cluster. At every cluster $c_i$, the only set bit is $b_i$).
+    We wish now to copy the least significant bit of each field to a single field, keeping their relative order.
+    Similarly to \ref{sec:summaryfields}.\ref{blt:msb1}, we need to find a word $C$ which when multiplied by $t_6$ will produce the result we are looking for.
+    Let $C$ be also partitioned in fields indexed $\{f_0, ..., f_{\sqrt{w} - 1}\}$ where $f_{\sqrt{w} - 1}$ is the most significant field. At every field $f_i$, the only set bit is $b_{\sqrt{w} - 1 - i}$).
     In our example $C = 0001\ 0010\ 0100\ 1000_2$.
     
     \item \label{blt:summCompression3}
-    Multiplying $C$ with $t_7$ produces a result $t_8$ with all the important bits in their relative order in the most significant cluster. There will be some additional noise in the least significant clusters, which we can easily clear by $t_8 \gg ((\sqrt{w})\cdot(\sqrt{w} - 1))$.
+    Multiplying $C$ with $t_7$ produces a result $t_8$ with all the important bits in their relative order in the most significant field. There will be some additional noise in the least significant fields, which we can easily clear by $t_8 \gg ((\sqrt{w})\cdot(\sqrt{w} - 1))$.
         \begin{align*}
                          t_7 &= 000\underline{1}\ 000\underline{0}\ 000\underline{1}\ 000\underline{1}_2 \\
                            C &= 0001\ 0010\ 0100\ 1000_2 \\ \cline{1-2} 
@@ -251,8 +356,8 @@ The goal of this step is to compress the summary word down to a single cluster.
     \end{align*}
 \end{enumerate}
 
-\paragraph{Step 3 --- First non-empty cluster with parallel comparison} \label{sec:parallel}
-At this stage the goal is to know the first non-empty cluster of $x$. To do so, we need to do a parallel comparison between $t_9$ (the summary of $x$'s clusters) and all the $\sqrt{w}$ powers of two. Parallel comparison requires 1 extra bit per comparable block: this is because, similarly to the step taken in \ref{sec:summaryClusters}.\ref{blt:msb4}, a subtraction is done in order to figure out at which position the leading $1$ is borrowed. Since in total we need $\sqrt{w}\cdot(\sqrt{w} + 1)$ bits to for the vectors, and $\sqrt{w}\cdot(\sqrt{w} + 1) > w$, we know that it might be necessary to do this operation in two iterations: one for the higher powers of two, and another for the lower ones. We know also that, the result of operation is a monotone function, meaning that once the transition on the leading bit is found, the result is found. This also implies that if the result if found in the higher powers of two, then it is not necessary to look for it in the lower end.
+\paragraph{Step 3 --- First non-empty field with parallel comparison} \label{sec:parallel}
+At this stage the goal is to know the first non-empty field of $x$. To do so, we need to do a parallel comparison between $t_9$ (the summary of $x$'s fields) and all the $\sqrt{w}$ powers of two. Parallel comparison requires 1 extra bit per comparable block: this is because, similarly to the step taken in \ref{sec:summaryfields}.\ref{blt:msb4}, a subtraction is done in order to figure out at which position the leading $1$ is borrowed. Since in total we need $\sqrt{w}\cdot(\sqrt{w} + 1)$ bits to for the vectors, and $\sqrt{w}\cdot(\sqrt{w} + 1) > w$, we know that it might be necessary to do this operation in two iterations: one for the higher powers of two, and another for the lower ones. We know also that, the result of operation is a monotone function, meaning that once the transition on the leading bit is found, the result is found. This also implies that if the result if found in the higher powers of two, then it is not necessary to look for it in the lower end.
 
 \begin{enumerate}
     \item \label{blt:parallel1}
@@ -263,7 +368,7 @@ At this stage the goal is to know the first non-empty cluster of $x$. To do so, 
     \end{align*}
     
     \item \label{blt:parallel2}
-    We define another vector $t_{10}$ consisting of $\sqrt{w}/2$ concatenated copies of $t_9$ where each of the copies is prefixed by zero. This vector is achieved by multiplying $t_9$ with a word $M$ consisting of $\sqrt{w}/2$ clusters of size $\sqrt{w} + 1$ where the least significant bit of each cluster is set to $1$. Note that, because we have set the size of each cluster of $M$ to have an additional bit, this corresponds to prefix a zero to each $\sqrt{w}$ cluster:
+    We define another vector $t_{10}$ consisting of $\sqrt{w}/2$ concatenated copies of $t_9$ where each of the copies is prefixed by zero. This vector is achieved by multiplying $t_9$ with a word $M$ consisting of $\sqrt{w}/2$ fields of size $\sqrt{w} + 1$ where the least significant bit of each field is set to $1$. Note that, because we have set the size of each field of $M$ to have an additional bit, this corresponds to prefix a zero to each $\sqrt{w}$ field:
     \begin{align*}
         t_9 = 0000\ 0000\ 0000\ &\underline{1011}_2\\ 
         M = 0\ 0001\ 0\ &0001_2\\ \cline{1-2}
@@ -271,7 +376,7 @@ At this stage the goal is to know the first non-empty cluster of $x$. To do so, 
     \end{align*}
     
     \item \label{blt:parallel3}
-    To find the first non-empty cluster of $x$, we take the differences between $t_{10}$ and $hi$ and $lo$ respectively. The answer will lie one the first cluster which leading bit resulted in a zero after the operation.
+    To find the first non-empty field of $x$, we take the differences between $t_{10}$ and $hi$ and $lo$ respectively. The answer will lie one the first field which leading bit resulted in a zero after the operation.
     \begin{align*}
                           hi &= \underline{1}\ \underline{1}000\ \underline{1}\ \underline{01}00_2\\
                           lo &= \underline{1}\ \underline{001}0\ \underline{1}\ \underline{0001}_2 \\
@@ -281,10 +386,10 @@ At this stage the goal is to know the first non-empty cluster of $x$. To do so, 
     \end{align*}
     
     \item \label{blt:parallel4}
-    Looking at $t_{11}$, we note that the first non-empty cluster of $x$ is the first, because the leading bit of first cluster resulting from difference between $hi$ and $t_{10}$ is now zero. Nevertheless,  we will do the same operations on both $t_{11}$ and $t_{12}$ and concatenate the results so we end up with a single result for the whole query. Note that in the previous step the actual values within each cluster besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryClusters} and \ref{sec:summaryCompression}.
+    Looking at $t_{11}$, we note that the first non-empty field of $x$ is the first, because the leading bit of first field resulting from difference between $hi$ and $t_{10}$ is now zero. Nevertheless,  we will do the same operations on both $t_{11}$ and $t_{12}$ and concatenate the results so we end up with a single result for the whole query. Note that in the previous step the actual values within each field besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryfields} and \ref{sec:summaryCompression}.
     \begin{enumerate}
         \item
-        The first step is to clear all the irrelevant bits in the clusters and turn the leading bits from zero to one. We choose a mask for this specific purpose.
+        The first step is to clear all the irrelevant bits in the fields and turn the leading bits from zero to one. We choose a mask for this specific purpose.
         \begin{align*}
             t_{11} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
             t_{12} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
@@ -293,17 +398,18 @@ At this stage the goal is to know the first non-empty cluster of $x$. To do so, 
             t_{14} = (t_{12} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&
         \end{align*}
         \item
-        Secondly, we wish to summarize the results in a single cluster. To achieve so, we first multiply the vectors by an integer $S$, which construction follows what we have done for \ref{sec:summaryCompression}.\ref{blt:summCompression2}, and that result will put all the important bits consecutive in the most significant cluster.
+        Secondly, we wish to summarize the results in a single field. To achieve so, we first multiply the vectors by an integer $V$, which construction follows what we have done for \ref{sec:summaryCompression}.\ref{blt:summCompression2}, and that result will put all the important bits consecutive in the most significant field.
+        
         \begin{align*}
             t_{15} = t_{13} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
             t_{16} = t_{14} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
             \cline{1-2}
-            S =\ 01000\ 10000_2 & \\
-            t_{17} = t_{15} \times S =\ ???????\ \underline{11}00?\ ?????_2& \\
-            t_{18} = t_{16} \times S =\ ???????\ \underline{11}00?\ ?????_2& \\
+            V =\ 01000\ 10000_2 & \\
+            t_{17} = t_{15} \times V =\ ???????\ \underline{11}00?\ ?????_2& \\
+            t_{18} = t_{16} \times V =\ ???????\ \underline{11}00?\ ?????_2& \\
         \end{align*}
         \item
-        After the multiplication, we have to remove the noise and move the result to the least significant cluster. We achieve this by defining another mask for this purpose, followed by the necessary bit shifts. The final step will be to merge the results of the higher and the lower powers of two: $t_{hi} \vee t_{lo}$.
+        After the multiplication, we have to remove the noise and move the result to the least significant field. We achieve this by defining another mask for this purpose, followed by the necessary bit shifts. The final step will be to merge the results of the higher and the lower powers of two: $t_{hi} \vee t_{lo}$.
         
         \begin{align*}
             Mask_2 = 11_2&\\
@@ -317,17 +423,17 @@ At this stage the goal is to know the first non-empty cluster of $x$. To do so, 
         \end{align*}
     \end{enumerate}
     \item
-    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ in to a single cluster, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table in this case will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we just return the value in the lookup table. Should it be $0$, then we do the lookup for $t_{lo}$, adding a constant to that result, since we index the bits in a word from left to right.
+    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ in to a single field, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table in this case will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we just return the value in the lookup table. Should it be $0$, then we do the lookup for $t_{lo}$, adding a constant to that result, since we index the bits in a word from left to right.
     
-    In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $0$ (zero), meaning, the method should now look at cluster $c_0$.
+    In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $3$ (three), meaning, the method should now look at field $c_3$ (the most significant field).
 \end{enumerate}
 
 \paragraph{Step 4 --- Final result}
-After learning in which cluster lies the most significant bit, we now run the same method as in \ref{sec:parallel} but now with the actual cluster.
+After learning in which field lies the most significant bit, we now run the same method as in \ref{sec:parallel} but now with the actual field.
 
 \begin{enumerate}
     \item
-    We start by extracting the cluster from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the cluster. We extract $c_i$ by shifting $(\sqrt{w} - 1 - i)$ clusters in $x$ to the right and ANDing the result with a mask for this purpose.
+    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $c_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and ANDing the result with a mask for this purpose.
     \begin{align*}
         x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
         Mask_3 = 0000\ 0000\ 0000\ 1111_2 &\\
@@ -335,7 +441,7 @@ After learning in which cluster lies the most significant bit, we now run the sa
         t_{21} = (x \gg \underbrace{(\sqrt{w} \cdot (\sqrt{w} - 1 - i))}_{4\times(4-1-0)}\ \wedge\ Mask_3 = 0000\ 0000\ 0000\ \underline{0101}_2 &
     \end{align*}
     \item
-    We run another parallel comparison with $0101_2$. Let $d$ be the result of computing the parallel comparison of the first non-empty cluster of $x$, then in our example $d = 1$.
+    We run another parallel comparison with $0101_2$. Let $d$ be the result of computing the parallel comparison of the first non-empty field of $x$, then in our example $d = 2$.
     \item
     We can now compute the overall most significant bit of $x$. The final result is given the expression:
     \begin{equation*}
@@ -343,13 +449,13 @@ After learning in which cluster lies the most significant bit, we now run the sa
     \end{equation*}
     In our example, this will evaluate to:
     \begin{equation*}
-        \text{msb}(0101\ 0000\ 1000\ 1101_2) = 1 + 0\cdot\sqrt{16} = 1
+        \text{msb}(0101\ 0000\ 1000\ 1101_2) = 2 + 3\cdot\sqrt{16} = 2 + 3 \times 4 = 14
     \end{equation*}
 \end{enumerate}
 
 \subsection{Least significant set bit}
 
-Let lsb$(x)$ denote the least significant set bit of $x$. As presented in \cite{patrascu2014dynamic}, after computing the msb$(x)$ we can in $O(1)$ time compute lsb$(x)$ with the expression:
+Let lsb$(x)$ denote the least significant set bit of $x$. Citing Pătrașcu and Thorup, after computing the msb$(x)$ we can in $O(1)$ time compute lsb$(x)$ with the expression:
 \begin{equation*}
     \text{lsb}(x) = \text{msb}((x - 1) \oplus x)
 \end{equation*}
@@ -363,40 +469,40 @@ Let $m \cdot b \leq w$. If we are given a b-bit number x and a word A with m b-b
 An algorithm that implements rank$(x,A)$ works as the following:
 \begin{enumerate}
     \item
-    Computing how many clusters in $A$ have zero as their leading bit.
+    Computing how many fields in $A$ have zero as their leading bit.
     
     \item
-    Computing the leading bit o $x$.
+    Computing the leading bit of $x$.
     
     \item
     If the leading bit of $x$ is zero, then:
     \begin{enumerate}
         \item
-        We bit-shift and/or mask $A$ such that the clusters whose leading bit is one are no longer present in $A$.
+        We bit-shift and/or mask $A$ such that the fields whose leading bit is one are no longer present in $A$.
         
         \item
-        We compute a word consisting of as many concatenated copies of $x$ as there are clusters left in $A$.
+        We compute a word consisting of as many concatenated copies of $x$ as there are fields left in $A$.
         
         \item
-        We do parallel comparison between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining clusters of $A$ to one and computing the difference between those words.
+        We do parallel comparison between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining fields of $A$ to one and computing the difference between those words.
         
         \item
-        The result of rank$(x,A)$ is given by the number of clusters whose leading bit is now zero because if the leading bit (that has been set to one in the previous step) is borrowed in the subtraction, then $x$ is larger than the key stored at that cluster.
+        The result of rank$(x,A)$ is given by the number of fields whose leading bit is now zero because if the leading bit (that has been set to one in the previous step) is borrowed in the subtraction, then $x$ is larger than the key stored at that field.
     \end{enumerate}
     
     Otherwise, if the leading bit of $x$ is one, then:
     \begin{enumerate}
         \item
-        We bit-shift and/or mask $A$ such that the clusters whose leading bit is zero are no longer present in $A$, storing the number of clusters removed from $A$ on a local variable.
+        We bit-shift and/or mask $A$ such that the fields whose leading bit is zero are no longer present in $A$, storing the number of fields removed from $A$ on a local variable.
         
         \item
-		We set the leading bit of $x$ to zero and compute a word consisting of as many concatenated copies of $x$ as there are clusters left in $A$.
+		We set the leading bit of $x$ to zero and compute a word consisting of as many concatenated copies of $x$ as there are fields left in $A$.
 		
 		\item
-        We do parallel comparison between the remaining clusters in $A$ and the word we computed just before.
+        We do parallel comparison between the remaining fields in $A$ and the word we computed just before.
         
         \item
-        The result of rank$(x,A)$ is given by the number of clusters whose leading bit was zero just before $A$ was shifted/masked plus the number of clusters whose leading bit is zero after the parallel comparison.
+        The result of rank$(x,A)$ is given by the number of fields whose leading bit was zero just before $A$ was shifted/masked plus the number of fields whose leading bit is zero after the parallel comparison.
     \end{enumerate}
     
 \end{enumerate}
@@ -413,7 +519,53 @@ Let $x$ be the query, and $A$ the concatenation of the keys of $S = \{0101_2, 01
     m &= 4
 \end{align*}
 
-\subsubsection{Step}
+\subsubsection{Step 1 --- Computing which fields have zero as their leading bit}
+
+Since the keys in $A$ are sorted, we know that finding the position the least significant field whose first bit is one in $A$ will be tell us how many fields there are with zero at their leading bit.
+
+\begin{enumerate}
+    \item
+    We start by finding $M$. $M$ consists of a word with $m$ fields of $b$-bits, where each field is filled with zeroes excluding the least significant bit, which is set to one. In this particular example $M = 0001\ 0001\ 0001\ 0001_2$.
+    
+    \item % A & (M << (b - 1))
+    We mask the non-leading bits of each field of $A$. This is achieved with $A \wedge (M \ll (b - 1))$.
+    
+    \begin{align*}
+        M &= 0001\ 0001\ 0001\ 0001_2 \\
+        t_1 = M \ll (b - 1) &= 1000\ 1000\ 1000\ 1000_2 \\
+        A &= \underline{1}110\ \underline{1}100\ \underline{0}110\ \underline{0}101_2 \\
+        \cline{1-2}
+        t_2 = A \wedge t_1 &= \underline{1}000\ \underline{1}000\ \underline{0}000\ \underline{0}000_2
+    \end{align*}
+    
+    \item
+    Computing lsb$(t_2)$ will give us the index of leading bit of the least significant field whose leading bit is one. Since bits in a word are indexed from the most to the least significant bit, we have to subtract that result to $w$ in order to invert the order in which the bits are indexed. Dividing the previous result by the field size $b$ will then give us field position, which we then subtract one ending up with the position of the most significant field whose leading bit is zero, which is also the total number of fields in $A$ whose leading bit is zero. In this particular example:
+    \begin{align*}
+        \text{lsb}(t_2) = \text{lsb}(1000\ \underline{1}000\ 0000\ 0000_2) &= 4 \\
+        t_3 = \frac{w - \text{lsb}(t_2)}{b} - 1 = \frac{16 - 4}{4} - 1  = \frac{12}{4} - 1 = 3 - 1 &= 2 \\
+    \end{align*}
+\end{enumerate}
+
+\subsubsection{Step 2 --- Computing the leading bit of the query}
+
+In order to extract the value of the bit at position $d$ of a $x$, we resort to the algorithm of section~\ref{sec:bit}. Note that:
+\begin{itemize}
+    \item
+    Even though in this particular case we see our query $x$ as a word of $b$ size, on a real machine we operate with words of $w$ size.
+    \item
+    Since we have established that words are indexed from the most to the least significant set bit, the bit we are lookind for is at position $w - b$.
+\end{itemize}
+
+In our example:
+\begin{align*}
+    w = 16 &\\
+    d = 4 &\\
+    x = 0000\ 0000\ 0000\ \underline{1}100_2 &\\
+    \cline{1-2}
+    \text{bit}(w - b, x) = \text{bit}(12, x) = 1 &\\
+\end{align*}
+
+\subsubsection{Step 3 --- Computing rank with parallel comparison}
 
 
 
