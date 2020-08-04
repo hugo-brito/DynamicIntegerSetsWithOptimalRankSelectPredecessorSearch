@@ -144,6 +144,9 @@ public class Util {
    * @return A word containing the specified field range shifted to the least significant positions
    */
   public static long getFields(final int i, final int j, final int f, final long A) {
+    if (i == 0 && j * f == Long.SIZE) {
+      return A;
+    }
     return (A >>> (i * f)) & ((1L << ((j - i) * f)) - 1);
   }
 
@@ -873,10 +876,10 @@ public class Util {
         return m;
       }
 
-      A >>>= b * numClustersLeadingBitIs0;
-      M >>>= b * numClustersLeadingBitIs0;
-      x = (x & ~(1 << (b - 1))) * M;
-      M *= 1L << (b - 1);
+      A = getFields(numClustersLeadingBitIs0, b, A);
+      M = getFields(numClustersLeadingBitIs0, b, M);
+      x = deleteBit(b - 1, x) * M;
+      M <<= b - 1;
 
       final long d = (A - x) & M;
 
@@ -891,11 +894,10 @@ public class Util {
         return 0;
       }
 
-      M >>>= b * (m - numClustersLeadingBitIs0);
+      M = getFields(0, numClustersLeadingBitIs0, b, M);
       x *= M;
-      M *= 1L << (b - 1);
-      A = ((A << Long.SIZE - (b * numClustersLeadingBitIs0))
-          >>> (Long.SIZE - (b * numClustersLeadingBitIs0))) | M;
+      M <<= b - 1;
+      A = getFields(0, numClustersLeadingBitIs0, b, A) | M;
 
       final long d = (A - x) & M;
 
@@ -970,16 +972,16 @@ public class Util {
 
       // 1) remove the clusters of A which have a non-leading bit
 
-      A >>>= b * numClustersLeadingBitIs0;
+      A = getFields(numClustersLeadingBitIs0, b, A);
       print("A w/o 0-leadC= ");
       println(bin(A, b));
 
       // we need to do the same on M
-      M >>>= b * numClustersLeadingBitIs0;
+      M = getFields(numClustersLeadingBitIs0, b, M);
       print("       new M = ");
       println(bin(M, b));
 
-      x &= ~(1 << (b - 1));
+      x = deleteBit(b - 1, x);
       print("x w/o leadBit= ");
       println(bin(x, b));
 
@@ -987,7 +989,7 @@ public class Util {
       print("    x copied = ");
       println(bin(x, b));
       
-      M *= (1L << (b - 1));
+      M <<= b - 1;
       print("        mask = ");
       println(bin(M, b));
 
@@ -1001,7 +1003,7 @@ public class Util {
 
       if (d != 0) {
         print("#clusters <x = ");
-        final int numClustersSmallerThanX = lsb(d & M) / b;
+        final int numClustersSmallerThanX = lsb(d) / b;
         println(numClustersSmallerThanX);
         println("   rank(x,A) = " + (numClustersLeadingBitIs0 + numClustersSmallerThanX));
         return numClustersLeadingBitIs0 + numClustersSmallerThanX;
@@ -1020,13 +1022,12 @@ public class Util {
 
       // 1) remove the clusters of A which leading bit is one
 
-      A = (A << Long.SIZE - (b * numClustersLeadingBitIs0))
-        >>> (Long.SIZE - (b * numClustersLeadingBitIs0));
+      A = getFields(0, numClustersLeadingBitIs0, b, A);
       print("A w/o 1-leadC= ");
       println(bin(A, b));
 
       // we need to do the same on M
-      M >>>= b * (m - numClustersLeadingBitIs0);
+      M = getFields(0, numClustersLeadingBitIs0, b, M);
       print("       new M = ");
       println(bin(M, b));
 
@@ -1034,7 +1035,7 @@ public class Util {
       print("    x copied = ");
       println(bin(x, b));
 
-      M *= 1L << (b - 1);
+      M <<= b - 1;
       print("        mask = ");
       println(bin(M, b));
 
@@ -1070,17 +1071,10 @@ public class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    for (int f = 0; f < 10; f++) {
-      println((1 << f) - 1);
-    }
+    long A =  0b01111111_01111001_01101000_01010100_01001001_01000110_00101010_00000100l;
+    int x = 0b00000000_00000000_00000000_00011110;
 
-    int A = 0;
-    for (int i = 0; i < 5; i++) {
-      // Util.setField(target, i, y, f)
-      A = setField(i, 1 << i, 4, A);
-    }
     
-    println(bin(A, 4));
-    println(bin(getFields(1, 3, 4, A), 4));
+    rankLemma1Commented(x, A, 8, 8);
   }
 }
