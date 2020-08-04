@@ -38,7 +38,7 @@ A word consists of a $w$-bit integer. This means that we are bound to an univers
 \subsection{Universe}
 The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$. 
 
-\subsection{The Predecessor Problem}
+\subsection{The Predecessor Problem}\label{sec:predecessorProblem}
 Data structures that maintain a set, $S$ of (integer) keys and enable the following operations are said to solve the static predecessor problem \cite{beame1999optimal}:
 \begin{itemize}
     \item
@@ -73,7 +73,7 @@ In particular, the data structure presented in \cite{patrascu2014dynamic} not on
     $successor(x) = select(rank(x))$
 \end{itemize}
 
-Given this set of standard operations, this data structure solves the dynamic predecessor problem \cite{beame1999optimal}.
+Given this set of standard operations, this data structure solves the dynamic predecessor problem.
 
 \subsection{Models of Computation}\label{sec:modelsofcomputation}
 
@@ -110,7 +110,7 @@ Similarly to the trans-dichotomous RAM model, the word RAM also operates with fi
     \item Bitshift operations (right bitshift $\gg$, left bitshift $\ll$).
 \end{itemize}
 
-\section{Integer Data Structures}
+\section{Integer Sets}
 
 Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data structures that, in incremental steps, led to the data structure presented in this project.
 
@@ -178,7 +178,7 @@ Example:
 
 We follow the definitions from \cite{patrascu2014dynamic} regarding viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is made up of fields, analogously to bit indexing of a word, its least significant field is the right most one, denoted $A\langle0\rangle_f$; its most significant field is the left most one, denoted $A\langle f-1\rangle_f$, and so on. All the algorithms described in this section take $O(1)$ time.
 
-\subsubsection{Field retrieval}
+\subsubsection{Field retrieval} \label{sec:fieldRetrieval}
 
 This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by getField$(i, f, A)$. It is defined by getField$(i, f, A) = (A \gg (i \times f)) \wedge ((1 \ll f) - 1)$. Example:
 \begin{align*}
@@ -213,7 +213,7 @@ We can also specify a lower field and retrieve all the fields from that position
     \text{getFields}(1, 2, 4, A) = 0000\ 0000\ \underline{0101}\ \underline{1101}_2&
 \end{align*}
 
-\subsubsection{Field Assignment}
+\subsubsection{Field assignment}
 
 Conversely, it is also possible to assign a value to a particular field. To so, we need an auxiliary variable $m$, computed as a function of $i$ (the position of the field to be set) and $f$ (the length of the fields in $A$). Thus we have $m = ((1 \ll f) - 1) \ll (i \times f)$. Setting field $y$ in $A$, denoted by setField$(i, y, f, A)$ is defined by:
 \begin{equation*}
@@ -248,9 +248,9 @@ This approach takes $O(w)$ time.
 
 In this approach, a lookup table containing the most significant bits answers for all combinations of 8 bits is pre-computed.
 
-When a query comes, it is split in 8-bit parts and the algorithm looks at the first 8 most significant bits. If those bits are not zero, then the most significant bit of the queried word lies in that block. In such case, the answer will be the most significant set bit of that block plus all the bits that were discarded, e.g. the number of bits we had to shift to the right in order to have that 8-bit block in the 8 least significant positions of the word. Since the answer to any combination of of 8 bits is pre-computed, then we know the answer in constant time.
+When a query comes, it is iterated in fields of 8-bit, starting from the most significant field. If those bits are not zero, then the most significant bit of the queried word lies in that block. In such case, the answer will be the most significant set bit of that field plus all the in the non-iterated fields. Since the answer to any combination of of 8 bits is pre-computed, then we know the answer in constant time.
 
-Otherwise, if the first block of 8 bits is 0, the algorithm looks at the second 8-bit block and does the same operation as described in the previous paragraph, subtracting now 8 bits less to the answer.
+Otherwise, if the first field 0, the algorithm looks at the second most significant field and does the same operation as described in the previous paragraph.
 
 This approach takes $O(1)$ time after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
 
@@ -423,7 +423,7 @@ At this stage the goal is to know the first non-empty field of $x$. To do so, we
         \end{align*}
     \end{enumerate}
     \item
-    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ in to a single field, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table in this case will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we just return the value in the lookup table. Should it be $0$, then we do the lookup for $t_{lo}$, adding a constant to that result, since we index the bits in a word from left to right.
+    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ in to a single field, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table in this case will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we return the value in the lookup table plus a constant corresponding to the least significant positions ($\sqrt{w}/2$). Should it be $0$, then we do the lookup for $t_{lo}$ and return the corresponding value in the lookup table.
     
     In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $3$ (three), meaning, the method should now look at field $c_3$ (the most significant field).
 \end{enumerate}
@@ -433,7 +433,7 @@ After learning in which field lies the most significant bit, we now run the same
 
 \begin{enumerate}
     \item
-    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $c_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and ANDing the result with a mask for this purpose.
+    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $f_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and ANDing the result with a mask for this purpose.
     \begin{align*}
         x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
         Mask_3 = 0000\ 0000\ 0000\ 1111_2 &\\
@@ -459,6 +459,15 @@ Let lsb$(x)$ denote the least significant set bit of $x$. Citing Pătrașcu and 
 \begin{equation*}
     \text{lsb}(x) = \text{msb}((x - 1) \oplus x)
 \end{equation*}
+
+Example:
+\begin{align*}
+    x = 0101\ 1101\ 1100\ 0\underline{1}00_2& \\
+    x - 1 = 0101\ 1101\ 1100\ 0\underline{0}11_2& \\
+    (x - 1) \oplus x = 0000\ 0000\ 0000\ 0\underline{1}00_2& \\
+    \cline{1-2}
+    \text{lsb}(x) = \text{msb}((x - 1) \oplus x) = \text{msb}(0000\ 0000\ 0000\ 0\underline{1}00_2&) = 2
+\end{align*}
 
 \subsection{Rank Lemma 1}
 
@@ -507,19 +516,20 @@ An algorithm that implements rank$(x,A)$ works as the following:
     
 \end{enumerate}
 
-We will run an example of this algorithm, explaining its intricacies.
+This operation takes $O(1)$ time and we will run an example of this algorithm, explaining its intricacies.
 
 \subsubsection{Parameters}
 
-Let $x$ be the query, and $A$ the concatenation of the keys of $S = \{0101_2, 0110_2, 1100_2, 1110_2 \}$. Note that if key $x_i < x_j$, then $x_i$ will be present in $A$ on a lesser significant position than $x_j$.
+Since this algorithm branches depending on the leading bit of the query, we will run the example with two queries $x_1$ and $x_2$ such that we explore both branches of the algorithm. Let $A$ be the concatenation of the keys of $S = \{0101_2, 0110_2, 1100_2, 1110_2 \}$. Note that if key $y_i < y_j$, then $y_i$ will be present in $A$ on a lesser significant position than $y_j$.
 \begin{align*}
     A &= \underbrace{1110}_{A\langle 3 \rangle_4}\ \underbrace{1100}_{A\langle 2 \rangle_4}\ \underbrace{0110}_{A\langle 1\rangle_4}\ \underbrace{0101}_{A\langle 0 \rangle_4}{}_2 \\
-    x &= 1100_2 \\
+    x_1 &= 1100_2 \\
+    x_2 &= 0111_2 \\
     b &= 4 \\
     m &= 4
 \end{align*}
 
-\subsubsection{Step 1 --- Computing which fields have zero as their leading bit}
+\subsubsection{Step 1 --- Computing which fields have zero as their leading bit} \label{sec:computeM}
 
 Since the keys in $A$ are sorted, we know that finding the position the least significant field whose first bit is one in $A$ will be tell us how many fields there are with zero at their leading bit.
 
@@ -539,39 +549,241 @@ Since the keys in $A$ are sorted, we know that finding the position the least si
     \end{align*}
     
     \item
-    Computing lsb$(t_2)$ will give us the index of leading bit of the least significant field whose leading bit is one. Since bits in a word are indexed from the most to the least significant bit, we have to subtract that result to $w$ in order to invert the order in which the bits are indexed. Dividing the previous result by the field size $b$ will then give us field position, which we then subtract one ending up with the position of the most significant field whose leading bit is zero, which is also the total number of fields in $A$ whose leading bit is zero. In this particular example:
+    Computing lsb$(t_2)$ will give us the index of leading bit of the least significant field whose leading bit is one. Dividing the previous result by the field size $b$ will then give us the  field position results in total number of fields in $A$ whose leading bit is zero. In this particular example:
     \begin{align*}
-        \text{lsb}(t_2) = \text{lsb}(1000\ \underline{1}000\ 0000\ 0000_2) &= 4 \\
-        t_3 = \frac{w - \text{lsb}(t_2)}{b} - 1 = \frac{16 - 4}{4} - 1  = \frac{12}{4} - 1 = 3 - 1 &= 2 \\
+        &\text{lsb}(t_2) = \text{lsb}(1000\ \underline{1}000\ 0000\ 0000_2) = 11 \\
+        &t_3 = \frac{\text{lsb}(t_2)}{b} = \frac{11}{4} = 2 \\
     \end{align*}
 \end{enumerate}
 
 \subsubsection{Step 2 --- Computing the leading bit of the query}
-
-In order to extract the value of the bit at position $d$ of a $x$, we resort to the algorithm of section~\ref{sec:bit}. Note that:
-\begin{itemize}
-    \item
-    Even though in this particular case we see our query $x$ as a word of $b$ size, on a real machine we operate with words of $w$ size.
-    \item
-    Since we have established that words are indexed from the most to the least significant set bit, the bit we are lookind for is at position $w - b$.
-\end{itemize}
-
-In our example:
+In order to extract the value of the leading bit of our queries $x_1$ and $x_2$, we resort to the algorithm of section~\ref{sec:bit}. The leading bit of the query will be at position $b - 1$, thus we have for $x_1$:
 \begin{align*}
-    w = 16 &\\
-    d = 4 &\\
-    x = 0000\ 0000\ 0000\ \underline{1}100_2 &\\
-    \cline{1-2}
-    \text{bit}(w - b, x) = \text{bit}(12, x) = 1 &\\
+    x_1 = \underline{1}100&_2\\
+    \text{bit}(b - 1, x_1) = \text{bit}(3, x_1) = 1\\
+\end{align*}
+And for $x_2$:
+\begin{align*}
+    x_2 = \underline{0}111&_2\\
+    \text{bit}(b - 1, x_2) = \text{bit}(3, x_2) = 0\\
 \end{align*}
 
 \subsubsection{Step 3 --- Computing rank with parallel comparison}
+
+We will now run the algorithm for each of its branches. If the leading bit of the query if one, then we run the first branch; otherwise the second.
+\begin{itemize}
+    \item
+    In this branch our query is $x_1 = 1100_2$:
+    \begin{enumerate}
+        \item
+        Since the leading bit of our query $x_1$ is one, we know now that its rank in $A$ is at least the number of fields in $A$ whose leading bit is zero. So we proceed by removing those fields from $A$, and for this purpose we resort to the getFields$(i, f, A)$ defined in Section~\ref{sec:fieldRetrieval}. In our example:
+        \begin{align*}
+            A &= \underline{1110}\ \underline{1100}\ 0110\ 0101_2 \\
+            t_3 &= 2 \\
+            A := \text{getFields}(t_3, b, A) &= 0000\ 0000\ \underline{1110}\ \underline{1100}_2 \\
+        \end{align*}
+        
+        \item
+        We apply the same principle to the $M$ word by doing the very same operation as just before.
+        \begin{align*}
+            M &= \underline{0001}\ \underline{0001}\ 0001\ 0001_2 \\
+            t_3 &= 2 \\
+            \cline{1-2}
+            M := \text{getFields}(t_3, b, M) &= 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
+        \end{align*}
+        
+        \item
+        We set the leading bit of $x_1$ to zero and multiply it by $M$ to produce a word containing concatenated copies of $x_1$.
+        \begin{align*}
+            x_1 = 1100_2 \\
+            M = 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
+            \cline{1-2}
+            x_1 := \text{deleteBit}(b - 1, x_1) = 0100_2 \\
+            \cline{1-2}
+            x_1 := x_1 \times M = 0000\ 0000\ \underline{0100}\ \underline{0100}_2 \\
+        \end{align*}
+        
+        \item
+        The last ingredient needed for the parallel comparison is a mask comprised of a word whose leading bit of each field is one. Shifting $M$ by $b - 1$ positions to the left will produce such result.
+        \begin{align*}
+            M = 0000\ 0000\ 000\underline{1}\ 000\underline{1}_2& \\
+            \cline{1-2}
+            M := M \ll (b - 1) = 0000\ 0000\ \underline{1}000\ \underline{1}000_2& \\
+        \end{align*}
+        
+        \item
+        We take the difference between $A$ and $x$ and mask out the bits at all positions except the leading bits of each field in the resulting word.
+        \begin{align*}
+            A &= 0000\ 0000\ 1\underline{110}\ 1\underline{100}_2 \\
+            x_1 &= 0000\ 0000\ 0\underline{100}\ 0\underline{100}_2 \\
+            M &= 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
+            \cline{1-2}
+            A - x_1 &= 0000\ 0000\ \underline{1}???\ \underline{1}???_2 \\
+            d_1 = (A - x_1) \wedge M &= 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
+        \end{align*}
+        
+        \item
+        To learn how many of the remaining of fields in $A$ that are smaller than $x_1$, we compute lsb($d_1$) and divide it by $b$.
+        \begin{align*}
+            d_1 = 0000\ 0000\ 1000\ \underline{1}000_2 \\
+            \text{lsb}(d_1) = 3 \\
+            b = 4 \\
+            \cline{1-2}
+            t_4 = \frac{\text{lsb}(d_1)}{b} = \frac{3}{4} = 0 
+        \end{align*}
+        
+        \item
+        Computing rank$(x_1, A)$ consists of returning the number of fields in $A$ that are strictly smaller than $x$. In this specific context, we know that all fields whose leading bit is zero are smaller than $x_1$, and we have also just computed the number of fields whose leading bit is one but that are still smaller than $x_1$. So we just add those results, and we have:
+        \begin{align*}
+            \text{rank}(x_1, A) &= t_3 + t_4 = 2 + 0 \\
+            \text{rank}(x_1, A) &= 2
+        \end{align*}
+        
+    \end{enumerate}
+    \item
+    In this branch our query is $x_2 = 0111_2$:
+    \begin{enumerate}
+        \item
+        Since the leading bit of our query $x_2$ is zero, we can safely disregard the fields in $A$ whose leading bit is one. Similarly to what was done in the first branch, $M$ suffers a similar change, and we will start with that by using the getFields$(i, j, f, A)$ function defined in Section~\ref{sec:fieldRetrieval}. Thus we have:
+        \begin{align*}
+            M &= 0001\ 0001\ \underline{0001}\ \underline{0001}_2 \\
+            t_3 &= 2 \\
+            \cline{1-2}
+            M := \text{getFields}(0, t_3, b, M) &= 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
+        \end{align*}
+        
+        \item
+        We need to have as many concatenated copies of $x_2$ as there are fields in $A$ whose leading bit is zero. So we multiply $M$ by $x_2$ and we end with:
+        \begin{align*}
+            x_2 = 0111_2 \\
+            M = 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
+            \cline{1-2}
+            x_2 := x_2 \times M = 0000\ 0000\ \underline{0111}\ \underline{0111}_2 \\
+        \end{align*}
+        
+        \item
+        As before, we need a mask to perform the parallel comparison. So we use the same technique as in the other branch and shift $M$ by $b-1$ positions to the left:
+        \begin{align*}
+            M = 0000\ 0000\ 000\underline{1}\ 000\underline{1}_2& \\
+            \cline{1-2}
+            M := M \ll (b - 1) = 0000\ 0000\ \underline{1}000\ \underline{1}000_2& \\
+        \end{align*}
+        
+        \item
+        Lastly, for the last ingredient of the parallel comparison, we discard the fields in $A$ whose leading bit is one, and set the leading bit of remaining fields to one. Thus we have:
+        \begin{align*}
+            A = &\ 1110\ 1100\ \underline{0110}\ \underline{0101}_2 \\
+            t_3 = &\ 2 \\ 
+            M = &\ 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
+            \cline{1-2}
+            A := \text{getFields}(0, t_3, b, A) = &\ 0000\ 0000\ \underline{0110}\ \underline{0101}_2 \\
+            \cline{1-2}
+            A := M \vee A = 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \vee &\ 0000\ 0000\ \underline{0}110\ \underline{0}101_2 \\
+            \cline{1-2}
+            A = &\ 0000\ 0000\ \underline{1}110\ \underline{1}101_2
+        \end{align*}
+        
+        \item
+        We take the difference between $A$ and $x_2$ and mask out the bits at all positions except the leading bits of each field in the resulting word.
+        \begin{align*}
+            A &= 0000\ 0000\ 1\underline{110}\ 1\underline{101}_2 \\
+            x_2 &= 0000\ 0000\ \underline{0111}\ \underline{0111}_2 \\
+            M &= 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
+            \cline{1-2}
+            A - x_2 &= 0000\ 0000\ \underline{0}???\ \underline{0}???_2 \\
+            d_2 = (A - x_2) \wedge M &= 0000\ 0000\ \underline{0}000\ \underline{0}000_2 \\
+        \end{align*}
+        
+        \item
+        Note that $d_2$ is zero. Since there are no set bits in $d_2$ then $x_2$ is larger than all $x_2$ must be larger than all the remaining fields in $A$, so we just return $t_2$.
+        \begin{align*}
+            \text{rank}(x_2,A) &= t_3 = 2 \\
+        \end{align*}
+        
+    \end{enumerate}
+\end{itemize}
+
 
 
 
 \chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 
 \subsection{Code base navigation}
+
+\section{The {\ttfamily RankSelectPredecessorUpdate} interface}
+
+As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem. For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented with the methods:
+\begin{itemize}
+    \item
+    The $insert(x)$ sets $S=S \cup \{x\}$ operation is to be implemented by a method with the signature:
+    \begin{lstlisting}
+    void insert(long x);
+    \end{lstlisting}
+    
+    \item
+    The $delete(x)$ sets $S=S \setminus \{x\}$ operation is to be implemented by a method with the signature:
+    \begin{lstlisting}
+    void delete(long x);
+    \end{lstlisting}
+    
+    \item
+    The $member(x)$ returns $[x \in S]$ operation is to be implemented by a method with the signature:
+    \begin{lstlisting}
+    boolean member(long x);
+    \end{lstlisting}
+
+    \item
+    The $predecessor(x)$ returns $max\{y\in S\ |\ y < x\}$ operation is implemented as a default method, making all implementing classes automatically inheriting the method:
+    \begin{lstlisting}
+    default Long predecessor(long x) {
+        return select(rank(x) - 1);
+    }
+    \end{lstlisting}
+
+    \item
+    The $successor(x)$ returns $min\{y\in S\ |\ y \geq x\}$ operation is implemented as a default method, making all implementing classes automatically inheriting the method:
+    \begin{lstlisting}
+    default Long successor(long x) {
+        return select(rank(x));
+    }
+    \end{lstlisting}
+
+    \item
+    The $rank(x)$ returns $\#\{ y \in S\ |\ y < x\}$ operation is to be implemented by a method with the signature:
+    \begin{lstlisting}
+    long rank(long x);
+    \end{lstlisting}
+
+    \item
+    The $select(i)$ returns $y \in S$ with $rank(y) = i$ operation is to be implemented by a method with the signature:
+    \begin{lstlisting}
+    Long select(long rank);
+    \end{lstlisting}
+\end{itemize}
+Additionally, the following methods are included in the interface:
+\begin{itemize}
+    \item
+    A {\ttfamily size()} method that returns the current number of keys in the set:
+    \begin{lstlisting}
+    long size();
+    \end{lstlisting}
+
+    \item
+    An {\ttfamily isEmpty()} default method that returns {\ttfamily true} if the set is empty and {\ttfamily false} otherwise:
+    \begin{lstlisting}
+    default boolean isEmpty() {
+        return size() == 0;
+    }
+    \end{lstlisting}
+
+    \item
+    A {\ttfamily reset()} method that removes all current elements from the set:
+    \begin{lstlisting}
+    void reset();
+    \end{lstlisting}
+\end{itemize}
+
+Note that some of the methods return a primitive type, whereas some others return a boxed type. This is due to the fact that some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such situation {\ttfamily null} is returned.
 
 \section{Naive implementation}
 We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}. It holds a {\ttfamily key} array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
@@ -582,10 +794,10 @@ Updates, e.g. insert and delete, take $O(n)$ time. This is because whenever a ke
 
 A rank query takes $O(\log_2(n))$ because a binary search is performed on {\ttfamily key}. Select is faster: $O(1)$, because we need only to access and return the key at position {\ttfamily i} in {\ttfamily key} to fulfill the query.
 
-\section{DynamicFusionNode with binary search for Rank}
+\section{{\ttfamily DynamicFusionNode} with binary search for Rank}
 We take a step forward by improving on the previous idea: this time, two additional words, {\ttfamily index} and {\ttfamily bKey} are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the {\ttfamily rank} operation resorts to binary search to produce the result.
 
-We interpret {\ttfamily bKey} as an array where the values first $k$ significant bits correspond to the positions in {\ttfamily key}. Let us assume that the bits in {\ttfamily bKey} are indexed from $0$ to $k-1$: if the $i^{th}$ bit is set to $1$, then position $i$ in {\ttfamily key} is free and can store a key, and vice-versa.
+We interpret {\ttfamily bKey} as an array where the values first $k$ bits correspond to the positions in {\ttfamily key}. Let us assume that the bits in {\ttfamily bKey} are indexed from $0$ to $k-1$: if the $i^{th}$ bit is set to $1$, then position $i$ in {\ttfamily key} is free and can store a key, and vice-versa.
 
 We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in {\ttfamily index}, and knowing that our program is working with 64-bit integers, we solve the following equation:
 \begin{equation}
@@ -597,13 +809,21 @@ If $k=16$, then $\lceil \log_2(k) \rceil = 4$. We use each $\lceil \log_2(k) \rc
 
 \section{{\ttfamily Util} class tests}
 
-\subsection{MSB series tests}
+\subsection{msb series tests}
 
-The {\ttfamily Util} class contains many different implementations of the MSB operation. All tests prefixed with {\ttfamily msb} in the {\ttfamily UtilTest} class compare the results of the Java standard library {\ttfamily numberOfLeadingZeros} (either from the {\ttfamily Integer} or {\ttfamily Long} classes, depending of the number of bits per integer) with the implementation from the class.
+The {\ttfamily Util} class contains many different implementations of the msb$(x)$ operation. Since Java's standard library offers a \{{\ttfamily Integer}|{\ttfamily Long}\}{\ttfamily.numberOfLeadingZeros(i)} static method, testing any implementation of msb$(x)$ is trivially done with the expression:
+
+\{{\ttfamily Integer}|{\ttfamily Long}\}{\ttfamily.SIZE - 1 - }\{{\ttfamily Integer}|{\ttfamily Long}\}{\ttfamily.numberOfLeadingZeros(i)}
+
+with the implementation from the class.
 
 \subsection{{\ttfamily splitLong} and {\ttfamily mergeInts}}
 
 For a determined range 64-bit keys, it evaluates if the following property holds for the whole range: {\ttfamily key == mergeInts(splitLong(key))}.
+
+\subsection{Fields of words tests}
+
+\subsection{Test for Rank Lemma 1}
 
 \section{Integer Data Structure tests}
 
