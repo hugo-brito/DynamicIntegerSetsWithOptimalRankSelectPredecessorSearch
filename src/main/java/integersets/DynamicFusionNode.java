@@ -36,7 +36,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   * difference: We choose k = 16, such that we can fill a whole word to index all
   * the keys in KEY.
   */
-  private final int k = 10; // capacity
+  private final int k = 16; // capacity
 
   /* We will store our key set S in an unsorted array KEY with room for k w-bit integers */
   private final long[] key = new long[k];
@@ -134,7 +134,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * 
    * @return the index in KEY of the first empty slot.
    */
-  public int firstEmptySlot() {
+  private int firstEmptySlot() {
     final int res = Util.lsb(bKey);
     if (res < k) {
       return res;
@@ -147,7 +147,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * 
    * @param j the position to be made unavailable
    */
-  public void fillSlot(final int j) {
+  private void fillSlot(final int j) {
     if (j >= 0 && j < k) {
       bKey = Util.deleteBit(j, bKey);
     } else {
@@ -160,7 +160,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * 
    * @param j the position to be made available
    */
-  public void vacantSlot(int j) {
+  private void vacantSlot(int j) {
     if (j >= 0 && j < k) {
       j += Util.lsb(~(bKey >>> j));
       bKey = Util.setBit(j, bKey);
@@ -170,13 +170,12 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   }
 
   /**
-   * Helper method to retrieve the position in KEY of a key, given its rank
-   * {@code i}.
+   * Helper method to retrieve the position in KEY of a key, given its rank {@code i}.
    * 
    * @param i The rank of the key in the S
    * @return the index in KEY of the key with rank {@code i}
    */
-  public int getIndex(final long i) {
+  private int getIndex(final long i) {
     return (int) Util.getField((int) i, ceilLgK, index);
   }
 
@@ -187,7 +186,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * 
    * @param rank the rank of the key that has been put in KEY
    */
-  public void updateIndex(final int rank) {
+  private void updateIndex(final int rank) {
     if (rank >= 0 && rank < k) {
       final long hi = Util.getFields(rank + 1, ceilLgK, index) << (rank * ceilLgK);
       if (rank > 0) {
@@ -210,7 +209,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    * @param rank the rank of the key that has been put in KEY
    * @param slot the real position of the key in KEY
    */
-  public void updateIndex(final int rank, final int slot) {
+  private void updateIndex(final int rank, final int slot) {
     if (rank >= 0 && rank < k && slot >= 0 && slot < k) {
       final long hi = Util.getFields(rank, ceilLgK, index) << ((rank + 1) * ceilLgK);
       final long mid = Integer.toUnsignedLong(slot) << (rank * ceilLgK);
