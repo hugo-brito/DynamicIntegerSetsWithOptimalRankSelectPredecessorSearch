@@ -64,15 +64,6 @@ public class NaiveDynamicFusionNode implements RankSelectPredecessorUpdate {
   }
 
   @Override
-  public boolean member(final long x) {
-    if (isEmpty()) {
-      return false;
-    }
-    final Long res = successor(x);
-    return res != null && res == x;
-  }
-
-  @Override
   public long rank(final long x) {
     return binaryRank(x);
   }
