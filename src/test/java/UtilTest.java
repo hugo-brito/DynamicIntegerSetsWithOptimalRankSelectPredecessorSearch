@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class UtilTest {
 
-  static int passes = 1_000;
+  static int passes = 10_000;
   static long seed = 42;
   static List<Long> seedList;
 
@@ -280,8 +280,7 @@ class UtilTest {
         for (int i = 0; i < keyList.size(); i++) {
           assertEquals(keyList.size() - 1 - i, Util.rankLemma1(keyList.get(i), A, m, b),
               "Pass " + (p + 1) + "/" + passes + " | Seed: " + seedList.get(p)
-              + "\nA = " + Util.bin(A, b)
-              + "\ni = " + Util.bin(keyList.get(i), b));
+              + "\nA = " + Util.bin(A, b) + "\ni = " + Util.bin(keyList.get(i), b));
         }
 
         // use the function from Util to test it.
@@ -345,8 +344,7 @@ class UtilTest {
         for (int i = 0; i < keyList.size(); i++) {
           assertEquals(keyList.size() - 1 - i, Util.rankLemma1(keyList.get(i), A, m, b),
               "Pass " + (p + 1) + "/" + passes + " | Seed: " + seedList.get(p)
-              + "\nA = " + Util.bin(A, b)
-              + "\ni = " + Util.bin(keyList.get(i), b));
+              + "\nA = " + Util.bin(A, b) + "\ni = " + Util.bin(keyList.get(i), b));
         }
 
         // use the function from Util to test it.
