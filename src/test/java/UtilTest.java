@@ -276,6 +276,14 @@ class UtilTest {
           }
         }
 
+        // test rank for all keys
+        for (int i = 0; i < keyList.size(); i++) {
+          assertEquals(keyList.size() - 1 - i, Util.rankLemma1(keyList.get(i), A, m, b),
+              "Pass " + (p + 1) + "/" + passes + " | Seed: " + seedList.get(p)
+              + "\nA = " + Util.bin(A, b)
+              + "\ni = " + Util.bin(keyList.get(i), b));
+        }
+
         // use the function from Util to test it.
         assertEquals(rankX, Util.rankLemma1Commented(x, A, m, b), "Pass " + (p + 1) + "/" + passes
             + " | Seed: " + seedList.get(p) + "\nA = " + Util.bin(A, b)
@@ -331,6 +339,14 @@ class UtilTest {
             foundRankX = true;
             rankX = keyList.size() - i;
           }
+        }
+
+        // test rank for all keys
+        for (int i = 0; i < keyList.size(); i++) {
+          assertEquals(keyList.size() - 1 - i, Util.rankLemma1(keyList.get(i), A, m, b),
+              "Pass " + (p + 1) + "/" + passes + " | Seed: " + seedList.get(p)
+              + "\nA = " + Util.bin(A, b)
+              + "\ni = " + Util.bin(keyList.get(i), b));
         }
 
         // use the function from Util to test it.
