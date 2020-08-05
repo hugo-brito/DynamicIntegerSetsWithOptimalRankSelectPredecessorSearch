@@ -88,7 +88,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     }
 
     final int i = (int) rank(x);
-    vacantSlot(i);
+    vacantSlot(getIndex(i));
     updateIndex(i);
     n--;
   }
@@ -151,7 +151,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
    */
   private void vacantSlot(int j) {
     if (j >= 0 && j < k) {
-      j += Util.lsb(~(bKey >>> j));
+      // j += Util.lsb(~(bKey >>> j));
       bKey = Util.setBit(j, bKey);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
