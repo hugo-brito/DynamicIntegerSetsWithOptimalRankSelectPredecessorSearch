@@ -16,7 +16,13 @@ public interface RankSelectPredecessorUpdate {
    * @param x the integer to be used in the evaluation
    * @return true if the integer is in the set, false otherwise
    */
-  boolean member(long x);
+  default boolean member(final long x) {
+    if (isEmpty()) {
+      return false;
+    }
+    final Long res = successor(x);
+    return res != null && res == x;
+  }
 
   /** Returns the largest key in the subset of keys that are strictly smaller than x.
    * pred(x) = max{y in S | y < x}

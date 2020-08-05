@@ -63,9 +63,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     bKey = -1; // because -1 in java binary is 1111..11
   }
 
-  /** Sets S = S union {x}.
-   * @param x the integer to insert
-   */
+  @Override
   public void insert(final long x) {
     if (member(x)) {
       return;
@@ -93,15 +91,6 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     vacantSlot(i);
     updateIndex(i);
     n--;
-  }
-
-  @Override
-  public boolean member(final long x) {
-    if (isEmpty()) {
-      return false;
-    }
-    final Long res = successor(x);
-    return res != null && res == x;
   }
 
   @Override
@@ -170,13 +159,13 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   }
 
   /**
-   * Helper method to retrieve the position in KEY of a key, given its rank {@code i}.
+   * Helper method to retrieve the position in KEY of a key, given its rank {@code rank}.
    * 
-   * @param i The rank of the key in the S
+   * @param rank The rank of the key in the S
    * @return the index in KEY of the key with rank {@code i}
    */
-  private int getIndex(final long i) {
-    return (int) Util.getField((int) i, ceilLgK, index);
+  private int getIndex(final long rank) {
+    return (int) Util.getField((int) rank, ceilLgK, index);
   }
 
   /**
@@ -202,7 +191,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
 
   /**
    * Helper method to maintain the correspondence between the rank of the keys and
-   * their real position in KEY. The methods receives the rank {@code i} of a key
+   * their real position in KEY. The methods receives the rank {@code rank} of a key
    * and the position where such key is stored in KEY {@code slot} and saves that
    * information in Index.
    * 
