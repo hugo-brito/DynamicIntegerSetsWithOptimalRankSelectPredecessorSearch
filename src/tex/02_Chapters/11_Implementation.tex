@@ -129,6 +129,8 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 
 \section{Summary of techniques used in the present implementation}
 
+All of the techniques presented in this section have been implemented as static functions in the {\ttfamily Util} class.
+
 \subsection{Bit operations} \label{sec:bit}
 
 Let $A$ be a $w$-bit length word. In this section we define a small set of functions that operate on $A$'s bits. All the algorithms presented in this section take $O(1)$ time.
@@ -715,25 +717,31 @@ We will now run the algorithm for each of its branches. If the leading bit of th
 As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem. For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented with the methods:
 \begin{itemize}
     \item
-    The $insert(x)$ sets $S=S \cup \{x\}$ operation is to be implemented by a method with the signature:
+    The $insert(x)$ operation sets $S=S \cup \{x\}$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
     void insert(long x);
     \end{lstlisting}
     
     \item
-    The $delete(x)$ sets $S=S \setminus \{x\}$ operation is to be implemented by a method with the signature:
+    The $delete(x)$ operation sets $S=S \setminus \{x\}$ and is to be implemented by a method with the signature:
     \begin{lstlisting}
     void delete(long x);
     \end{lstlisting}
     
     \item
-    The $member(x)$ returns $[x \in S]$ operation is to be implemented by a method with the signature:
+    The $member(x)$ operation returns $[x \in S]$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
-    boolean member(long x);
+    default boolean member(final long x) {
+        if (isEmpty()) {
+            return false;
+        }
+        final Long res = successor(x);
+        return res != null && res == x;
+    }
     \end{lstlisting}
 
     \item
-    The $predecessor(x)$ returns $max\{y\in S\ |\ y < x\}$ operation is implemented as a default method, making all implementing classes automatically inheriting the method:
+    The $predecessor(x)$ operation returns $max\{y\in S\ |\ y < x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
     default Long predecessor(long x) {
         return select(rank(x) - 1);
@@ -741,7 +749,7 @@ As stated in Section~\ref{sec:predecessorProblem}, the data structure presented 
     \end{lstlisting}
 
     \item
-    The $successor(x)$ returns $min\{y\in S\ |\ y \geq x\}$ operation is implemented as a default method, making all implementing classes automatically inheriting the method:
+    The $successor(x)$ operation returns $min\{y\in S\ |\ y \geq x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
     default Long successor(long x) {
         return select(rank(x));
@@ -749,18 +757,18 @@ As stated in Section~\ref{sec:predecessorProblem}, the data structure presented 
     \end{lstlisting}
 
     \item
-    The $rank(x)$ returns $\#\{ y \in S\ |\ y < x\}$ operation is to be implemented by a method with the signature:
+    The $rank(x)$ operation returns $\#\{ y \in S\ |\ y < x\}$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
     long rank(long x);
     \end{lstlisting}
 
     \item
-    The $select(i)$ returns $y \in S$ with $rank(y) = i$ operation is to be implemented by a method with the signature:
+    The $select(i)$ operation returns $y \in S$ with $rank(y) = i$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
     Long select(long rank);
     \end{lstlisting}
 \end{itemize}
-Additionally, the following methods are included in the interface:
+Additionally, the following method signatures are included in the interface:
 \begin{itemize}
     \item
     A {\ttfamily size()} method that returns the current number of keys in the set:
@@ -786,44 +794,207 @@ Additionally, the following methods are included in the interface:
 Note that some of the methods return a primitive type, whereas some others return a boxed type. This is due to the fact that some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such situation {\ttfamily null} is returned.
 
 \section{Naive implementation}
-We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}. It holds a {\ttfamily key} array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
+We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}. It holds a $key$ array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
 
-The basic idea behind this implementation is to store the keys in {\ttfamily key}, making their respective rank the same as the their index in that array. In other words, {\ttfamily key} is always sorted.
+The basic idea behind this implementation is to store the keys in $key$, making their respective rank the same as the their index in that array. In other words, $key$ is always sorted.
 
-Updates, e.g. insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in {\ttfamily key} is its rank, all the keys with rank larger than the new key have to be moved one position to the right in {\ttfamily key} to make room for the new key and keeping rank consistent.
+Updates, e.g. insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in $key$ is its rank, all the keys with rank larger than the new key have to be moved one position to the right in $key$ to make room for the new key and keeping rank consistent.
 
-A rank query takes $O(\log_2(n))$ because a binary search is performed on {\ttfamily key}. Select is faster: $O(1)$, because we need only to access and return the key at position {\ttfamily i} in {\ttfamily key} to fulfill the query.
+A rank query takes $O(\log_2(n))$ because a binary search is performed on $key$. Select is faster: $O(1)$, because we need only to access and return the key at position $i$ in $key$ to fulfill the query.
 
-\section{{\ttfamily DynamicFusionNode} with binary search for Rank}
-We take a step forward by improving on the previous idea: this time, two additional words, {\ttfamily index} and {\ttfamily bKey} are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the {\ttfamily rank} operation resorts to binary search to produce the result.
+\section{Dynamic Fusion Node with binary search for Rank}
+We take a step forward by improving on the previous idea: this time, two additional words, $index$ and $bKey$ are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the $rank$ operation resorts to binary search to produce the result.
 
-We interpret {\ttfamily bKey} as an array where the values first $k$ bits correspond to the positions in {\ttfamily key}. Let us assume that the bits in {\ttfamily bKey} are indexed from $0$ to $k-1$: if the $i^{th}$ bit is set to $1$, then position $i$ in {\ttfamily key} is free and can store a key, and vice-versa.
+We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$ and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
 
-We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in {\ttfamily index}, and knowing that our program is working with 64-bit integers, we solve the following equation:
+We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
 \begin{equation}
     k \cdot log_2(k) = 64 \iff k = 16
 \end{equation}
-If $k=16$, then $\lceil \log_2(k) \rceil = 4$. We use each $\lceil \log_2(k) \rceil$-bits in {\ttfamily index} to store the indices of the keys in {\ttfamily key}, ensuring that in {\ttfamily index} the
+If $k=16$, then $\lceil \log_2(k) \rceil = 4$. Each $\lceil \log_2(k) \rceil$-bit field of {\ttfamily index} stores the index of the key in {\ttfamily key} in their sorted order.
+It is important to note that \cite{patrascu2014dynamic} mentions only that $k$ has to be a power of two. The implementation allows for $k$ to take other values just as long as they are smaller than $16$ and a power of two.
+
+\subsection{Fields}
+The class holds the following fields:
+\begin{itemize}
+    \item
+    The parameter $k$, accompanied with the constant $\lceil \log_2(k) \rceil$:
+    \begin{lstlisting}
+    private final int k;
+    private final int ceilLgK = (int) Math.ceil(Math.log10(k)/Math.log10(2));
+    \end{lstlisting}
+
+    \item
+    The array of keys, $key$:
+    \begin{lstlisting}
+    private final long[] key = new long[k];
+    \end{lstlisting}
+    
+    \item
+    The $index$ word:
+    \begin{lstlisting}
+    private long index;
+    \end{lstlisting}
+
+    \item
+    The map of over empty entries in $key$, $bKey$:
+    \begin{lstlisting}
+    private int bKey;
+    \end{lstlisting}
+    Note that only the first $k$ bits are relevant for any given instance.
+    
+    \item
+    An integer $n$, containing the current number of keys in the set:
+    \begin{lstlisting}
+    private int n;
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Helper methods}
+\begin{itemize}
+    \item
+    {\ttfamily firstEmptySlot()} returns the first available spot in $key$ by computing lsb$(bKey)$. Since only the first $k$ spots are valid results, a check is done to see if this result is within the range, returning $-1$ if not.
+    
+    \item
+    {\ttfamily fillSlot(final int j)} sets position $j$ in $bKey$ to not empty. This is done with a call to {\ttfamily deleteBit(j, bKey)}.
+    
+    \item
+    {\ttfamily vacantSlot(int j)} sets the $j^{th}$ position of $bKey$ to empty by calling {\ttfamily setBit(j, bKey)}.
+    
+    \item
+    {\ttfamily getIndex(final long i)} returns the index in $key$ of the key with rank $i$. This operation is done with a call to {\ttfamily getField(i, ceilLgK, index)}.
+    
+    \item
+    The purpose of the overloaded method {\ttfamily updateIndex} is to maintain the correspondence between the rank of the keys in the set and their position in $key$.
+    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the {\ttfamily getFields} methods with the adequate parameters, merge the results with bitwise $\vee$ and write those back in $index$.
+    
+    \item
+    {\ttfamily binaryRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily select(final long rank)} as a subroutine. As the name implies, the algorithm used in this implementation is binary search.
+\end{itemize}
+
+\subsection{Implementation of the interface methods}
+\begin{itemize}
+    \item
+    {\ttfamily insert(final long x)}:
+    \begin{enumerate}
+        \item
+        If the $x$ is already in the set, or if the node has reached its limit ($k$), the method does not progress.
+        
+        \item
+        The rank of the $x$ in the set is found with a call to {\ttfamily rank(x)} and stored in a local variable $i$.
+        
+        \item
+        The first available spot in $key$ is found with a call to {\ttfamily firstEmptySlot()} and stored in a local variable $j$.
+        
+        \item
+        We store $x$ in $key$ at the position returned by {\ttfamily firstEmptySlot()}.
+        
+        \item
+        We set the position taken $x$ in $key$ to not empty by calling {\ttfamily fillSlot(j)}.
+        
+        \item
+        We update the $index$ to reflect the insertion of the new key with a call to {\ttfamily updateIndex(i, j)}.
+        
+        \item
+        Lastly, we increment $n$ by one, updating the current total number of keys in the set.
+    \end{enumerate}
+    
+    \item
+    {\ttfamily delete(final long x)}:
+    \begin{enumerate}
+        \item
+        If the $x$ is not in the set, the method does not progress. This is done with a call to {\ttfamily member(x)}.
+        
+        \item
+        The rank of the $x$ in the set is found with a call to {\ttfamily rank(x)} and stored in a local variable $i$.
+        
+        \item
+        $bKey$ is updated by making the spot taken by $x$ in $key$ empty. This is done with the call {\ttfamily vacantSlot(getIndex(i))}.
+        
+        \item
+        We update the $index$ to reflect the deletion of $x$ with a call to {\ttfamily updateIndex(i)}.
+        
+        \item
+        Lastly, we decrement $n$ by one, updating the current total number of keys in the set.
+    \end{enumerate}
+    
+    \item
+    {\ttfamily rank(final long x)} returns the rank of $x$ in the set by calling the {\ttfamily binaryRank(final long x)} helper method.
+    
+    \item
+    {\ttfamily select(final long rank)} starts by checking if the $rank$ is within range, returning {\ttfamily null} if not. Then it calls {\ttfamily getIndex(rank)} and returns the key at that position in $key$.
+    
+    \item
+    {\ttfamily size()} returns the value of $n$.
+    
+    \item
+    {\ttfamily reset()}.
+    Resetting the set is easily done by setting $n$ to zero and $bKey$ to $-1$ (because $-1$ has all the bits set to one in its two's complement binary representation).
+\end{itemize}
+
+\section{Dynamic Fusion Node with constant time Rank}
+BRANCH and FREE
 
 \chapter{Correctness tests}
 
 \section{{\ttfamily Util} class tests}
 
+All the tests concerning the {\ttfamily Util} class can be found in the {\ttfamily UtilTest} class in the {\ttfamily src/test/java} folder.
+
 \subsection{msb series tests}
 
-The {\ttfamily Util} class contains many different implementations of the msb$(x)$ operation. Since Java's standard library offers a \{{\ttfamily Integer}|{\ttfamily Long}\}{\ttfamily.numberOfLeadingZeros(i)} static method, testing any implementation of msb$(x)$ is trivially done with the expression:
+The {\ttfamily Util} class contains many different implementations of the msb$(x)$ operation. Since Java's standard library offers a {\ttfamily numberOfLeadingZeros} function, we can easily test the different msb$(x)$ implementations. Converting the result from the standard library function is done by subtracting its return value to $w - 1$.
 
-\{{\ttfamily Integer}|{\ttfamily Long}\}{\ttfamily.SIZE - 1 - }\{{\ttfamily Integer}|{\ttfamily Long}\}{\ttfamily.numberOfLeadingZeros(i)}
-
-with the implementation from the class.
+Taking as an example the test on the {\ttfamily msbConstant()} implementation, for such a test to pass all instances in a given range have to assert that {\ttfamily Long.SIZE - 1 - Long.numberOfLeadingZeros(i)} and {\ttfamily Util.msbConstant(i)} are the same. Tests on the other implementations differ only either on $w$ (which can be either 32-bit {\ttfamily Integer} or 64-bit {\ttfamily Long}) and the function that is called, and each of them is named after the function they are testing, e.g. {\ttfamily msb32Obvious()} tests the 32-bit version the naive msb$(x)$ algorithm.
 
 \subsection{{\ttfamily splitLong} and {\ttfamily mergeInts}}
 
-For a determined range 64-bit keys, it evaluates if the following property holds for the whole range: {\ttfamily key == mergeInts(splitLong(key))}.
+The {\ttfamily splitMerge()} method tests the {\ttfamily splitLong} and {\ttfamily mergeInts} methods by evaluating if the following property holds for a determined range of 64-bit keys: {\ttfamily key == mergeInts(splitLong(key))}.
 
 \subsection{Fields of words tests}
+The {\ttfamily getField} and {\ttfamily setField} methods are tested in the {\ttfamily setAndGetField32()} and {\ttfamily setAndGetField64()} methods (the latter differ solely on the size of the word where the fields are to be written to). A pass of the test consists of:
+\begin{enumerate}
+    \item
+    Varying $f$ (being $f$ the size of each field) between one and $w - 1$.
+    
+    \item
+    For each value $f$ takes, the number of fields to be stored in $A$, $m$, is computed as a function of $f$. The goal is to fit as many fields as possible in $A$, having $f$ and $w$ as constraints. This is done with the expression $m = w / f$.
+    
+    \item
+    Then, $m$ keys of $f$ size are pseudo-randomly generated. Each time a key is generated, $A$ is shifted to the left by $f$ bits and the key is stored both in an auxiliary array and in $A$ with the {\ttfamily setField} function. 
+    
+    \item
+    When all $m$ keys have been generated and inserted, the auxiliary array is iterated and at each iteration $i$ it asserts that the key at index $i$ in the auxiliary array is the same as the one returned by the {\ttfamily getField} function.
+\end{enumerate}
 
 \subsection{Test for Rank Lemma 1}
+The {\ttfamily rankLemma1} function is tested in a method with the same name.
+A pass in this test consists of:
+\begin{enumerate}
+    \item
+    Varying $b$ (size in bits of each key). This range is specified in fields of the {\ttfamily UtilTest} class.
+    
+    \item
+    For each value $b$ takes, the number of keys to be stored in $A$, $m$, is computed by taking the minimum between $2^b$ and $w/b$. This is because the method requires that all keys stored in $A$ must be distinct (and all combinations of keys of size $b$ is given by $2^b$), but also $A$ can only store up to $w/b$ keys.
+    
+    \item
+    We produce $m$ distinct keys by using a pseudo-random generator and inserting them in a set. We stop once the size of the set is $m$.
+    
+    \item
+    An additional key $x$ is generated. The rank of $x$ will be computed and used later as one of the last checks of this test.
+    
+    \item
+    The keys are then copied to a list, where they are sorted in descending order.
+    
+    \item
+    The list is then iterated from the largest key to smallest. Each iteration consists of inserting the current key in $A$. That key is also compared with $x$ in order to compute the rank of $x$, which is determined by the index of the current key in the list.
+    
+    \item
+    The list is iterated once more in order to assess if the rank of each key in the list agrees with the rank computed with {\ttfamily rankLemma1} function.
+    
+    \item
+    Lastly, the rank of $x$, which has been computed before, is compared with its rank computed via the {\ttfamily rankLemma1} function.
+\end{enumerate}
 
 \section{Integer Data Structure tests}
 
@@ -848,12 +1019,18 @@ An instance of a {\ttfamily RankSelectPredecessorUpdate} implementation is insta
 
 It is defined that:
 \begin{itemize}
-    \item Select queries can range between $0$ and $|S|-1$. Should any query fall outside this range, then {\ttfamily null} is returned, meaning, no result.
-    \item $Select(0) = min\{y \in S \}$.
-    \item $Select(|S|-1) = max\{y \in S\}$.
-    \item Rank queries be any $w$-bit integer, and their possible range of results $\big[ 0, |S| \big]$
-    \item Any given predecessor query returns the largest key in the subset of keys that are \textbf{strictly} smaller than the query, otherwise {\ttfamily null}.
-    \item Whereas a successor query returns the queried key if present, otherwise the smallest key in the subset of keys that are larger than the query if any (and in such case {\ttfamily null} is returned).
+    \item
+    Select queries can range between $0$ and $|S|-1$. Should any query fall outside this range, then {\ttfamily null} is returned, meaning, no result.
+    \item
+    $Select(0) = min\{y \in S \}$.
+    \item
+    $Select(|S|-1) = max\{y \in S\}$.
+    \item
+    Rank queries be any $w$-bit integer, and their possible range of results $\big[ 0, |S| \big]$
+    \item
+    Any given predecessor query returns the largest key in the subset of keys that are \textbf{strictly} smaller than the query, otherwise {\ttfamily null}.
+    \item
+    Whereas a successor query returns the queried key if present, otherwise the smallest key in the subset of keys that are larger than the query if any (and in such case {\ttfamily null} is returned).
 \end{itemize}
 
 With the given set and the above-mentioned rules, a small test is performed. Table~\ref{tab:smallCorrectnessTests} shows the expressions to be evaluated, and all of them must evaluate to {\ttfamily true} for the test to pass.
@@ -893,9 +1070,12 @@ Should the number of keys exceed 9, then every $1/10$ of {\ttfamily numKeys} the
 
 The methods tested in this test are {\ttfamily insert} and {\ttfamily delete} and it can be executed in passes. After inserting all the pseudo-randomly-generated keys in the set, the keys are iterated in random order. Each iteration consists of:
 \begin{enumerate}
-    \item Asserting that $key \in S$.
-    \item Removing the key.
-    \item Asserting that $key \not\in S$.
+    \item
+    Asserting that $key \in S$.
+    \item
+    Removing the key.
+    \item
+    Asserting that $key \not\in S$.
 \end{enumerate}
 
 \subsection{{\ttfamily deleteTest()}}
