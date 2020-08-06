@@ -29,7 +29,7 @@ package integersets;
   * 16 slots of 4 bits each.</p>
   */
 
-public class DynamicFusionNode implements RankSelectPredecessorUpdate {
+public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate {
   
   /**
   * We will ourselves use k = w^(1/4) The exact value makes no theoretical
@@ -55,7 +55,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
   /**
    * Constructs an empty DynamicFusionNode.
    */
-  public DynamicFusionNode() {
+  public DynamicFusionNodeBinaryRank() {
     // We start with no items.
     index = 0;
     n = 0;
@@ -255,7 +255,7 @@ public class DynamicFusionNode implements RankSelectPredecessorUpdate {
     int k = 16;
     final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
     // Util.print(ceilLgK);
-    DynamicFusionNode node = new DynamicFusionNode();
+    DynamicFusionNodeBinaryRank node = new DynamicFusionNodeBinaryRank();
     node.insert(10);
     node.insert(12);
     node.insert(42);

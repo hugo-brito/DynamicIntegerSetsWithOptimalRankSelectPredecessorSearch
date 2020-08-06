@@ -1,17 +1,17 @@
-import integersets.DynamicFusionNode;
+import integersets.DynamicFusionNodeBinaryRank;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class DynamicFusionNodeTest {
+class DynamicFusionNodeBinaryRankTest {
 
   static final long seed = 42;
-  static final int passes = 100_000;
+  static final int passes = 10_000;
   static final int numKeys = 16;
 
-  private DynamicFusionNode set;
+  private DynamicFusionNodeBinaryRank set;
   private static RankSelectPredecessorUpdateTest test;
 
   @BeforeAll
@@ -21,7 +21,7 @@ class DynamicFusionNodeTest {
 
   @BeforeEach
   void setUp() {
-    set = new DynamicFusionNode();
+    set = new DynamicFusionNodeBinaryRank();
   }
 
   @AfterEach
