@@ -4,7 +4,7 @@ package integersets;
  * Utility class, containing many helful functions.
  */
 
-public class Util {
+public abstract class Util {
 
   /* BIT OPERATIONS */
 
