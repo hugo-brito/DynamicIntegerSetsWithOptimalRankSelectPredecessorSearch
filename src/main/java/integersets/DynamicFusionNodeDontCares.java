@@ -215,7 +215,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   - don't cares (introduced by patrascu and thorup) --- store this result in a word FREE
   - rankLemma1 (already implemented)
   
-    How to:
+  How to:
     1 .Sketching:
     For a given node, compute the "significant" bit indices. A "significant" bit index is the
     most significant bit of the XOR of two keys. A naive algorithm is to XOR all the
@@ -255,34 +255,36 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
    * @param significantBits the indices of the bits to keep in the compressed key
    * @return the compressed key
    */
-  public static long compress(final long x, final int[] significantBits) {
+  public static long compress(final long x, long significantBits) {
     long res = 0L;
-    for (int i = 0; i < significantBits.length; i++) {
+    while (significantBits != 0) {
       res <<= 1;
-      res |= Util.bit(significantBits[i], x);
+      int bit = Util.msb(significantBits);
+      res |= Util.bit(bit, x);
+      significantBits = Util.deleteBit(bit, significantBits);
     }
     return res;
   }
 
   /**
-   * Returns the branching positions of all keys in the provided array.
+   * Returns the branching positions of all keys in the provided array. The result is computed and
+   * stored in a bit vector. If a given bit is
    * @param keys the keys to have their branching bits checked for
    * @return all the significant bits for the given set of keys
    */
-  public static int[] significantBits(final long[] keys) {
+  public static long significantBits(final long[] keys) {
     long res = 0L;
     for (int i = 0; i < keys.length - 1; i++) {
       for (int j = i + 1; j < keys.length; j++) {
         res = Util.setBit(Util.msb(keys[i] ^ keys[j]), res);
       }
     }
-    int[] significantBits = new int[Long.bitCount(res)];
-    for (int i = 0; i < significantBits.length; i++) {
-      int significantBit = Util.msb(res);
-      significantBits[i] = significantBit;
-      res = Util.deleteBit(significantBit, res);
-    }
-    return significantBits;
+    return res;
+  }
+
+  public static void dontCares(final long[] compressedKeys) {
+
+
   }
         
   /**
@@ -291,5 +293,37 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
    * @param args --
    */
   public static void main(final String[] args) {
+    long[] keys = new long[]{
+      0b0000,
+      0b0010,
+      // 0b0101,
+      0b1100,
+      0b1111
+    };
+
+    long significantBits = significantBits(keys);
+    
+    Util.println(Util.bin(significantBits, 4));
+
+    long[] compressedKeys = new long[4];
+    for (int i = 0; i < keys.length; i++){
+      compressedKeys[i] = compress(keys[i], significantBits);
+    }
+    // - Starting from the most significant bit of the sketch, if all bits are the same in all
+    // keys, then that position is a don't care for all keys
+
+    long significantBitsBackup = significantBits;
+    int bitCount = Long.bitCount(significantBits);
+    // for (int i = Util.msb(significantBits); i <= bitCount; ) { // iterate the 
+    //   // - If one or more bits differ at that position, we care for that position.
+    //   boolean isADontCare = true;
+
+    //   for (int i = )
+
+    // }
+    // - Recurse, grouping the sketches that have the same bit at the position we looked that.
+
+
+    Util.println(Util.bin(compress(0b0101, significantBits), 2));
   }
 }
