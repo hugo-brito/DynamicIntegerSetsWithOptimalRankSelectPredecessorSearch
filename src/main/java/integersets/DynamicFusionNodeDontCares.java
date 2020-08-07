@@ -1,11 +1,13 @@
 package integersets;
 
+import java.util.Arrays;
+
 /** This version of DynamicFusionNode iterates from the DynamicFusionNodeBinaryRank by introducing
  * key sketching and "don't cares", as described in pages 7--9 of the paper.
  * The sketches and the "don't cares" are stored in 2 words of k^2 size. For this reason, we limit
  * k to 8, because sqrt(64) = 8, and k must also be a power of 2. This way we maximize the number
  * of keys in the node but keep the 
-  */
+ */
 
 public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   
@@ -282,48 +284,169 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     return res;
   }
 
-  public static void dontCares(final long[] compressedKeys) {
+  /**
+   * Finds the how many compressed keys have {@code bit} set to zero. Since bits can either be zero
+   * or one, we can easily compute the which keys start with one.
+   * @param compressedKeys The array containing the compressed keys
+   * @param bit The bit to look at
+   * @param lo The minimum index to look at in compressed keys
+   * @param hi The maximum index to look at in compressed keys
+   */
+  public static void dontCares(final long[] compressedKeys, final long[] dontCares, int bit,
+      int lo, int hi) {
+    if (bit == -1) {
+      return;
+    }
+    // if all bits are the same in all keys, then that position is a don't care for all keys
 
+    Util.println("-------------");
+    int transition = lo; // we start by assuming that everything is 1 at position bit
+    Util.println("Looking at bit = " + bit + "\nlo = " + lo + " | hi = " + hi);
+    while (Util.bit(bit, compressedKeys[transition]) == 0 && transition < hi) {
+      transition++;
+    }
+    // Util.println("Found the transition from 0 to 1 at pos " + i);
+    
+    if (transition == lo || transition == hi) { // we're before a don't care
+      transition = -1;
+    }
+    Util.println("There are " + (transition == -1 ? 0 : transition - lo)
+        + " compressed keys that start with zero");
+
+    // If all bits are the same in all keys, then that position is a don't care for all keys
+    if (transition == -1) { // then everything is in the same group, all bits are don't care
+      Util.println("Everything is 1/0. Writing don't cares.");
+      for (int i = lo; i < hi; i++) {
+        dontCares[i] = Util.setBit(bit, dontCares[i]);
+      }
+      // recursive call with the same range, next least significant bit
+      dontCares(compressedKeys, dontCares, bit - 1, lo, hi);
+    } else {
+      // don't need to delete anything in dontCares as it is zero.
+      Util.println("There is a transition. Ignoring don't cares.");
+
+      // 2 x recursive calls
+      dontCares(compressedKeys, dontCares, bit - 1, lo, transition);
+      dontCares(compressedKeys, dontCares, bit - 1, transition, hi);
+    }
+    Util.println("-------------");
 
   }
-        
+
+  public static long[] generateKeys() {
+    long[] keys = new long[]{
+      0b0110011100,
+      0b0110100100,
+      0b0110111100,
+      0b0111010100,
+      0b1111110010,
+      0b1111111000,
+      0b1111111010,
+      0b1111111100,
+      0b1111111110
+    };
+
+    Arrays.sort(keys);
+
+    return keys;
+  }
+
+  public static long[] compressKeys(long[] keys) {
+    long significantBits = significantBits(keys);
+
+    // -- DEBUGGING -- //
+    Util.println("-------------");
+    Util.println("Compressing word:");
+    Util.println(Util.bin(significantBits, Util.msb(significantBits) + 1));
+    Util.println("-------------");
+
+    Util.println("Compressed keys:");
+    int compressedLength = Long.bitCount(significantBits);
+    long[] compressedKeys = new long[keys.length];
+    for (int i = 0; i < keys.length; i++) {
+      compressedKeys[i] = compress(keys[i], significantBits);
+      Util.println(Util.bin(compressedKeys[i], compressedLength));
+    }
+    Util.println("-------------");
+
+    return compressedKeys;
+  }
+
+  public static void dontCaresR() {
+    long[] keys = generateKeys();
+    long significantBits = significantBits(keys);
+    int compressedLength = Long.bitCount(significantBits);
+
+    long[] compressedKeys = compressKeys(keys);
+
+    long[] dontCares = new long[compressedKeys.length];
+    // - Starting from the most significant bit of the sketch,
+
+    int bit = compressedLength - 1;
+
+    dontCares(compressedKeys, dontCares, bit, 0, compressedKeys.length);
+
+    Util.println("-------------");
+    Util.println("Don't cares keys:");
+    for (int i = 0; i < dontCares.length; i++) {
+      Util.println(Util.bin(dontCares[i], bit + 1));
+    }
+    Util.println("-------------");
+    
+  }
+    
   /**
    * Debugging.
    * 
    * @param args --
    */
   public static void main(final String[] args) {
-    long[] keys = new long[]{
-      0b0000,
-      0b0010,
-      // 0b0101,
-      0b1100,
-      0b1111
-    };
 
-    long significantBits = significantBits(keys);
+
+    dontCaresR();
+
+    // long significantBits = significantBits(keys);
+
+    // Util.println("-------------");
+    // Util.println("Compressing word:");
+    // Util.println(Util.bin(significantBits, Util.msb(significantBits) + 1));
+    // Util.println("-------------");
     
-    Util.println(Util.bin(significantBits, 4));
 
-    long[] compressedKeys = new long[4];
-    for (int i = 0; i < keys.length; i++){
-      compressedKeys[i] = compress(keys[i], significantBits);
-    }
-    // - Starting from the most significant bit of the sketch, if all bits are the same in all
-    // keys, then that position is a don't care for all keys
-
-    long significantBitsBackup = significantBits;
-    int bitCount = Long.bitCount(significantBits);
-    // for (int i = Util.msb(significantBits); i <= bitCount; ) { // iterate the 
-    //   // - If one or more bits differ at that position, we care for that position.
-    //   boolean isADontCare = true;
-
-    //   for (int i = )
-
+    // Util.println("Compressed keys:");
+    // int compressedLength = Long.bitCount(significantBits);
+    // long[] compressedKeys = new long[keys.length];
+    // for (int i = 0; i < keys.length; i++) {
+    //   compressedKeys[i] = compress(keys[i], significantBits);
+    //   Util.println(Util.bin(compressedKeys[i], compressedLength));
     // }
-    // - Recurse, grouping the sketches that have the same bit at the position we looked that.
+    // Util.println("-------------");
 
+    // // - Starting from the most significant bit of the sketch, if all bits are the same in all
+    // // keys, then that position is a don't care for all keys
 
-    Util.println(Util.bin(compress(0b0101, significantBits), 2));
+    // int bit = compressedLength - 1;
+
+    // int transition7 = dontCares(compressedKeys, bit, 0, compressedKeys.length - 1);
+    // // - Recurse, grouping the sketches that have the same bit at the position we looked that.
+
+    // long[] dontCares = new long[keys.length];
+
+    // Util.println("-------------");
+
+    // if (transition7 == -1) { // then everything is in the same group, all bits are don't care
+    //   for (int i = 0; i < dontCares.length; i++) {
+    //     dontCares[i] = Util.setBit(bit, dontCares[i]);
+    //   }
+    //   // recursive call with the same range, next least significant bit
+    //   dontCares(compressedKeys, bit - 1, 0, compressedKeys.length - 1);
+    // } else {
+    //   // don't need to delete anything in dontCares as it is zero.
+
+    //   // 2 x recursive calls
+    //   dontCares(compressedKeys, bit - 1, 0, transition7);
+    //   dontCares(compressedKeys, bit - 1, transition7 + 1, compressedLength - 1);
+    // }
+
   }
 }
