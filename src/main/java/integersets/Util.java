@@ -84,7 +84,7 @@ public abstract class Util {
    */
   public static long deleteBit(final int d, long A) {
     if (d >= 0 || d < Long.SIZE) {
-      A &= ~(1 << d);
+      A &= ~(1L << d);
     }
     return A;
   }
