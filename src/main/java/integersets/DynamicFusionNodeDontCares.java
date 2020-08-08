@@ -24,6 +24,15 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   private int n;
 
   /**
+   * Variables for maintaining the rank with don't cares algorithm. 
+   */
+  private long compressingKey;
+  private long branch;
+  private long free;
+  private long[] compressedKeys = new long[k];
+  private long[] dontCares = new long[k];
+
+  /**
    * Builds an empty DynamicFusionNodeDontCares.
    */
   public DynamicFusionNodeDontCares() {
@@ -213,12 +222,197 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     }
     return lo;
   }
+
+  /**
+   * Updates the compressing key after updating the set.
+   */
+  private void updateCompressingKey() {
+    long res = 0L;
+    for (int i = 0; i < n - 1; i++) {
+      for (int j = i + 1; j < n; j++) {
+        res = Util.setBit(Util.msb(select(i) ^ select(j)), res); // not sure about the select thing
+      }
+    }
+    compressingKey = res;
+  }
+
+  /**
+   * Compresses {@code x}, keeping only the bits at the positions specified in the
+   * {@code compressingKey}.
+   * @param x the key to be compressed
+   * @return the compressed key
+   */
+  private long compress(final long x) {
+    long res = 0L;
+    long compressingKeyCopy = compressingKey;
+    while (compressingKeyCopy != 0) {
+      res <<= 1;
+      int bit = Util.msb(compressingKeyCopy);
+      res |= Util.bit(bit, x);
+      compressingKeyCopy = Util.deleteBit(bit, compressingKeyCopy);
+    }
+
+    return res;
+  }
+
+  private void updateKeyCompression() {
+    // -- DEBUGGING -- //
+    Util.println("-------------");
+    Util.println("Compressing word:");
+    Util.println(Util.bin(compressingKey, Util.msb(compressingKey) + 1));
+    Util.println("-------------");
+
+    Util.println("Compressed keys:");
+    int compressedLength = Long.bitCount(compressingKey);
+    long[] compressedKeys = new long[n];
+    for (int i = 0; i < n; i++) {
+      compressedKeys[i] = compress(select(i), compressingKey);
+      Util.println(Util.bin(select(i), compressedLength));
+    }
+    Util.println("-------------");
+  }
+
+  private int match(long x) {
+    Util.println("-------------");
+    Util.println("Match:");
+    Util.println("x:");
+    Util.println(Util.bin(x, k));
+
+    long xCompressed = compress(x);
+    Util.println("x compressed:");
+    Util.println(Util.bin(xCompressed, k));
+
+    long xCompressedCopied = Util.M(k, n * k);
+    // each block has k bits, and the word has n * k bits, so k bits per key.
+
+    Util.println("Copying constant:");
+    Util.println(Util.bin(xCompressedCopied, k));
+
+    Util.println("x compressed & copied:");
+    xCompressedCopied *= xCompressed;
+    Util.println(Util.bin(xCompressedCopied, k));
+
+    Util.println("xCompressedCopied & FREE:");
+    Util.println(Util.bin(xCompressedCopied & free, k));
+
+    Util.println("A = BRANCH | (xCompressedCopied & FREE):");
+    long A = branch | (xCompressedCopied & free);
+    Util.println(Util.bin(A, k));
+
+    int match = Util.rankLemma1(xCompressed, A, k, k);
+
+    Util.println("Match of x: " + match);
+    
+    return match;
+
+  }
+
+  private void updateBranchAndFree() {
+    int numSignificantBits = Long.bitCount(compressingKey); // how many bits are set in the
+    // compressing key
+
+    long BRANCH = 0L;
+    long FREE = 0L;
+
+    for (int i = 0; i < n; i++) {
+      long compKey = compressedKeys[i];
+      long dontCare = dontCares[i];
+      long keyBranch = 0L;
+      long keyFree = 0L;
+
+      for (int bit = 0; bit < numSignificantBits; bit++) {
+        if (Util.bit(bit, dontCare) == 1) { // it's a don't care
+          // we set the bit in the free field
+          keyFree = Util.setBit(bit, keyFree);
+        } else { // we care
+          if (Util.bit(bit, compKey) == 1) {
+            keyBranch = Util.setBit(bit, keyBranch);
+          }
+        }
+      }
+
+      BRANCH = Util.setField(i, keyBranch, n, BRANCH);
+      FREE = Util.setField(i, keyFree, n, FREE);
+    }
+
+    branch = BRANCH;
+    free = FREE;
+  }
+
+  // /**
+  //  * Finds the how many compressed keys have {@code bit} set to zero. Since bits can either be zero
+  //  * or one, we can easily compute the which keys start with one.
+  //  * @param compressedKeys The array containing the compressed keys
+  //  * @param bit The bit to look at
+  //  * @param lo The minimum index to look at in compressed keys
+  //  * @param hi The maximum index to look at in compressed keys
+  //  */
+  // private void dontCares(final long[] compressedKeys, final long[] dontCares, int bit,
+  //     int lo, int hi) {
+  //   if (bit == -1) {
+  //     return;
+  //   }
+  //   // if all bits are the same in all keys, then that position is a don't care for all keys
+
+  //   Util.println("-------------");
+  //   int transition = lo; // we start by assuming that everything is 1 at position bit
+  //   Util.println("Looking at bit = " + bit + "\nlo = " + lo + " | hi = " + hi);
+  //   while (transition < hi && Util.bit(bit, compressedKeys[transition]) == 0) {
+  //     transition++;
+  //   }
+    
+  //   if (transition == lo || transition == hi) { // we're before a don't care
+  //     transition = -1;
+  //   }
+  //   Util.println("There are " + (transition == -1 ? 0 : transition - lo)
+  //       + " compressed keys that start with zero");
+
+  //   // If all bits are the same in all keys, then that position is a don't care for all keys
+  //   if (transition == -1) { // then everything is in the same group, all bits are don't care
+  //     Util.println("Everything is 1/0. Writing don't cares.");
+  //     for (int i = lo; i < hi; i++) {
+  //       dontCares[i] = Util.setBit(bit, dontCares[i]);
+  //     }
+  //     // recursive call with the same range, next least significant bit
+  //     dontCares(compressedKeys, dontCares, bit - 1, lo, hi);
+  //   } else {
+  //     // don't need to delete anything in dontCares as it is zero.
+  //     Util.println("There is a transition. Ignoring don't cares.");
+
+  //     // 2 x recursive calls
+  //     dontCares(compressedKeys, dontCares, bit - 1, lo, transition);
+  //     dontCares(compressedKeys, dontCares, bit - 1, transition, hi);
+  //   }
+  //   Util.println("-------------");
+
+  // }
+
+  // private long[] dontCares(long[] compressedKeys) {
+
+  //   int compressedLength = Long.bitCount(compressingKey);
+
+  //   long[] dontCares = new long[compressedKeys.length];
+  //   // - Starting from the most significant bit of the sketch,
+
+  //   // int bit = compressedLength - 1;
+
+  //   dontCares(compressedKeys, dontCares, compressedLength - 1, 0, compressedKeys.length);
+
+  //   Util.println("-------------");
+  //   Util.println("Don't cares keys:");
+  //   for (int i = 0; i < dontCares.length; i++) {
+  //     Util.println(Util.bin(dontCares[i], compressedLength));
+  //   }
+  //   Util.println("-------------");
+
+  //   return dontCares;    
+  // }
  
   /*
   Overall Rank Algorithm
         
   Ingredients:
-  - sketching in the same style as fusion trees ---  store this result in a word BRANCH
+  - sketching in the same style as fusion trees --- store this result in a word BRANCH
   - don't cares (introduced by patrascu and thorup) --- store this result in a word FREE
   - rankLemma1 (already implemented)
   
@@ -461,11 +655,13 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     long xCompressed = compress(x, compressingKey);
     Util.println("x compressed:");
     Util.println(Util.bin(xCompressed, k));
-    long xCompressedCopied = 1L;
-    for (int i = 0; i < k; i++) {
-      xCompressedCopied <<= k;
-      xCompressedCopied |= 1;
-    }
+    long xCompressedCopied = Util.M(k, k * k); // 1L;
+
+    // Util.M(k, k);
+    // for (int i = 0; i < k; i++) {
+    //   xCompressedCopied <<= k;
+    //   xCompressedCopied |= 1;
+    // }
     Util.println("Copying constant:");
     Util.println(Util.bin(xCompressedCopied, k));
 
