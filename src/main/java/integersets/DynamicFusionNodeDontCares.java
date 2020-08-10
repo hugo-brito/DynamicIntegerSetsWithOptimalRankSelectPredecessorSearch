@@ -1,12 +1,5 @@
 package integersets;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-
 /** This version of DynamicFusionNode iterates from the DynamicFusionNodeBinaryRank by introducing
  * key sketching and "don't cares", as described in pages 7--9 of the paper.
  * The sketches and the "don't cares" are stored in 2 words of k^2 size. For this reason, we limit
@@ -17,7 +10,7 @@ import java.util.TreeSet;
 public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   
   private static final int k = 8;
-  private final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
+  private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
   private final long[] key = new long[k];
   private long index;
   private int bKey;
@@ -27,16 +20,10 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
    * Variables for maintaining the rank with don't cares algorithm. 
    */
   private long compressingKey;
-  // private String binCompressingKey;
   private long compressedKeys;
-  // private String binCompressedKeys;
   private long dontCares;
-  // private String binDontCares;
-
   private long branch;
-  // private String binBranch;
   private long free;
-  // private String binFree;
 
   /**
    * Builds an empty DynamicFusionNodeDontCares.
@@ -94,7 +81,6 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     updateKeyCompression();
     // dontcares
     updadeDontCares();
-
     // branch
     // free
     updateBranchAndFree();
@@ -353,7 +339,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   }
 
   private void updadeDontCares() {
-    dontCares = dontCares(0, k - 1, 0, n);    
+    dontCares = dontCares(0, k - 1, 0, n);
   }
 
   /**
@@ -370,20 +356,13 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     }
     // if all bits are the same in all keys, then that position is a don't care for all keys
 
-    int transition = lo; // we start by assuming that everything is 1 at position bit
-    long field = Util.getField(transition, k, compressedKeys);
-    while (transition < hi && Util.bit(bit, field) == 0) {
-      transition++;
-      field = Util.getField(transition, k, compressedKeys);
+    int mid = lo; // we start by assuming that everything is 1 at position lo
+    while (mid < hi && Util.bit(bit, Util.getField(mid, k, compressedKeys)) == 0) {
+      mid++;
     }
     
-    if (transition == lo || transition == hi) { // we're before a don't care
-      transition = -1;
-    }
-
     // If all bits are the same in all keys, then that position is a don't care for all keys
-    if (transition == -1) { // then everything is in the same group, all bits are don't care
-
+    if (mid == lo || mid == hi) {
       for (int i = lo; i < hi; i++) {
         dontCares = Util.setField(i, Util.setBit(bit, Util.getField(i, k, dontCares)), k,
         dontCares);
@@ -394,8 +373,8 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
       // don't need to delete anything in dontCares as it is zero.
 
       // 2 x recursive calls
-      return dontCares(dontCares, bit - 1, lo, transition)
-          | dontCares(dontCares, bit - 1, transition, hi);
+      return dontCares(dontCares, bit - 1, lo, mid)
+          | dontCares(dontCares, bit - 1, mid, hi);
     }
   }
   

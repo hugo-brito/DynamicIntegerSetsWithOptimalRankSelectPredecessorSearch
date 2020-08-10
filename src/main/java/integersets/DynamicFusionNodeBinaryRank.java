@@ -36,14 +36,14 @@ public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate 
   * difference: We choose k = 16, such that we can fill a whole word to index all
   * the keys in KEY.
   */
-  private final int k = 16; // capacity
+  private static final int k = 16; // capacity
 
   /* We will store our key set S in an unsorted array KEY with room for k w-bit integers */
   private final long[] key = new long[k];
 
   /* We will also maintain an array INDEX of ceil(lg k)-bit indices */
-  private long index;
-  private final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
+  private long index = 0;
+  private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
 
   private int bKey;
   // a bit map containing the empty spots in KEY
@@ -56,11 +56,7 @@ public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate 
    * Constructs an empty DynamicFusionNode.
    */
   public DynamicFusionNodeBinaryRank() {
-    // We start with no items.
-    index = 0;
-    n = 0;
-    // bitmap containing the empty spots. 1 if it is empty, 0 if it is taken.
-    bKey = -1; // because -1 in java binary is 1111..11
+    reset();
   }
 
   @Override
