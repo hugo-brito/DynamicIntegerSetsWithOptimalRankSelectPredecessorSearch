@@ -107,11 +107,11 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
   @Override
   public long rank(final long x) {
-    if (n > 2) {
+    // if (n > 2) {
       return dontCaresRank(x);
-    } else {
-      return binaryRank(x);
-    }
+    // } else {
+      // return binaryRank(x);
+    // }
   }
 
   @Override
@@ -232,7 +232,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
         index = mid | hi;
       }
     } else {
-      throw new IndexOutOfBoundsException("Invalid rank or slot");
+      throw new IndexOutOfBoundsException("Invalid rank or slot: " + rank + ", " + slot);
     }
   }
 
@@ -274,13 +274,13 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
       return 0;
     }
 
-    if (n == 1) {
-      if (Long.compareUnsigned(x, select(0)) < 0) {
-        return 0;
-      } else {
-        return 1;
-      }
-    }
+    // if (n == 1) {
+    //   if (Long.compareUnsigned(x, select(0)) < 0) {
+    //     return 0;
+    //   } else {
+    //     return 1;
+    //   }
+    // }
 
     int i = match(x);
     // long y = select(i);
@@ -293,15 +293,15 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
     int j = Util.msb(x ^ y);
 
-    int i_0 = match(x & ~((1L << j) - 1));
+    int i_0 = match(x & ~((1L << j) - 1)); // special case j = 64.
 
     int i_1 = match(x | ((1L << j) - 1));
 
     if (comp < 0) {
-      return i_0 - 1;
+      return i_0;
     }
 
-    return i_1;
+    return i_1 + 1;
   }
 
   /**
@@ -774,6 +774,10 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     
     return match;
   }
+
+  // public static int rankDontCares() {
+
+  // }
     
   /**
    * Debugging.
@@ -795,6 +799,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
     // Util.println("BRANCH = " + Util.bin(BRANCHandFREE[0], k));
     // Util.println("FREE   = " + Util.bin(BRANCHandFREE[1], k));
+    // Util.println("FREE: if it is set to 1, we don't care; if it's set to 0, then we care.");
 
     // long x = -1;
     // match(x, significantBits, BRANCHandFREE[0], BRANCHandFREE[1]);
@@ -802,8 +807,8 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     DynamicFusionNodeDontCares node = new DynamicFusionNodeDontCares();
     node.insert(10);
     node.insert(12);
-    node.insert(42);
-    node.insert(-1337);
+    // node.insert(42);
+    node.insert(7);
 
     Util.println(node.member(10));
 
