@@ -853,10 +853,10 @@ public abstract class Util {
    * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
    * the words in A must also be sorted.
    * 
-   * @param x         the query of b size
-   * @param A         the A word
-   * @param m         the number of keys in A
-   * @param b the lenght of each key in A excluding padding bits
+   * @param x the query of b size
+   * @param A the A word
+   * @param m the number of keys in A
+   * @param b the length of each key in A
    */
   public static int rankLemma1(long x, long A, final int m, final int b) {
     long M = M(b, m * b);
@@ -917,10 +917,10 @@ public abstract class Util {
    * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
    * the words in A must also be sorted.
    * 
-   * @param x         the query of b size
-   * @param A         the A word
-   * @param m         the number of keys in A
-   * @param b the lenght of each key in A excluding padding bits
+   * @param x the query of b size
+   * @param A the A word
+   * @param m the number of keys in A
+   * @param b the length of each key in A
    */
   public static int rankLemma1Commented(long x, long A, final int m, final int b) {
     // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
