@@ -262,7 +262,7 @@ class RankSelectPredecessorUpdateTest {
 
     // Select
     assertEquals(successor, testSet.select(rank),
-        "Key " + key + " | Test 3/5: expected select(" + rank + ") == " + key + "\n");
+        "Key " + key + " | Test 3/5: expected select(" + rank + ") == " + successor + "\n");
 
     // Predecessor
     assertEquals(predecessor, testSet.predecessor(key),
