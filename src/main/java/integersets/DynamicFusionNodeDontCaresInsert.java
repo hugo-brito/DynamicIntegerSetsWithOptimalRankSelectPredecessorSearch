@@ -11,6 +11,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
   
   private static final int k = 8;
   private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
+  private static final long M = Util.M(k, k * k); // multiplying constant
   private final long[] key = new long[k];
   private long index;
   private int bKey;
@@ -34,25 +35,61 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
   @Override
   public void insert(final long x) {
-    if (member(x)) {
+    // if (member(x)) {
+    //   return;
+    // }
+    // int h = (int) rank(x);
+
+
+    // rank algorithm
+
+    // Run rank(x). If x is already a member, do nothing. Otherwise, continue.
+    long y = size() > 0 ? select(match(x)) : 0;
+    int comp = Long.compareUnsigned(x, y);
+    if (x != 0 && comp == 0) { // already in the set
       return;
     }
-
     if (size() == k) {
       throw new RuntimeException("Cannot insert. Node is full.");
     }
 
-    final int i = (int) rank(x);
+    // // In rank(x), you have computed y, j, i_0, i_1 - these values are needed below, so I guess
+    // // there needs to be an option so that rank can return them.
+    int j = Util.msb(x ^ y);
+
+    // rank of j among the significant positions
+    // int h = Long.bitCount(compressingKey & ((1L << j) - 1)); // works but it's not constant time
+    int i_0 = match(x & ~((1L << j) - 1));
+    int i_1 = match(x | ((1L << j) - 1));
+    int r =  comp < 0 ? i_0 : i_1 + 1; // rank of x
+
+    // If j is not yet a significant position, then we have to do some work:
+    if (Util.bit(j, compressingKey) != 1) {
+      // mark it as a significant position.
+      // (This is so that the compression function will compute correct sketches in the future)
+      compressingKey = Util.setBit(j, compressingKey);
+      // long matrixM_h = addColumn(h);
+      // long matrixMi0_Mi1_h = ((1L << ((i_1 + 1) * k)) - (1L << (i_0 * k))) & matrixM_h;
+      // branch |= (matrixMi0_Mi1_h * Util.bit(j, y));
+      // free &= ~matrixMi0_Mi1_h;
+    }
+
+    // // Making room for hat(x^?) with rank r in branch and free
+
+    // branch = (branch & matrixMRange(0, r - 1)) | ((branch & matrixMRange(r, k - 1)) << k);
+    // free = (free & matrixMRange(0, r - 1)) | ((free & matrixMRange(r, k - 1)) << k);
+
+
     
-    final int j = firstEmptySlot();
-    key[j] = x;
-    fillSlot(j);
-    updateIndex(i, j);
+    final int indexInKey = firstEmptySlot();
+    key[indexInKey] = x;
+    fillSlot(indexInKey);
+    updateIndex(r, indexInKey);
     n++;
 
     // Update:
     // Compressing key
-    updateCompressingKey();
+    // updateCompressingKey();
     // compressed Keys
     updateKeyCompression();
     // dontcares
@@ -248,7 +285,8 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
   private int match(long x) {
     long xCompressed = compress(x);
-    return Util.rankLemma1(xCompressed, branch | ((xCompressed * Util.M(k, n * k)) & free), n, k);
+    return Util.rankLemma1(xCompressed,
+        branch | ((xCompressed * Util.getFields(0, n, k, M)) & free), n, k);
   }
 
   private int dontCaresRank(final long x) {
@@ -271,6 +309,47 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     }
 
     return 1 + match(x | ((1L << j) - 1));
+  }
+
+  // Write a function matrix_M(a,b) to compute the matrix M_{a:b} (as a word).
+  // The function has two cases: if a=0 and b=k-1, then is it 1^{k^2}.
+  // Otherwise it is computed as M_{b+1} - M_{a}.
+  private long matrixM(int h) {
+    return M << h;
+  }
+
+  // Write a function matrix_M(a,b) to compute the matrix M_{a:b} (as a word).
+  // The function has two cases: if a=0 and b=k-1, then is it 1^{k^2}.
+  // Otherwise it is computed as M_{b+1} - M_{a}.
+  private long matrixMRange(int a, int b) {
+    if (a == 0 && b == k - 1) {
+      return -1;
+    } else {
+      // long M_h = (0000001) << k
+      return matrixM(b + 1) - matrixM(a); 
+    }
+  }
+
+  /**
+   * Adds a column to both {@code branch} and {@code free}, and returns matrixM(h) for further
+   * computations.
+   * @param h the index (rank) of the new column
+   * @return matrixM(h)
+   */
+  private long addColumn(int h){
+    long Mlo = matrixMRange(0, h - 1);
+    long Mhi = matrixMRange(h, k - 1);
+
+    // shift all columns >= h one to the left
+    branch = (branch & Mlo) | ((branch & Mhi) << 1);
+    free = (free & Mlo) | ((free & Mhi) << 1);
+
+    // fix the new column h:
+    long matrixM_h = matrixM(h);
+    free |= matrixM_h;
+    branch &= ~matrixM_h;
+
+    return matrixM_h;
   }
 
   /**
@@ -384,5 +463,11 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
    * @param args --
    */
   public static void main(final String[] args) {
+    DynamicFusionNodeDontCaresInsert node = new DynamicFusionNodeDontCaresInsert();
+    Util.println(node.member(0));
+    node.insert(0);
+    Util.println(node.member(0));
+    node.delete(0);
+    Util.println(node.member(0));
   }
 }
