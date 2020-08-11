@@ -25,26 +25,21 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
   private long dontCares;
   private long branch;
   private long free;
-
+  
   /**
    * Builds an empty DynamicFusionNodeDontCares.
    */
   public DynamicFusionNodeDontCaresInsert() {
     reset();
   }
-
+  
   @Override
   public void insert(final long x) {
-    // if (member(x)) {
-    //   return;
-    // }
-    // int h = (int) rank(x);
-
-
     // rank algorithm
-
+    
     // Run rank(x). If x is already a member, do nothing. Otherwise, continue.
-    long y = size() > 0 ? select(match(x)) : 0;
+    int i = match(x);
+    long y = isEmpty() ? 0 : select(i);
     int comp = Long.compareUnsigned(x, y);
     if (x != 0 && comp == 0) { // already in the set
       return;
@@ -52,51 +47,82 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     if (size() == k) {
       throw new RuntimeException("Cannot insert. Node is full.");
     }
-
-    // // In rank(x), you have computed y, j, i_0, i_1 - these values are needed below, so I guess
-    // // there needs to be an option so that rank can return them.
+    
+    // In rank(x), you have computed y, j, i_0, i_1 - these values are needed below, so I guess
+    // there needs to be an option so that rank can return them.
     int j = Util.msb(x ^ y);
 
     // rank of j among the significant positions
-    // int h = Long.bitCount(compressingKey & ((1L << j) - 1)); // works but it's not constant time
+    int h = Long.bitCount(compressingKey & ((1L << j) - 1)); // works but it's not constant time
     int i_0 = match(x & ~((1L << j) - 1));
     int i_1 = match(x | ((1L << j) - 1));
-    int r =  comp < 0 ? i_0 : i_1 + 1; // rank of x
+    int r = comp < 0 ? i_0 : i_1 + 1; // rank of x
 
-    // If j is not yet a significant position, then we have to do some work:
-    if (Util.bit(j, compressingKey) != 1) {
-      // mark it as a significant position.
-      // (This is so that the compression function will compute correct sketches in the future)
-      compressingKey = Util.setBit(j, compressingKey);
-      // long matrixM_h = addColumn(h);
-      // long matrixMi0_Mi1_h = ((1L << ((i_1 + 1) * k)) - (1L << (i_0 * k))) & matrixM_h;
-      // branch |= (matrixMi0_Mi1_h * Util.bit(j, y));
-      // free &= ~matrixMi0_Mi1_h;
-    }
-
-    // // Making room for hat(x^?) with rank r in branch and free
-
-    // branch = (branch & matrixMRange(0, r - 1)) | ((branch & matrixMRange(r, k - 1)) << k);
-    // free = (free & matrixMRange(0, r - 1)) | ((free & matrixMRange(r, k - 1)) << k);
-
-
-    
+    // inserting the key in key and updating the rest
     final int indexInKey = firstEmptySlot();
     key[indexInKey] = x;
     fillSlot(indexInKey);
     updateIndex(r, indexInKey);
     n++;
 
+    // If j is not yet a significant position, then we have to do some work:
+    if (Util.bit(j, compressingKey) != 1) {
+      // mark it as a significant position.
+      // (This is so that the compression function will compute correct sketches in the future)
+      compressingKey = Util.setBit(j, compressingKey);
+      long matrixM_h = addColumn(h);
+      long matrixMi0_Mi1_h = ((1L << ((i_1 + 1) * k)) - (1L << (i_0 * k))) & matrixM_h;
+      branch |= (matrixMi0_Mi1_h * Util.bit(j, y));
+      free &= ~matrixMi0_Mi1_h;
+
+      // if j was already a significant bit, then i is just match(x), that is, i is the position of
+      // y
+      // if j was not already a significant bit, then i is the new position of y (so either it is
+      // the same, or it was shifted by 1).
+      if (comp < 0) { // then x < y. So y is the succ of x. we increment i
+        i++;
+      }
+    }
+
+    // Making room for hat(x^?) with rank r in branch and free
+
+    branch = (branch & matrixMRange(0, r - 1)) | ((branch & matrixMRange(r, k - 1)) << k);
+    free = (free & matrixMRange(0, r - 1)) | ((free & matrixMRange(r, k - 1)) << k);
+
+    // BRANCH<r,0..h-1>_k*1 = field r in BRANCH of k length. bits of that field from 0 to h-1
+    // = 0^h
+    // 11110000 the expression below is correct.
+    // ~((1L << h) - 1);
+    branch = Util.setField(r, Util.getField(r, k, branch) & ~((1L << (h - 1)) - 1), k, branch);
+
+    free = Util.setField(r, Util.getField(r, k, free) | ((1L << (h - 1)) - 1), k, free);
+
+    if (Util.bit(j, x) == 1) {
+      branch = Util.setField(r, Util.setBit(h, Util.getField(r, k, branch)), k, branch);
+    }
+
+    free = Util.setField(r, Util.deleteBit(h, Util.getField(r, k, free)), k, free);
+
+    long branchR_hPlus1_kMinus1 = Util.getField(r, k, branch) & ((1L << (h + 1)) - 1);
+    long branchI_hPlus1_kMinus1 = Util.getField(i, k, branch) & ~((1L << (h + 1)) - 1);
+
+    branch = Util.setField(r, branchI_hPlus1_kMinus1 | branchR_hPlus1_kMinus1, k, branch);
+
+    long freeR_hPlus1_kMinus1 = Util.getField(r, k, free) & ((1L << (h + 1)) - 1);
+    long freeI_hPlus1_kMinus1 = Util.getField(i, k, free) & ~((1L << (h + 1)) - 1);
+
+    free = Util.setField(r, freeI_hPlus1_kMinus1 | freeR_hPlus1_kMinus1, k, free);
+
     // Update:
     // Compressing key
     // updateCompressingKey();
     // compressed Keys
-    updateKeyCompression();
+    // updateKeyCompression();
     // dontcares
-    updadeDontCares();
+    // updadeDontCares();
     // branch
     // free
-    updateBranchAndFree();
+    // updateBranchAndFree();
 
   }
 
@@ -463,11 +489,20 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
    * @param args --
    */
   public static void main(final String[] args) {
-    DynamicFusionNodeDontCaresInsert node = new DynamicFusionNodeDontCaresInsert();
-    Util.println(node.member(0));
-    node.insert(0);
-    Util.println(node.member(0));
-    node.delete(0);
-    Util.println(node.member(0));
+    // DynamicFusionNodeDontCaresInsert node = new DynamicFusionNodeDontCaresInsert();
+    // Util.println(node.member(0));
+    // node.insert(0);
+    // Util.println(node.member(0));
+    // node.delete(0);
+    // Util.println(node.member(0));
+
+
+    int f = k;
+    int i = 5;
+    int h = 3;
+    long y = ~((1L << h) - 1);
+    Util.println(Util.bin(y, k));
+    // final long m = ((1L << f) - 1) << (i * f);
+    Util.println(Util.bin(Util.setField(i, y, f, 0), k));
   }
 }
