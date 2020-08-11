@@ -176,7 +176,9 @@ public abstract class Util {
 
   /**
    * Field assignment function. This function returns the {@code A} word after overwriting the
-   * field at position {@code i} with {@code y}. 
+   * field at position {@code i} with {@code y}. Only the {@code f} lower bits of {@code y} are
+   * considered when setting the field in {@code A}. In other words, the bits between {@code f} and
+   * w in {@code y} are disregarded and do not influence the result of this operation.
    * @param A The word containing fields
    * @param i The position of the first field to return
    * @param y The field to be assigned in {@code A}
@@ -190,7 +192,9 @@ public abstract class Util {
 
   /**
    * Field assignment function. This function returns the {@code A} word after overwriting the
-   * field at position {@code i} with {@code y}. 
+   * field at position {@code i} with {@code y}. Only the {@code f} lower bits of {@code y} are
+   * considered when setting the field in {@code A}. In other words, the bits between {@code f} and
+   * w in {@code y} are disregarded and do not influence the result of this operation.
    * @param A The word containing fields
    * @param i The position of the first field to return
    * @param y The field to be assigned in {@code A}
@@ -1071,8 +1075,8 @@ public abstract class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    long A =  0b01111111_01111001_01101000_01010100_01001001_01000110_00101010_00000100l;
-    int x = 0b00000000_00000000_00000000_00011110;
+    final long A = 0b01111111_01111001_01101000_01010100_01001001_01000110_00101010_00000100l;
+    final int x = 0b00000000_00000000_00000000_00011110;
 
     
     rankLemma1Commented(x, A, 8, 8);
