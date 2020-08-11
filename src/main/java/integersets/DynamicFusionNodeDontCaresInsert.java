@@ -80,7 +80,9 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
       // if j was not already a significant bit, then i is the new position of y (so either it is
       // the same, or it was shifted by 1).
       if (comp < 0) { // then x < y. So y is the succ of x. we increment i
-        i++;
+        i = i_0 + 1;
+      } else {
+        i = i_1;
       }
     }
 
@@ -88,7 +90,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
     branch = (branch & matrixMRange(0, r - 1)) | ((branch & matrixMRange(r, k - 1)) << k);
     free = (free & matrixMRange(0, r - 1)) | ((free & matrixMRange(r, k - 1)) << k);
-
+    
     // BRANCH<r,0..h-1>_k*1 = field r in BRANCH of k length. bits of that field from 0 to h-1
     // = 0^h
     // 11110000 the expression below is correct.
