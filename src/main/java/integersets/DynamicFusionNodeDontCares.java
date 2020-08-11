@@ -11,6 +11,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   
   private static final int k = 8;
   private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
+  private static final long M = Util.M(k, k * k); // multiplying constant
   private final long[] key = new long[k];
   private long index;
   private int bKey;
@@ -249,7 +250,8 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
   private int match(final long x) {
     final long xCompressed = compress(x);
-    return Util.rankLemma1(xCompressed, branch | ((xCompressed * Util.M(k, n * k)) & free), n, k);
+    return Util.rankLemma1(xCompressed,
+        branch | ((xCompressed * Util.getFields(0, n, k, M)) & free), n, k);
   }
 
   private int dontCaresRank(final long x) {
