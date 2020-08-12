@@ -269,11 +269,11 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
     final int j = Util.msb(x ^ y);
 
-    if (comp < 0) {
+    if (comp < 0) { // i_0
       return match(x & ~((1L << j) - 1));
     }
 
-    return 1 + match(x | ((1L << j) - 1));
+    return 1 + match(x | ((1L << j) - 1)); // i_1 + 1
   }
 
   /**
