@@ -95,15 +95,18 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     // = 0^h
     // 11110000 the expression below is correct.
     // ~((1L << h) - 1);
+
+    // branch = Util.setField2d(i, j, y, g, f, branch);
+
     branch = Util.setField(r, Util.getField(r, k, branch) & ~((1L << (h - 1)) - 1), k, branch);
 
     free = Util.setField(r, Util.getField(r, k, free) | ((1L << (h - 1)) - 1), k, free);
 
     if (Util.bit(j, x) == 1) {
-      branch = Util.setField(r, Util.setBit(h, Util.getField(r, k, branch)), k, branch);
+      branch = Util.setField2d(r, h, 1L, 1, k, branch);
     }
 
-    free = Util.setField(r, Util.deleteBit(h, Util.getField(r, k, free)), k, free);
+    free = Util.setField2d(r, h, 0, 1, k, free);
 
     long branchR_hPlus1_kMinus1 = Util.getField(r, k, branch) & ((1L << (h + 1)) - 1);
     long branchI_hPlus1_kMinus1 = Util.getField(i, k, branch) & ~((1L << (h + 1)) - 1);
@@ -114,18 +117,6 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     long freeI_hPlus1_kMinus1 = Util.getField(i, k, free) & ~((1L << (h + 1)) - 1);
 
     free = Util.setField(r, freeI_hPlus1_kMinus1 | freeR_hPlus1_kMinus1, k, free);
-
-    // Update:
-    // Compressing key
-    // updateCompressingKey();
-    // compressed Keys
-    // updateKeyCompression();
-    // dontcares
-    // updadeDontCares();
-    // branch
-    // free
-    // updateBranchAndFree();
-
   }
 
   @Override
