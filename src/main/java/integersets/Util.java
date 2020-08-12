@@ -122,6 +122,46 @@ public abstract class Util {
   }
 
   /**
+   * Two-dimensional field retrieval. When viewing words as matrices, the authors use the notation
+   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
+   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
+   * should never be larger than {@code f}.
+   * @param A The word containing fields
+   * @param i The position of the field in {@code A}
+   * @param j The position of the subfield in {@code i}
+   * @param g The lenght of the subfield {@code j}
+   * @param f The length of fields in {@code A}
+   * @return The specified subfield
+   */
+  public static int getField2d(final int i, final int j, final int g, final int f, final int A) {
+    if (g > f) {
+      throw new IndexOutOfBoundsException(
+        "The length of the subfield must not be larger than the field it belongs to.");
+    }
+    return getField(i * g + j, f, A);
+  }
+
+  /**
+   * Two-dimensional field retrieval. When viewing words as matrices, the authors use the notation
+   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
+   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
+   * should never be larger than {@code f}.
+   * @param A The word containing fields
+   * @param i The position of the field in {@code A}
+   * @param j The position of the subfield in {@code i}
+   * @param g The lenght of the subfield {@code j}
+   * @param f The length of fields in {@code A}
+   * @return The specified subfield
+   */
+  public static long getField2d(final int i, final int j, final int g, final int f, final long A) {
+    if (g > f) {
+      throw new IndexOutOfBoundsException(
+        "The length of the subfield must not be larger than the field it belongs to.");
+    }
+    return getField(i * g + j, f, A);
+  }
+
+  /**
    * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
    * {@code A}, whose fields have length {@code f}.
    * @param A The word containing fields
@@ -130,7 +170,10 @@ public abstract class Util {
    * @param f The length of the fields in {@code A}
    * @return A word containing the specified field range shifted to the least significant positions
    */
-  public static Integer getFields(final int i, final int j, final int f, final int A) {
+  public static int getFields(final int i, final int j, final int f, final int A) {
+    if (i == 0 && j * f == Integer.SIZE) {
+      return A;
+    }
     return (A >>> (i * f)) & ((1 << ((j - i) * f)) - 1);
   }
 
@@ -185,8 +228,8 @@ public abstract class Util {
    * @param f The length of the fields in {@code A}
    * @return returns the word {@code A} after the operation
    */
-  public static long setField(final int i, final long y, final int f, final long A) {
-    final long m = ((1L << f) - 1) << (i * f);
+  public static int setField(final int i, final int y, final int f, final int A) {
+    final int m = ((1 << f) - 1) << (i * f);
     return (A & ~m) | (y << (i * f) & m);
   }
 
@@ -201,9 +244,57 @@ public abstract class Util {
    * @param f The length of the fields in {@code A}
    * @return returns the word {@code A} after the operation
    */
-  public static int setField(final int i, final int y, final int f, final int A) {
-    final int m = ((1 << f) - 1) << (i * f);
+  public static long setField(final int i, final long y, final int f, final long A) {
+    final long m = ((1L << f) - 1) << (i * f);
     return (A & ~m) | (y << (i * f) & m);
+  }
+
+  /**
+   * Two-dimensional field assignment. When viewing words as matrices, the authors use the notation
+   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
+   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
+   * should never be larger than {@code f}.
+   * This method sets {@code y} to field {@code j}, which is a field in {@code i}, which is a field
+   * in {@code A}; and returns {@code A} after the operation.
+   * @param A The word containing fields
+   * @param i The position of the field in {@code A}
+   * @param y The field to be assigned in {@code j}
+   * @param j The position of the subfield in {@code i}
+   * @param g The lenght of the subfield {@code j}
+   * @param f The length of fields in {@code A}
+   * @return returns the word {@code A} after the operation
+   */
+  public static int setField2d(final int i, final int j, final int y, final int g, final int f,
+        final int A){
+    if (g > f) {
+      throw new IndexOutOfBoundsException(
+        "The length of the subfield must not be larger than the field it belongs to.");
+    }
+    return setField(i * g + j, y, f, A);
+  }
+
+  /**
+   * Two-dimensional field assignment. When viewing words as matrices, the authors use the notation
+   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
+   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
+   * should never be larger than {@code f}.
+   * This method sets {@code y} to field {@code j}, which is a field in {@code i}, which is a field
+   * in {@code A}; and returns {@code A} after the operation.
+   * @param A The word containing fields
+   * @param i The position of the field in {@code A}
+   * @param y The field to be assigned in {@code j}
+   * @param j The position of the subfield in {@code i}
+   * @param g The lenght of the subfield {@code j}
+   * @param f The length of fields in {@code A}
+   * @return returns the word {@code A} after the operation
+   */
+  public static long setField2d(final int i, final int j, final long y, final int g, final int f,
+        final long A){
+    if (g > f) {
+      throw new IndexOutOfBoundsException(
+        "The length of the subfield must not be larger than the field it belongs to.");
+    }
+    return setField(i * g + j, y, f, A);
   }
 
   /**
