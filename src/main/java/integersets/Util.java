@@ -294,7 +294,7 @@ public abstract class Util {
       throw new IndexOutOfBoundsException(
         "The length of the subfield must not be larger than the field it belongs to.");
     }
-    return setField(i * g + j, y, f, A);
+    return setField(i * f + j, y, g, A);
   }
 
   /**
