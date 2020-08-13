@@ -36,6 +36,15 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
   @Override
   public void insert(final long x) {
     // rank algorithm
+
+    if(isEmpty()) {
+      final int indexInKey = firstEmptySlot();
+      key[indexInKey] = x;
+      fillSlot(indexInKey);
+      updateIndex(0, indexInKey);
+      n++;
+      return;
+    }
     
     // Run rank(x). If x is already a member, do nothing. Otherwise, continue.
     Util.println("---------- Insert(" + x + "): ----------");
@@ -43,13 +52,13 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     int i = match(x);
     Util.println("i = match(" + x + ") = " + i);
 
-    final long y = isEmpty() ? 0 : select(i);
+    final long y = select(i);
     Util.println("y = select(" + i + ") = " + y);
 
     final int comp = Long.compareUnsigned(x, y);
     Util.println("compareUnsigned(" + x + ", " + y + ") = " + comp);
 
-    if (x != 0 && comp == 0) { // already in the set
+    if (comp == 0) { // already in the set
       Util.println("comp = " + comp + " | " + x + " is already in the set! Stopping.");
       return;
     }
@@ -71,13 +80,13 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     final int h = Long.bitCount(compressingKey & ((1L << j) - 1)); // works but it's not constant time
     Util.println("h = rank of j = " + h);
 
-    final int i_0 = isEmpty() ? 0 : match(x & ~((1L << j) - 1));
+    final int i_0 = match(x & ~((1L << j) - 1));
     Util.println("i_0 = match(x & ~((1L << j) - 1)) = " + i_0);
 
-    final int i_1 = isEmpty() ? 0 : match(x | ((1L << j) - 1));
+    final int i_1 = match(x | ((1L << j) - 1));
     Util.println("i_1 = match(x | ((1L << j) - 1)) = " + i_1);
 
-    final int r = isEmpty() ? 0 : (comp < 0 ? i_0 : i_1 + 1); // rank of x
+    final int r =  (comp < 0 ? i_0 : i_1 + 1); // rank of x
     Util.println("rank(" + x + ") = match(x | ((1L << j) - 1)) = " + r);
 
     // inserting the key in key and updating the rest
@@ -167,61 +176,99 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     // if j was not already a significant bit, then i is the new position of y (so
     // either it is
     // the same, or it was shifted by 1).
-    if (!isEmpty()) {
-      // Making room for hat(x^?) with rank r in branch and free
-      Util.println("Making room for hat(x^?) with rank r = " + r + " in branch and free");
-      Util.println("branch:");
-      branch = (branch & matrixMRowRange(0, r - 1)) | ((branch & (matrixMRowRange(r, k - 1) - 1)) << k);
-      Util.println(matrixView(k, k, branch));
-      Util.println("free:");
-      free = (free & matrixMRowRange(0, r - 1)) | ((free & (matrixMRowRange(r, k - 1) - 1)) << k);
-      Util.println(matrixView(k, k, free));
-      
-      if (comp < 0) { // then x < y. So y is the succ of x. we increment i
-        Util.println("Since x = " + x + " < " + y + " = y, then y = succ(x). Since rank(x) = " + r
-            + ", then rank(y) = rank(x) + 1, and it is now = " + (r + 1));
-        // i++;
-        i = r + 1;
+
+    // Making room for hat(x^?) with rank r in branch and free
+    Util.println("Making room for hat(x^?) with rank r = " + r + " in branch and free");
+    Util.println("branch:");
+    branch = (branch & matrixMRowRange(0, r - 1)) | ((branch & (matrixMRowRange(r, k - 1))) << k);
+    Util.println(matrixView(k, k, branch));
+    Util.println("free:");
+    free = (free & matrixMRowRange(0, r - 1)) | ((free & (matrixMRowRange(r, k - 1))) << k);
+    Util.println(matrixView(k, k, free));
+    
+    if (comp < 0) { // then x < y. So y is the succ of x. we increment i
+      Util.println("Since x = " + x + " < " + y + " = y, then y = succ(x). Since rank(x) = " + r
+          + ", then rank(y) = rank(x) + 1, and it is now = " + (r + 1));
+      i++;
+      // i = r + 1;
 
 
-      } else {
-        Util.println("Since x = " + x + " > " + y + " = y, then y = pred(x). Since rank(x) = " + r
-            + ", then rank(y) = rank(x) - 1, and it is now = " + (r - 1));
-        i = r - 1;
-      }
+    } else {
+      Util.println("Since x = " + x + " > " + y + " = y, then y = pred(x). Since rank(x) = " + r
+          + ", then rank(y) = rank(x) - 1, and it is now = " + (r - 1));
+      // i = r - 1;
     }
-
-
-
-
-
-    // BRANCH<r,0..h-1>_k*1 = field r in BRANCH of k length. bits of that field from
-    // 0 to h-1
-    // = 0^h
-    // 11110000 the expression below is correct.
-    // ~((1L << h) - 1);
-
-    // branch = Util.setField2d(i, j, y, g, f, branch);
+    
 
     branch = Util.setField(r, Util.getField(r, k, branch) & ~((1L << h) - 1), k, branch);
 
     free = Util.setField(r, Util.getField(r, k, free) | ((1L << h) - 1), k, free);
 
-    if (Util.bit(j, x) == 1) {
-      branch = Util.setField2d(r, h, 1L, 1, k, branch);
-    }
+    branch = Util.setField2d(r, h, (long) Util.bit(j, x), 1, k, branch);
 
     free = Util.setField2d(r, h, 0L, 1, k, free);
 
-    final long branchR_hPlus1_kMinus1 = Util.getField(r, k, branch) & ((1L << (h + 1)) - 1);
-    final long branchI_hPlus1_kMinus1 = Util.getField(i, k, branch) & ~((1L << (h + 1)) - 1);
+    // ------------------------------
+    Util.println(matrixView(k, k, free));
 
-    branch = Util.setField(r, branchI_hPlus1_kMinus1 | branchR_hPlus1_kMinus1, k, branch);
+    //Get h+1 ... k-1 bits of row r
+    long rowR = Util.getField(r, k, free);
+    Util.println("row r(" + r + ") of FREE:");
+    Util.println(matrixView(k, k, rowR));
 
-    final long freeR_hPlus1_kMinus1 = Util.getField(r, k, free) & ((1L << (h + 1)) - 1);
-    final long freeI_hPlus1_kMinus1 = Util.getField(i, k, free) & ~((1L << (h + 1)) - 1);
+    //Deleting h+1...k-1 bits of r:
+    rowR &= ((1L << (h + 1)) - 1);
+    Util.println("row r of FREE with (h=" + h + ") h+1...k-1 bits set to 0:");
+    Util.println(matrixView(k, k, rowR));
 
-    free = Util.setField(r, freeI_hPlus1_kMinus1 | freeR_hPlus1_kMinus1, k, free);
+    // we get the field we want to copy from:
+    long rowI = Util.getField(i, k, free);
+    Util.println("row i(" + i + ") of FREE:");
+    Util.println(matrixView(k, k, rowI));
+
+    // we keep only the h+1...k-1 bits of i:
+    rowI &= ~((1L << (h + 1)) - 1);
+    Util.println("row i of FREE with (h=" + h + ") 0...h bits set to 0:");
+    Util.println(matrixView(k, k, rowI));
+
+    // we merge both results
+    Util.println("rowI | rowR:");
+    Util.println(matrixView(k, k, rowI | rowR));
+
+    // and write it to free
+    free = Util.setField(r, rowI | rowR, k, free);
+    Util.println("wrote rowI | rowR in row " + r + ":");
+    Util.println(matrixView(k, k, free));
+
+
+    //Get h+1 ... k-1 bits of row r
+    rowR = Util.getField(r, k, branch);
+    Util.println("row r(" + r + ") of BRANCH:");
+    Util.println(matrixView(k, k, rowR));
+
+    //Deleting h+1...k-1 bits of r:
+    rowR &= ((1L << (h + 1)) - 1);
+    Util.println("row r of BRANCH with (h=" + h + ") h+1...k-1 bits set to 0:");
+    Util.println(matrixView(k, k, rowR));
+
+    // we get the field we want to copy from:
+    rowI = Util.getField(i, k, branch);
+    Util.println("row i(" + i + ") of BRANCH:");
+    Util.println(matrixView(k, k, rowI));
+
+    // we keep only the h+1...k-1 bits of i:
+    rowI &= ~((1L << (h + 1)) - 1);
+    Util.println("row i of BRANCH with (h=" + h + ") 0...h bits set to 0:");
+    Util.println(matrixView(k, k, rowI));
+
+    // we merge both results
+    Util.println("rowI | rowR:");
+    Util.println(matrixView(k, k, rowI | rowR));
+
+    // and write it to free
+    branch = Util.setField(r, rowI | rowR, k, branch);
+    Util.println("wrote rowI | rowR in row " + r + ":");
+    Util.println(matrixView(k, k, branch));
 
     n++;
   }
@@ -279,7 +326,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     dontCares = 0;
 
     branch = 0;
-    free = 0;
+    free = -1;
   }
 
   /**
@@ -422,6 +469,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     }
 
     final int i = match(x);
+    Util.println("MATCH ("+x+")=" + i);
     final long y = select(i);
     final int comp = Long.compareUnsigned(x, y);
 
@@ -458,10 +506,15 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
   }
 
   private static long matrixMRowRange(final int lo, final int hi) {
-    if (lo == 0 && hi == k - 1) {
-      return -1;
+    if (hi < lo) {
+      return 0;
     }
-    return (1L << ((hi + 1) * k)) - (1L << (lo * k));
+    // if (lo == 0 && hi == k - 1) {
+    //   return -1;
+    // }
+    // ((-1L) << (lo * k)) & (-1L>>> ((k-hi)*k);
+    // return (1L << ((hi + 1) * k)) - (1L << (lo * k));
+    return ((-1L) << (lo * k)) & (-1L >>> ((k - hi - 1) * k));
   }
 
   /**
@@ -618,54 +671,61 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
    * @param args --
    */
   public static void main(final String[] args) {
-    // final DynamicFusionNodeDontCaresInsert node = new DynamicFusionNodeDontCaresInsert();
-    // node.insert(10);
-    // node.insert(20);
-
-    int i = 2;
-
-    long branch = -1L;
-    long free = -1L;
-    int r = 3; //row
-    int h = 2; // column
-    // branch = Util.setField(r, Util.getField(r, k, branch) & ~((1L << h) - 1), k, branch);
-    // // set everything 0 up to positon h-1 in row r.
-        
-    // free = Util.setField(r, Util.getField(r, k, free) | ((1L << h) - 1), k, free);
-    // // set everything 1 up to position h-1 in row r.
-    
-    // Util.println("  -----BRANCH-----\n" + matrixView(k, k, branch));
-    // Util.println("  ----- FREE -----\n" + matrixView(k, k, free));
-
-    // // ---------- sound up to this point
-
-    // Util.println(" --------- sound up to this point\n");
- 
-    // // long branch = 0L;
-    
-    // // if (Util.bit(j, x) == 1) {
-    // // branch = Util.setField2d(0, 1, 1L, 1, k, branch);
-    // branch = Util.setField2d(r, h, 1L, 1, k, branch);
-    // // reading bit j of the new key x and setting it on branch
-    //   // }
-      
-    free = Util.setField2d(r, h, 0L, 1, k, free);
-    // Util.println("  -----BRANCH-----\n" + matrixView(k, k, branch));
-    Util.println("  ----- FREE -----\n" + matrixView(k, k, free));
-
-    // final long branchR_hPlus1_kMinus1 = Util.getField(r, k, branch) & ((1L << (h + 1)) - 1);
-    // final long branchI_hPlus1_kMinus1 = Util.getField(i, k, branch) & ~((1L << (h + 1)) - 1);
-
-    // branch = Util.setField(r, branchI_hPlus1_kMinus1 | branchR_hPlus1_kMinus1, k, branch);
-
-    // final long freeR_hPlus1_kMinus1 = Util.getField(r, k, free) & ((1L << (h + 1)) - 1);
-    // final long freeI_hPlus1_kMinus1 = Util.getField(i, k, free);// & ~((1L << (h + 1)) - 1);
-
-    Util.println(matrixView(k, k, ~((1L << (h + 1)) - 1)));
-    // Util.println(matrixView(k, k, freeI_hPlus1_kMinus1));
-
-    // free = Util.setField(r, freeI_hPlus1_kMinus1 | freeR_hPlus1_kMinus1, k, free);
+    final DynamicFusionNodeDontCaresInsert node = new DynamicFusionNodeDontCaresInsert();
+    node.insert(6917529027641081855L);
+    node.insert(4611686018427387903L);
 
 
+
+    Util.println(matrixView(k, k, matrixMRowRange(0, 0)));
+
+    // Util.println(matrixView(k, k, matrixMRowRange(1, 4)));
+
+
+    // long branch = -1L;
+    // long free = -1L;
+    // int r = 3; // row = rank(x)
+    // int i = 4; // rank of succ(x)
+    // int h = 5; // column
+
+    // Util.println("FREE:");
+    // Util.println(matrixView(k, k, free));
+
+    // long y_1 = -1L;
+    // long y_2 = 1L;
+
+    // free = Util.setField(r + 1, y_1, k, free);
+    // free = Util.setField(r - 1, y_2, k, free);
+    // Util.println("rows r + 1 = " + y_1 + " and r - 1 = " + y_2 + " in FREE:");
+    // Util.println(matrixView(k, k, free));
+
+    // //Get h+1 ... k-1 bits of row r
+    // long rowR = Util.getField(r, k, free);
+    // Util.println("row r of FREE:");
+    // Util.println(matrixView(k, k, rowR));
+
+    // //Deleting h+1...k-1 bits of r:
+    // rowR &= ((1L << (h + 1)) - 1);
+    // Util.println("row r of FREE with (h=" + h + ") h+1...k-1 bits set to 0:");
+    // Util.println(matrixView(k, k, rowR));
+
+    // // we get the field we want to copy from:
+    // long rowI = Util.getField(i, k, free);
+    // Util.println("row i of FREE:");
+    // Util.println(matrixView(k, k, rowI));
+
+    // // we keep only the h+1...k-1 bits of i:
+    // rowI &= ~((1L << (h + 1)) - 1);
+    // Util.println("row i of FREE with (h=" + h + ") 0...h bits set to 0:");
+    // Util.println(matrixView(k, k, rowI));
+
+    // // we merge both results
+    // Util.println("rowI | rowR:");
+    // Util.println(matrixView(k, k, rowI | rowR));
+
+    // // and write it to free
+    // free = Util.setField(r, rowI | rowR, k, free);
+    // Util.println("wrote rowI | rowR in row " + r + ":");
+    // Util.println(matrixView(k, k, free));
   }
 }
