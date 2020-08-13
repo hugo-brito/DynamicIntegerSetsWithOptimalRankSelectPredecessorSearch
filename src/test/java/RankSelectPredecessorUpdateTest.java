@@ -294,8 +294,9 @@ class RankSelectPredecessorUpdateTest {
       while (keys.size() > 0) {
         i++;
         final long key = keys.remove(rand.nextInt(keys.size()));
-        assertTrue(testSet.member(key),
-            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys);
+        assertTrue(testSet.member(key), testSet.member(key) ? "" :
+            "Pass " + (p + 1) + "/" + passes + " | Iteration " + i + "/" + numKeys + "\nSeed: "
+            + seeds.get(p) + "\nKeys: " + keySetList.get(p)  + "\nKey: " + key);
       }
 
       testSet.reset();
