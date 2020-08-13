@@ -51,16 +51,18 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     updateIndex(i, j);
     n++;
 
-    // Update:
-    // Compressing key
-    updateCompressingKey();
-    // compressed Keys
-    updateKeyCompression();
-    // dontcares
-    updadeDontCares();
-    // branch
-    // free
-    updateBranchAndFree();
+    if (size() > 1) {
+      // Update:
+      // Compressing key
+      updateCompressingKey();
+      // compressed Keys
+      updateKeyCompression();
+      // dontcares
+      updadeDontCares();
+      // branch
+      // free
+      updateBranchAndFree();
+    }
 
   }
 
@@ -69,12 +71,17 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     if (!member(x)) {
       return;
     }
+    
+    if (size() == 1) {
+      reset();
+      return;
+    }
 
     final int i = (int) rank(x);
     vacantSlot(getIndex(i));
     updateIndex(i);
     n--;
-
+    
     // Update:
     // Compressing key
     updateCompressingKey();
@@ -117,7 +124,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     dontCares = -1;
 
     branch = 0;
-    free = 0;
+    free = -1;
   }
 
   /** Returns the index of the first empty slot in KEY.
@@ -288,6 +295,8 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
         }
       }
       compressingKey = res;
+    } else {
+      compressingKey = 0L;
     }
   }
 
@@ -324,13 +333,11 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
       final long compKey = Util.getField(i, k, compressedKeys);
       final long dontCare = Util.getField(i, k, dontCares);
       long keyBranch = 0L;
-      long keyFree = 0L;
+      long keyFree = -1L;
 
       for (int bit = 0; bit < numSignificantBits; bit++) {
-        if (Util.bit(bit, dontCare) == 1) { // it's a don't care
-          // we set the bit in the free field
-          keyFree = Util.setBit(bit, keyFree);
-        } else { // we care
+        if (Util.bit(bit, dontCare) == 0) { // we care
+          keyFree = Util.deleteBit(bit, keyFree);
           if (Util.bit(bit, compKey) == 1) {
             keyBranch = Util.setBit(bit, keyBranch);
           }
@@ -652,6 +659,18 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
     }
 
     return i_1 + 1;
+  }
+
+  public long compressingKey() {
+    return compressingKey;
+  }
+
+  public long branch() {
+    return branch;
+  }
+
+  public long free() {
+    return free;
   }
 
   /**
