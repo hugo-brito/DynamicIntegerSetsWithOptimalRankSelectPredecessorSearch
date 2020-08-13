@@ -114,7 +114,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
     compressingKey = 0;
     compressedKeys = 0;
-    dontCares = 0;
+    dontCares = -1;
 
     branch = 0;
     free = 0;
