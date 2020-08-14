@@ -214,31 +214,31 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
     //Get h+1 ... k-1 bits of row r
     long rowR = Util.getField(r, k, free);
-    // Util.println("row r(" + r + ") of FREE:");
-    // Util.println(matrixView(k, k, rowR));
+    Util.println("row r(" + r + ") of FREE:");
+    Util.println(matrixView(k, k, rowR));
 
     //Deleting h+1...k-1 bits of r:
     rowR &= ((1L << (h + 1)) - 1);
-    // Util.println("row r of FREE with (h=" + h + ") h+1...k-1 bits set to 0:");
-    // Util.println(matrixView(k, k, rowR));
+    Util.println("row r of FREE with (h=" + h + ") h+1...k-1 bits set to 0:");
+    Util.println(matrixView(k, k, rowR));
 
     // we get the field we want to copy from:
     long rowI = Util.getField(i, k, free);
-    // Util.println("row i(" + i + ") of FREE:");
-    // Util.println(matrixView(k, k, rowI));
+    Util.println("row i(" + i + ") of FREE:");
+    Util.println(matrixView(k, k, rowI));
 
     // we keep only the h+1...k-1 bits of i:
     rowI &= ~((1L << (h + 1)) - 1);
-    // Util.println("row i of FREE with (h=" + h + ") 0...h bits set to 0:");
-    // Util.println(matrixView(k, k, rowI));
+    Util.println("row i of FREE with (h=" + h + ") 0...h bits set to 0:");
+    Util.println(matrixView(k, k, rowI));
 
     // we merge both results
-    // Util.println("rowI | rowR:");
-    // Util.println(matrixView(k, k, rowI | rowR));
+    Util.println("rowI | rowR:");
+    Util.println(matrixView(k, k, rowI | rowR));
 
     // and write it to free
     free = Util.setField(r, rowI | rowR, k, free);
-    Util.println("wrote rowI | rowR in row " + r + ":");
+    Util.println("FREE: wrote rowI | rowR in row " + r + ":");
     Util.println(matrixView(k, k, free));
 
 
@@ -268,10 +268,9 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
     // and write it to branch
     branch = Util.setField(r, rowI | rowR, k, branch);
-    Util.println("wrote rowI | rowR in row " + r + ":");
+    Util.println("BRANCH: wrote rowI | rowR in row " + r + ":");
     Util.println(matrixView(k, k, branch));
-    
-    
+
     // Util.println("BRANCH after insertion of " + x + " in row " + r + ":");
     // Util.println(matrixView(k, k, branch));
     // Util.println("FREE after insertion of " + x + " in row " + r + ":");
@@ -739,6 +738,9 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     // for (long key : set) {
     //   Util.println(key + " inserted = " + node.member(key));
     // }
+
+    // When adding a new row for a new key in free, if the branching bit was already set in the compressingKey
+    // We need to check the lower bits of the compressed keys. There is a bug there.
 
     
   }
