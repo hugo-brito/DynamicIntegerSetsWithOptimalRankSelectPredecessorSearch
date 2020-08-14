@@ -100,7 +100,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     updateIndex(r, indexInKey);
 
     // Util.println("select(" + r + ") = " + select(r));
-
+    final long matrixM_h = matrixM(h); // matrix where only h is set
     // If j is not yet a significant position, then we have to do some work:
     if (Util.bit(j, compressingKey) != 1) {
       // Util.println("--- Start of operations based on  j was not being a significant position ---");
@@ -118,7 +118,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
       a column of 1s in free.
        */
       
-      final long matrixM_h = matrixM(h); // matrix where only h is set
+      // final long matrixM_h = matrixM(h); // matrix where only h is set
       // Util.println("Matrix M(h=" + h + "), only h is set:");
       // Util.println(matrixView(k, k, matrixM_h));
 
@@ -157,6 +157,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
       Util.println("Free after \"fixing\" h (" + h + "):");
       Util.println(matrixView(k, k, free));
 
+    }
       Util.println("i_0 = " + i_0 + " | i_1 = " + i_1);
       Util.println("We now look at rows i_0:i_1");
       long matrixMi0_Mi1_h = matrixMRowRange(i_0, i_1);
@@ -175,7 +176,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
       // Util.println("--- End of operations based on  j was not being a significant position ---");
 
-    }
+    // }
 
     // if j was already a significant bit, then i is just match(x), that is, i is
     // the position of
