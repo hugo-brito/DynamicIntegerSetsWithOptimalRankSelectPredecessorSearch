@@ -228,7 +228,7 @@ class UtilTest {
   }
 
   @Test
-  void rankLemma1Commented() {
+  void rankLemma1Verbose() {
     for (int p = 0; p < passes; p++) {
       for (int b = loB; b < hiB + 1; b++) { // we vary the number of bits per key
         // generate m distinct keys of b size + 1 key
@@ -284,7 +284,7 @@ class UtilTest {
         }
 
         // use the function from Util to test it.
-        assertEquals(rankX, Util.rankLemma1Commented(x, A, m, b), "Pass " + (p + 1) + "/" + passes
+        assertEquals(rankX, Util.rankLemma1Verbose(x, A, m, b), "Pass " + (p + 1) + "/" + passes
             + " | Seed: " + seedList.get(p) + "\nA = " + Util.bin(A, b)
             + "\nx = " + Util.bin(x, b));
       }

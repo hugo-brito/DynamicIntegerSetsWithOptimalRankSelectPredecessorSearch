@@ -1042,7 +1042,7 @@ public abstract class Util {
    * @param m the number of keys in A
    * @param b the length of each key in A
    */
-  public static int rankLemma1Commented(long x, long A, final int m, final int b) {
+  public static int rankLemma1Verbose(long x, long A, final int m, final int b) {
     // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
     // order!
     // final int blockSize = 4;
@@ -1195,6 +1195,8 @@ public abstract class Util {
     final int x = 0b00000000_00000000_00000000_00011110;
 
     
-    rankLemma1Commented(x, A, 8, 8);
+    rankLemma1Verbose(x, A, 8, 8);
+
+    Long.bitCount(-1);
   }
 }
