@@ -136,14 +136,14 @@ class UtilTest {
 
 
   @Test
-  void msb64ConstantCommented() {
+  void msb64ConstantVerbose() {
     for (long i = longLowerBound; i < 0; i++) {
-      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstantCommented(i),
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstantVerbose(i),
           "Failed for " + i);
     }
-    assertEquals(-1, Util.msbConstantCommented(0));
+    assertEquals(-1, Util.msbConstantVerbose(0));
     for (long i = 1; i <= longUpperBound; i = i + 2) {
-      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstantCommented(i),
+      assertEquals(Long.SIZE - 1 - Long.numberOfLeadingZeros(i), Util.msbConstantVerbose(i),
           "Failed for " + i);
     }
   }

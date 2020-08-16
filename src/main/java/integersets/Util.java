@@ -9,26 +9,32 @@ public abstract class Util {
   /* BIT OPERATIONS */
 
   /**
-   * Given a 32-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed w-1..0.
+   * Given a 32-bit word, {@code A}, returns the value (0 or 1) of the {@code d}-th bit. The bit are
+   * indexed w-1...0.
    * 
-   * @param d   the digit index
+   * @param d the bit index
    * @param A the long value to have the digit extracted from
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
   public static int bit(final int d, final int A) {
+    if (d < 0 || d >= Integer.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     return (A >>> d) & 1;
   }
 
   /**
-   * Given a 64-bit word, val, return the value (0 or 1) of the d-th digit. Digits
-   * are indexed w-1..0.
+   * Given a 64-bit word, {@code A}, returns the value (0 or 1) of the {@code d}-th bit. The bit are
+   * indexed w-1...0.
    * 
-   * @param d   the digit index
+   * @param d the bit index
    * @param A the long value to have the digit extracted from
    * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
    */
   public static int bit(final int d, final long A) {
+    if (d < 0 || d >= Long.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     return (int) ((A >>> d) & 1);
 
   }
@@ -106,6 +112,9 @@ public abstract class Util {
    * @return The field at the specified position in the {@code A} word
    */
   public static int getField(final int i, final int f, final int A) {
+    if (f < 0 || f >= Integer.SIZE || i < 0 || i * f >= Integer.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     return (A >>> (i * f)) & ((1 << f) - 1);
   }
 
@@ -118,6 +127,9 @@ public abstract class Util {
    * @return The field at the specified position in the {@code A} word
    */
   public static long getField(final int i, final int f, final long A) {
+    if (f < 0 || f >= Long.SIZE || i < 0 || i * f >= Long.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     return (A >>> (i * f)) & ((1L << f) - 1);
   }
 
@@ -134,9 +146,8 @@ public abstract class Util {
    * @return The specified subfield
    */
   public static int getField2d(final int i, final int j, final int g, final int f, final int A) {
-    if (g > f) {
-      throw new IndexOutOfBoundsException(
-        "The length of the subfield must not be larger than the field it belongs to.");
+    if (f < 0 || f >= Integer.SIZE || i < 0 || i * g + j >= Integer.SIZE || g > f) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     return getField(i * g + j, f, A);
   }
@@ -154,9 +165,8 @@ public abstract class Util {
    * @return The specified subfield
    */
   public static long getField2d(final int i, final int j, final int g, final int f, final long A) {
-    if (g > f) {
-      throw new IndexOutOfBoundsException(
-        "The length of the subfield must not be larger than the field it belongs to.");
+    if (f < 0 || f >= Long.SIZE || i < 0 || i * g + j >= Long.SIZE || g > f) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     return getField(i * g + j, f, A);
   }
@@ -171,6 +181,10 @@ public abstract class Util {
    * @return A word containing the specified field range shifted to the least significant positions
    */
   public static int getFields(final int i, final int j, final int f, final int A) {
+    if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE || j < 0
+        || j * f > Integer.SIZE || j < i || (j - i) * f > Integer.SIZE)  {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     if (i == 0 && j * f == Integer.SIZE) {
       return A;
     }
@@ -187,6 +201,10 @@ public abstract class Util {
    * @return A word containing the specified field range shifted to the least significant positions
    */
   public static long getFields(final int i, final int j, final int f, final long A) {
+    if (f < 0 || f > Long.SIZE || i < 0 || i * f > Long.SIZE || j < 0
+        || j * f > Long.SIZE || j < i || (j - i) * f > Long.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     if (i == 0 && j * f == Long.SIZE) {
       return A;
     }
@@ -775,7 +793,7 @@ public abstract class Util {
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
-  public static int msbConstantCommented(long x) {
+  public static int msbConstantVerbose(long x) {
     if (x == 0) {
       return -1; // because 0 has no 1 bits
     }
@@ -955,7 +973,7 @@ public abstract class Util {
    * 
    * @param b the block size
    * @param w the word size
-   * @return
+   * @return the resulting word
    */
   public static long M(final int b, final int w) {
     long M = 1L;
