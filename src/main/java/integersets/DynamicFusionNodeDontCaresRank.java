@@ -7,7 +7,7 @@ package integersets;
  * of keys in the node but keep the 
  */
 
-public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
+public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpdate {
   
   private static final int k = 8;
   private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
@@ -29,7 +29,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
   /**
    * Builds an empty DynamicFusionNodeDontCares.
    */
-  public DynamicFusionNodeDontCares() {
+  public DynamicFusionNodeDontCaresRank() {
     reset();
   }
 
@@ -708,7 +708,7 @@ public class DynamicFusionNodeDontCares implements RankSelectPredecessorUpdate {
 
     // ^^^^--------^^^^ Works ^^^^--------^^^^ //
 
-    final DynamicFusionNodeDontCares node = new DynamicFusionNodeDontCares();
+    final DynamicFusionNodeDontCaresRank node = new DynamicFusionNodeDontCaresRank();
     node.insert(10);
     node.insert(12);
     node.insert(42);
