@@ -1,4 +1,4 @@
-\part{Implementation}
+% \part{Implementation}
 
 % \addsec{Unnumbered level}
 
@@ -26,17 +26,16 @@
 
 \chapter{Background}
 
-In this section, a series of data structures, techniques and other relevant aspects are presented in order to lay the foundation for the implementation that is presented in this report. The following subsections aim at providing some background and to frame the state of the art up to the point where the  \cite{patrascu2014dynamic} paper was presented.
-
-The \cite{patrascu2014dynamic} paper presents a dynamic data structure for storing integers and claims that its running times are optimal. We start by looking at what has been done in that research area.
+The \cite{patrascu2014dynamic} paper presents a dynamic data structure for storing integers and claims that its running times are optimal.
+In this chapter, a series of data structures, techniques and other relevant aspects will be presented, laying the foundation for the implementation of the data structure presented by Pătrașcu and Thorup.
 
 \section{Basic Concepts}
 
 \subsection{Word}
-A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$. The bits that make up a word are indexed from the least (left) to the most (right) significant bit, having the least significant bit index $0$ whereas the most significant has index $w-1$.
+A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$. The bits which a word is comprised of are indexed from the least (left) to the most (right) significant bit, having the least significant bit index $0$, whereas the most significant has index $w-1$.
 
 \subsection{Universe}
-The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$. 
+The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$, e.g., all combinations of $w$-bit words.
 
 \subsection{The Predecessor Problem}\label{sec:predecessorProblem}
 Data structures that maintain a set, $S$ of (integer) keys and enable the following operations are said to solve the static predecessor problem \cite{beame1999optimal}:
@@ -49,7 +48,7 @@ Data structures that maintain a set, $S$ of (integer) keys and enable the follow
     $successor(x)$ returns $min\{y\in S\ |\ y \geq x\}$.
 \end{itemize}
 
-The predecessor problem can also be dynamic \cite{beame1999optimal} if the said data structure allows:
+The predecessor problem can also be dynamic \cite{beame1999optimal} if the said data structure also allows:
 \begin{itemize}
     \item
     $insert(x)$ sets $S=S \cup \{x\}$.
@@ -65,7 +64,7 @@ In this context, the following operations might also be relevant:
     $select(i)$ returns $y \in S$ with $rank(y) = i$, if any.
 \end{itemize}
 
-In particular, the data structure presented in \cite{patrascu2014dynamic} not only implements all of the above, and claims that the running times are optimal for all of them are optimal, it also establishes that, by having the operations defined in this manner \cite{patrascu2014dynamic}:
+In particular, the data structure presented in \cite{patrascu2014dynamic} not only implements all of the above, but it also establishes that by having the operations defined in this manner \cite{patrascu2014dynamic}:
 \begin{itemize}
     \item
     $predecessor(x) = select(rank(x - 1))$
@@ -78,24 +77,24 @@ Given this set of standard operations, this data structure solves the dynamic pr
 \subsection{Models of Computation}\label{sec:modelsofcomputation}
 
 In order to analyze and describe running times, authors resort to models of computation. Each model states which operations have an associated cost, and which ones do not.
-These models provide no unit of cost, and the given operations either have one unit of cost, or none.
+These models provide no unit of cost, and the given operations either have one unit of cost or none.
 
 Despite their theoretical relevance, when having a data structure and its operations measured against wall clock, one might be surprised with the results.
 This is because theoretical bounds have the potential to hide big constants, which are brought to light when wall clock measurements are performed.
-Nevertheless, we will enumerate some models of computation, as many of the data structures here presented have their running times described in terms of a given model and therefore it is of interest to provide this context.
+Nevertheless, we will enumerate some models of computation, as many of the data structures here presented have their running times described in terms of a given model, and therefore, it is of interest to provide this context.
 
-The models are presented in descending order from strongest to the least strong. This means that a less restrictive model, such as the cell-probe model is more suited to describe the theoretical \emph{lower} bounds of a data structure than the least stronger ones \cite{erikdemainelec11}.
+The models are presented in descending order from strongest to the least strong. This means that a less restrictive model, such as the cell-probe model, is more suited to describe the theoretical \emph{lower} bounds of a data structure than the least stronger ones \cite{erikdemainelec11}.
 
 \subsubsection{The Cell-Probe Model}
-In the cell-probe model memory is divided into cells of size $w$, a parameter of the model. Every computation is free.
+In the cell-probe model, memory is divided into cells of size $w$, a parameter of the model. Every computation is free.
 The only operations that come with an associated cost are reading or writing to memory, which are basically the memory accesses.
 Due to its simplicity, as stated in \ref{sec:modelsofcomputation}, it is widely used to prove lower bounds \cite{erikdemainelec11}.
 
 \subsubsection{Trans-dichotomous RAM}
 In the trans-dichotomous RAM model, memory consists of an array of size $S$ of $w$-bit words.
 Reading or writing to one of the memory cells costs $O(1)$.
-Additionally, memory cells can be used as pointers to other cells, e.g. a single $w$-bit word can be used to access another cell.
-This implies that, the word length $w$ has to be large enough in order be able to index all to access all cells in the memory.
+Additionally, memory cells can be used as pointers to other cells, e.g., a single $w$-bit word can be used to access another cell.
+This implies that the word length $w$ has to be large enough to be able to index all to access all cells in the memory.
 Let the problem size be $n$:
 \begin{equation}\label{eq:problemSize}
     w \ge \log_2(S) \implies w \ge \log_2(n)
@@ -103,16 +102,16 @@ Let the problem size be $n$:
 The name is due to expression~\ref{eq:problemSize}, which relates two dichotomies: problem size $n$; and the model of computation with words of size $w$ \cite{erikdemainelec11}. 
 
 \subsubsection{Word RAM}
-Similarly to the trans-dichotomous RAM model, the word RAM also operates with fixed size $w$-bit words. Additionally, the following operations have an associated cost \cite{nelsonjelanilec1}:
+Like the trans-dichotomous RAM model, the word RAM also operates with fixed size $w$-bit words. Additionally, the following operations have an associated cost \cite{nelsonjelanilec1}:
 \begin{itemize}
     \item Integer arithmetic (addition $+$, subtraction $-$, multiplication $\times$, division $\div$ and remainder of division (modulo) $\bmod$);
-    \item Bitwise operations (negation $\neg$, and $\wedge$, or $\vee$, exclusive or $\oplus$);
-    \item Bitshift operations (right bitshift $\gg$, left bitshift $\ll$).
+    \item Bit-wise operations (negation $\neg$, and $\wedge$, or $\vee$, exclusive or $\oplus$);
+    \item Bit-wise shifting operations (right bit-shift $\gg$, left bit-shift $\ll$).
 \end{itemize}
 
 \section{Integer Sets}
 
-Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data structures that, in incremental steps, led to the data structure presented in this project.
+Table~\ref{tab:dataStructComparison} is a summary of relevant data structures that incrementally lead to the data structure presented in this project.
 
 \begin{table}[H]
 \centering
@@ -129,83 +128,161 @@ Table~\ref{tab:dataStructComparison} can be seen as a summary of relevant data s
 
 \section{Summary of techniques used in the present implementation}
 
-All of the techniques presented in this section have been implemented as static functions in the {\ttfamily Util} class.
+All of the algorithms presented in this section have been implemented as static functions in the {\ttfamily Util} class.
 
 \subsection{Bit operations} \label{sec:bit}
 
-Let $A$ be a $w$-bit length word. In this section we define a small set of functions that operate on $A$'s bits. All the algorithms presented in this section take $O(1)$ time.
+Let $A$ be a $w$-bit length word. This section features a set of functions that operate on $A$'s bits. Since these operations only use bit-wise shifting and masking, all the algorithms presented in this section take $O(1)$ time.
 
 \subsubsection{Is the bit set}
 
-This operation is aimed at extracting the bit at position $d$ in $A$. e.g. getting the value of the bit at position $d$. Let us denote such operation by bit$(d, A)$, then bit$(d, A) = (A \gg d) \wedge 1$.
+This operation aims at extracting the bit at position $d$ in $A$ or, in other words, getting the value of the bit at position $d$. Let us denote such operation by bit$(d, A)$, then:
+\begin{align*}
+    \text{bit}(d, A) = (A \gg d) \wedge 1
+\end{align*}
+
 Example:
 \begin{align*}
     w = 16\\
     d = 8\\
     A = 0101\ 110\underline{1}\ 1100\ 0111_2& \\
     \text{bit}(8,A) = (0101\ 110\underline{1}\ 1100\ 0111_2& \gg 8) \wedge 1 \\
-    \text{bit}(8,A) = (0000\ 0000\ 0101\ 110\underline{1}_2&) \wedge 1 \\
+    \cline{1-2}
+    \text{bit}(8,A) = 0000\ 0000\ 0101\ 110\underline{1}_2& \\
+    \wedge\ 0000\ 0000\ 0000\ 000\underline{1}_2 \\
     \cline{1-2}
     \text{bit}(8,A) = 1 &
 \end{align*}
 
 \subsubsection{Set bit}
-This operation setting the bit at position $d$ in $A$ to one. Let us denote such operation by setBit$(d, A)$, then setBit$(d, A) = A \vee (1 \ll d)$.
+This operation sets the bit at position $d$ in $A$ to one. Let us denote such operation by setBit$(d, A)$, then:
+\begin{align*}
+    \text{setBit}(d, A) = A \vee (1 \ll d)
+\end{align*}
+
 Example:
 \begin{align*}
     w = 16\\
     d = 4\\
     A = 0101\ 1101\ 110\underline{0}\ 0111_2& \\
     \text{setBit}(4,A) = 0101\ 1101\ 110\underline{0}\ 0111_2& \vee (1 \ll 4) \\
-    \text{setBit}(4,A) = 0101\ 1101\ 110\underline{0}\ 0111_2& \vee 0000\ 0000\ 000\underline{1}\ 0000_2 \\
+    \cline{1-2}
+    \text{setBit}(4,A) = 0101\ 1101\ 110\underline{0}\ 0111_2& \\
+    \vee\  0000\ 0000\ 000\underline{1}\ 0000_2& \\
     \cline{1-2}
     \text{setBit}(4,A) = 0101\ 1101\ 110\underline{1}\ 0111_2&
 \end{align*}
 
 \subsubsection{Delete bit}
-This operation setting the bit at position $d$ in $A$ to zero. Let us denote such operation by deleteBit$(d, A)$, then deleteBit$(d, A) = A \wedge \neg(1 \ll d)$.
+This operation sets the bit at position $d$ in $A$ to zero. Let us denote such operation by deleteBit$(d, A)$, then:
+\begin{align*}
+    \text{deleteBit}(d, A) = A \wedge \neg(1 \ll d)
+\end{align*}
+
 Example:
 \begin{align*}
     w = 16\\
     d = 6\\
     A = 0101\ 1101\ 1\underline{1}00\ 0111_2& \\
     \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \wedge \neg(1 \ll 6) \\
-    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \wedge \neg(0000\ 0000\ 0\underline{1}00\ 0000_2) \\
-    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \wedge 1111\ 1111\ 1\underline{0}11\ 1111_2 \\
+    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2&\\
+    \wedge\ \neg(0000\ 0000\ 0\underline{1}00\ 0000_2&) \\
+    \cline{1-2}
+    \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{1}00\ 0111_2& \\
+    \wedge\ 1111\ 1111\ 1\underline{0}11\ 1111_2 \\
     \cline{1-2}
     \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{0}00\ 0111_2&
 \end{align*}
 
+\subsection{Masks} \label{sec:masks}
+
+Pătrașcu and Thorup refer to some useful constants that we will denote by masks, which are useful for bit-wise operations. In this section, we will see how we can compute them.
+
+\begin{itemize}
+    \item
+    The mask $0^{w-j} 1^j_2$ consists of a word with $w-j$ significant bits set to zero, and the least $j$ significant bits set to one. It is useful for instance, to mask the first $j$ least significant bits of a word and it is computed with the expression:
+    \begin{align*}
+        0^{w-j} 1^j_2 = (1 \ll j) - 1
+    \end{align*}
+    Example:
+    \begin{align*}
+        w &= 16\\
+        j &= 4\\
+        \cline{1-2}
+        0^{16-4} 1^4_2 &= (1 \ll 4) - 1\\
+        &= (0000\ 0000\ 0000\ 0001_2 \ll 4) - 1\\
+        &= 0000\ 0000\ 0001\ 0000_2 - 1\\
+        &= \underbrace{0000\ 0000\ 0000}_{w-j}\ \underbrace{1111}_{j}{}_2
+    \end{align*}
+    
+    \item
+    The mask $1^{w-j} 0^j_2$ consists of a word with $w-j$ significant bits set to one, and the least $j$ significant bits set to zero. For instance, it is useful to mask the first $w - j$ most significant bits of a word. It is easily computed by negating the result from the previous expression:
+    \begin{align*}
+        1^{w-j} 0^j_2= \neg((1 \ll j) - 1)
+    \end{align*}
+    Example:
+    \begin{align*}
+        w &= 16\\
+        j &= 4\\
+        \cline{1-2}
+        1^{16-4} 0^4_2 &= \neg((1 \ll 4) - 1)\\
+        &= \neg((0000\ 0000\ 0000\ 0001_2 \ll 4) - 1)\\
+        &= \neg(0000\ 0000\ 0001\ 0000_2 - 1)\\
+        &= \neg0000\ 0000\ 0000\ 1111_2\\
+        &= \underbrace{1111\ 1111\ 1111}_{w-j}\ \underbrace{0000}_{j}{}_2
+    \end{align*}
+\end{itemize}
+
 \subsection{Fields of words}
 
-We follow the definitions from \cite{patrascu2014dynamic} regarding viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is made up of fields, analogously to bit indexing of a word, its least significant field is the right most one, denoted $A\langle0\rangle_f$; its most significant field is the left most one, denoted $A\langle f-1\rangle_f$, and so on. All the algorithms described in this section take $O(1)$ time.
+We follow the definitions from \cite{patrascu2014dynamic} in regards to viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is comprised of fields, analogously to bit indexing of a word, its least significant field is the rightmost one, denoted $A\langle0\rangle_f$; its most significant field is the leftmost one, denoted $A\langle f-1\rangle_f$, and so on.
+Note that the functions presented in this section consist of simple bit-wise shifting and masking with the expressions defined in \ref{sec:masks}. Regarding running times, all these algorithms take $O(1)$ time.
 
 \subsubsection{Field retrieval} \label{sec:fieldRetrieval}
 
-This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by getField$(i, f, A)$. It is defined by getField$(i, f, A) = (A \gg (i \times f)) \wedge ((1 \ll f) - 1)$. Example:
+This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by getField$(i, f, A)$. It is defined by:
+\begin{align*}
+    \text{getField}(i, f, A) = (A \gg (i \times f)) \wedge ((1 \ll f) - 1)
+\end{align*}
+
+Example:
 \begin{align*}
     i = 1\\
     f = 4\\
     A = 0101\ 1101\ \underline{1100}\ 0111_2& \\
     \text{getField}(1, 4, A) = (0101\ 1101\ \underline{1100}\ 0111_2& \gg (\underbrace{1 \times 4}_{4})) \wedge (\underbrace{(1 \ll 4) - 1}_{1111_2})\\
-    \text{getField}(1, 4, A) = 0000\ 0101\ 1101\ \underline{1100}_2& \wedge 0000\ 0000\ 0000\ 1111_2 \\
+    \cline{1-2}
+    \text{getField}(1, 4, A) = 0000\ 0101\ 1101\ \underline{1100}_2& \\
+    \wedge\ 0000\ 0000\ 0000\ 1111_2& \\
     \cline{1-2}
     \text{getField}(1, 4, A) = 0000\ 0000\ 0000\ \underline{1100}_2&
 \end{align*}
 
-A range of fields can be retrieved in a single operation. We denote by getFields$(i, j, f, A)$ the operation consisting of retrieving the fields $\{A\langle i\rangle_f,\dots , A\langle j-1\rangle_f\}$, which is defined by getFields$(i, j, f, A) = (A \gg (i \times f)) \wedge ((1 \ll ((j - i) \times f)) - 1)$. Example:
+A range of fields can be retrieved in a single operation. We denote by getFields$(i, j, f, A)$ the operation consisting of retrieving the fields $\{A\langle i\rangle_f,\dots , A\langle j-1\rangle_f\}$, which is defined by:
+\begin{align*}
+    \text{getFields}(i, j, f, A) = (A \gg (i \times f)) \wedge ((1 \ll ((j - i) \times f)) - 1)
+\end{align*}
+
+Example:
 \begin{align*}
     i = 1\\
     j = 3\\
     f = 4\\
     A = 0101\ \underline{1101}\ \underline{1100}\ 0111_2& \\
     \text{getFields}(1, 2, 4, A) = (0101\ \underline{1101}\ \underline{1100}\ 0111_2& \gg (\underbrace{1 \times 4}_{4})) \wedge (\underbrace{(1 \ll ((3 - 1) \times 4)) - 1}_{1111\ 1111_2})\\
-    \text{getFields}(1, 2, 4, A) = 0101\ \underline{1101}\ \underline{1100}\ 0111_2& \wedge 0000\ 0000\ 1111\ 1111_2 \\
+    \cline{1-2}
+    \text{getFields}(1, 2, 4, A) = 0000\ 0101\ \underline{1101}\ \underline{1100}_2&\\
+    \wedge\ 0000\ 0000\ 1111\ 1111_2 \\
     \cline{1-2}
     \text{getFields}(1, 2, 4, A) = 0000\ 0000\ \underline{1101}\ \underline{1100}_2&
 \end{align*}
 
-We can also specify a lower field and retrieve all the fields from that position up to the end of the word. This operation is denoted by getFields$(i, f, A)$ and it is defined by getFields$(i, f, A) = A \gg (i \times f)$. Example:
+We can also specify a lower field and retrieve all the fields from that position up to the end of the word. This is denoted by getFields$(i, f, A)$ and it is defined by:
+\begin{align*}
+    \text{getFields}(i, f, A) = A \gg (i \times f)
+\end{align*}
+
+Example:
 \begin{align*}
     i = 2\\
     f = 4\\
@@ -217,7 +294,11 @@ We can also specify a lower field and retrieve all the fields from that position
 
 \subsubsection{Field assignment}
 
-Conversely, it is also possible to assign a value to a particular field. To so, we need an auxiliary variable $m$, computed as a function of $i$ (the position of the field to be set) and $f$ (the length of the fields in $A$). Thus we have $m = ((1 \ll f) - 1) \ll (i \times f)$. Setting field $y$ in $A$, denoted by setField$(i, y, f, A)$ is defined by:
+Conversely, it is also possible to assign a value to a particular field. To do so, a mask $m$ is required, and it is computed as a function of $i$ (the position of the field to be set) and $f$ (the length of the fields in $A$). Thus we have:
+\begin{align*}
+    m = ((1 \ll f) - 1) \ll (i \times f)
+\end{align*}
+ Setting field $y$ in $A$, denoted by setField$(i, y, f, A)$ is defined by:
 \begin{equation*}
     \text{setField}(i, y, f, A) = \underbrace{(A \wedge \neg m)}_{\text{(a) Reset field}} \vee \ \underbrace{(y \ll (i \times f) \wedge m)}_{\text{(b) Set field}}
 \end{equation*}
@@ -229,16 +310,25 @@ Example:
     m = (\underbrace{(1 \ll 4)  - 1} _{1111_2}) \ll (\underbrace{1 \times 4}_{4}) = 0000\ 0000\ 1111\ 0000_2\\
     A = 0101\ 1101\ \underline{1100}\ 0111_2& \\
     \cline{1-2}
-    \text{(a)}\quad A \wedge \neg m = 0101\ 1101\ \underline{1100}\ 0111_2 & \wedge 1111\ 1111\ 0000\ 1111_2\\
-    \text{(b)}\quad y \ll (1 \times 4) \wedge m = 1001_2 \ll 4 & \wedge 0000\ 0000\ 1111\ 0000_2\\
-    \text{setField}(1, y, 4, A) = \text{(a)} \vee \text{(b)} = 0101\ 1101\ \underline{0000}\ 0111_2& \vee 0000\ 0000\ \underline{1001}\ 0000_2 \\
+    \text{(a)}\quad A \wedge \neg m = 0101\ 1101\ \underline{1100}\ 0111_2 \\
+    \wedge\ 1111\ 1111\ 0000\ 1111_2\\
+    \text{(a)}\quad = 0101\ 1101\ 0000\ 0111_2\\
+    \cline{1-2}
+    y \ll (1 \times 4) = 0000\ 0000\ 0000\ \underline{1001}_2& \ll 4\\
+    = 0000\ 0000\ \underline{1001}\ 0000_2\\
+    \text{(b)}\quad (y \ll 4) \wedge m = 0000\ 0000\ \underline{1001}\ 0000_2\\ 
+    \wedge\ 0000\ 0000\ 1111\ 0000_2\\
+    \text{(b)}\quad = 0000\ 0000\ \underline{1001}\ 0000_2\\
+    \cline{1-2}
+    \text{setField}(1, y, 4, A) = \text{(a)} \vee \text{(b)} = 0101\ 1101\ \underline{0000}\ 0111_2\\
+    \vee\ 0000\ 0000\ \underline{1001}\ 0000_2 \\
     \cline{1-2}
     \text{setField}(1, y, 4, A) = 0101\ 1101\ \underline{1001}\ 0111_2&
 \end{align*}
 
 \subsection{Most significant set bit}
 
-Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we have looked at different ways to achieve this result efficiently. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully. Let the most significant set bit of $x$ be denoted msb$(x)$.
+Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we will look at different ways to achieve this result. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully. We denote the most significant set bit of $x$ by msb$(x)$.
 
 \subsubsection{Naive}
 
@@ -250,9 +340,9 @@ This approach takes $O(w)$ time.
 
 In this approach, a lookup table containing the most significant bits answers for all combinations of 8 bits is pre-computed.
 
-When a query comes, it is iterated in fields of 8-bit, starting from the most significant field. If those bits are not zero, then the most significant bit of the queried word lies in that block. In such case, the answer will be the most significant set bit of that field plus all the in the non-iterated fields. Since the answer to any combination of of 8 bits is pre-computed, then we know the answer in constant time.
+When a query comes, it is iterated in fields of 8 bits, starting from the most significant field. If that field is not zero, then the most significant bit of the queried word lies in that block. In such a case, the answer will be the most significant set bit of that field plus all the bits in the non-iterated fields. Since the answer to any combination of 8 bits is pre-computed, we know the answer in constant time.
 
-Otherwise, if the first field 0, the algorithm looks at the second most significant field and does the same operation as described in the previous paragraph.
+Otherwise, if the first field zero, the algorithm looks at the second most significant field and does the same operation as described in the previous paragraph.
 
 This approach takes $O(1)$ time after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
 
@@ -261,11 +351,11 @@ This approach takes $O(1)$ time after the lookup table has been computed but, no
 This operation consists of 4 steps. Let $x$ be the query for the most significant set bit:
 \begin{enumerate}
     \item
-    We divide $x$ in $\sqrt{w}$ fields of $\sqrt{w}$ bits. The goal is to summarize the fields in $x$ such that if a field is not empty, then its summary is $1$ and $0$  (zero) otherwise.
+    We divide $x$ in $\sqrt{w}$ fields of $\sqrt{w}$ bits. The goal is to summarize the fields in $x$ such that if a field is not empty, then its summary is $1$ and $0$ (zero) otherwise.
     \item
     We compress the summary such that it fits in a single $\sqrt{w}$-bits field. The resulting field will have all the leading bits of the summary word consecutive.
     \item
-    Then we do parallel comparison of the summary word to find the first non-empty field of $x$, because it will be on that field that the answer will lie.
+    Then we do parallel comparison of the summary word to find the first non-empty field of $x$ because it will be on that field that the answer will lie.
     \item
     We use the same technique as in the previous bullet point, but now on the first non-empty field of $x$. We end with simple arithmetic to return the most significant set bit. 
 \end{enumerate}
@@ -276,7 +366,7 @@ This approach takes $O(1)$ time and requires a small lookup table of $\sqrt{w}/2
 
 \paragraph{Step 1 --- Summarize the query fields} \label{sec:summaryfields}
 
-The goal of this step is to compute a summary word whose leading bit of each of its fields is a summary of each field of the query word $x$. If in a given field $f_i$ the leading bit in the summary word is $1$, then $f_i$ in $x$ was not empty (one or more bits were set), and vice-versa.
+The goal of this step is to compute a summary word whose leading bit of each of its fields is a summary of each field of the query word $x$. If in a given field $f_i$, the leading bit in the summary word is $1$, then $f_i$ in $x$ was not empty (one or more bits were set), and vice-versa.
 
 \begin{enumerate}
     \item \label{blt:msb1}
@@ -299,7 +389,9 @@ The goal of this step is to compute a summary word whose leading bit of each of 
     \end{align*}
     
     \item \label{blt:msb4}
-    We subtract $t_2$ from $F$ and save it to a local variable $t_3$. Since the leading bit of every field of $F$ is one, after subtracting $t_2$ to $F$ what remains is the information about if that field was empty (all zeros) or not. This information is given by the bit that remains at the most significant position of each resulting field. For any given field, if the most significant bit is one, then it means that the corresponding field in $x$ was empty. Otherwise, it was not empty. Since we only care about what remains of in the most significant position of each field, in the example below the remaining noise has been replaced with $?$.
+    We subtract $t_2$ from $F$ and save it to a local variable $t_3$. Since the leading bit of every field of $F$ is one, after subtracting $t_2$ to $F$, what remains is the information about if that field was empty (all zeros) or not. This information is given by the bit that remains at the most significant position of each resulting field. In other words, if in any given field of the resulting word, the most significant bit is one, then the corresponding field in $x$ was empty; otherwise, it was not empty.
+    
+    Since we only care about what remains of the most significant position of each field, in the example below, the remaining noise has been replaced with $?$.
     \begin{align*}
                     F &= 1000\ 1000\ 1000\ 1000_2 \\
                   t_2 &= 0\underline{101}\ 0\underline{000}\ 0\underline{000}\ 0\underline{101}_2 \\ \cline{1-2} 
@@ -307,7 +399,7 @@ The goal of this step is to compute a summary word whose leading bit of each of 
     \end{align*}
     
     \item \label{blt:msb5}
-    This step consists of clearing the noise from $t_3$ since we care only about knowing if which fields in $x$ were empty or not. To do so, $(\neg t_3) \wedge F$.
+    This step consists of clearing the noise from $t_3$ since we care only about knowing which fields in $x$ were empty or not. To do so, $(\neg t_3) \wedge F$.
     \begin{align*}
                        t_3 &= \underline{0}???\ \underline{1}000\ \underline{1}000\ \underline{0}???_2 \\ \cline{1-2} 
             t_4 = \neg t_3 &= \underline{1}???\ \underline{0}111\ \underline{0}111\ \underline{1}???_2 \\
@@ -344,7 +436,7 @@ The goal of this step is to compress the summary word down to a single field.
     
     \item \label{blt:summCompression2}
     We wish now to copy the least significant bit of each field to a single field, keeping their relative order.
-    Similarly to \ref{sec:summaryfields}.\ref{blt:msb1}, we need to find a word $C$ which when multiplied by $t_6$ will produce the result we are looking for.
+    Similarly to \ref{sec:summaryfields}.\ref{blt:msb1}, we need to find a word $C$ which, when multiplied by $t_6$, will produce the result we are looking for.
     Let $C$ be also partitioned in fields indexed $\{f_0, ..., f_{\sqrt{w} - 1}\}$ where $f_{\sqrt{w} - 1}$ is the most significant field. At every field $f_i$, the only set bit is $b_{\sqrt{w} - 1 - i}$).
     In our example $C = 0001\ 0010\ 0100\ 1000_2$.
     
@@ -354,78 +446,94 @@ The goal of this step is to compress the summary word down to a single field.
                          t_7 &= 000\underline{1}\ 000\underline{0}\ 000\underline{1}\ 000\underline{1}_2 \\
                            C &= 0001\ 0010\ 0100\ 1000_2 \\ \cline{1-2} 
           t_8 = t_7 \times C &= \underline{1011}\ ????\ ????\ ????_2\\ \cline{1-2}
-        t_9 = t_8 \gg (16-4) &= 0000\ 0000\ 0000\ \underline{1011}_2
+        x_s = t_8 \gg (16-4) &= 0000\ 0000\ 0000\ \underline{1011}_2
     \end{align*}
 \end{enumerate}
 
 \paragraph{Step 3 --- First non-empty field with parallel comparison} \label{sec:parallel}
-At this stage the goal is to know the first non-empty field of $x$. To do so, we need to do a parallel comparison between $t_9$ (the summary of $x$'s fields) and all the $\sqrt{w}$ powers of two. Parallel comparison requires 1 extra bit per comparable block: this is because, similarly to the step taken in \ref{sec:summaryfields}.\ref{blt:msb4}, a subtraction is done in order to figure out at which position the leading $1$ is borrowed. Since in total we need $\sqrt{w}\cdot(\sqrt{w} + 1)$ bits to for the vectors, and $\sqrt{w}\cdot(\sqrt{w} + 1) > w$, we know that it might be necessary to do this operation in two iterations: one for the higher powers of two, and another for the lower ones. We know also that, the result of operation is a monotone function, meaning that once the transition on the leading bit is found, the result is found. This also implies that if the result if found in the higher powers of two, then it is not necessary to look for it in the lower end.
+At this stage, the goal is to compute the first non-empty field of $x$. To do so, we need to do a parallel comparison between $x_s$ (the summary of $x$'s fields) and all the $\sqrt{w}$ powers of two.
+
+The parallel comparison consists of:
+\begin{enumerate}
+    \item
+    Taking a query $x$ of length $l < w$, making as many copies of it as there are other vectors we wish to compare it with while padding these copies with zero. The resulting vector is stored in a word.
+    
+    \item
+    The vectors we wish to compare $x$ with are stored in word $A$ with each of their leading bits padded with one.
+    
+    \item
+    We take the difference between $A$ and the copies of $x$, checking how many of the padding bits remain one in $A$ after this operation. The result stands for the number of vectors in $A$ that were strictly smaller than $x$.
+\end{enumerate}
+
+Since the vector we want to compare $x_s$ with consists of $\sqrt{w}$ powers of two, then we know that we will need $\sqrt{w}\cdot(\sqrt{w} + 1)$ bits to store all such vectors. This extra bit per vector is due to the padding bit mentioned earlier. Since $\sqrt{w}\cdot(\sqrt{w} + 1) > w$, we know also that it might be necessary to do this operation in two iterations. Since a word does not hold enough bits to perform the comparison with a single word, we will split the vectors in two words: one representing the higher $\sqrt{w}/2$ powers of two, and another for the lower ones.
+
+If the power of two vectors are sorted, this parallel comparison will be a monotone function, meaning that once the transition on the leading bit is found, the result is found. This also implies that if the result is found in the higher powers of two, then it is unnecessary to look for it in the lower end.
 
 \begin{enumerate}
     \item \label{blt:parallel1}
-    We define two vectors, $hi$ and $lo$, with $hi > lo$, which are comprised of the concatenation of the $\sqrt{w}$ powers of two in sorted in descending order and padded with $1$. To each power of two, have to subtract $1$ for this operation to work, because if we do not and the query is an exact power of two, the corresponding padding $1$ will not be borrowed. In our example:
+    We define two bit vectors, $hi$ and $lo$, with $hi > lo$. These vectors are comprised of the concatenation of the $\sqrt{w}$ powers of two in sorted in descending order and padded with $1$. To each power of two, we have to subtract $1$ for this operation to work, because if we do not and the query is an exact power of two, the corresponding padding $1$ will not be borrowed. In our example:
     \begin{align*}
         hi &= 1\ \underbrace{0111}_{2^3-1=7}\ 1\ \underbrace{0011}_{2^2-1=3}{}_2\\
         lo &= 1\ \underbrace{0001}_{2^1-1=1}\ 1\ \underbrace{0000}_{2^0-1=0}{}_2
     \end{align*}
     
     \item \label{blt:parallel2}
-    We define another vector $t_{10}$ consisting of $\sqrt{w}/2$ concatenated copies of $t_9$ where each of the copies is prefixed by zero. This vector is achieved by multiplying $t_9$ with a word $M$ consisting of $\sqrt{w}/2$ fields of size $\sqrt{w} + 1$ where the least significant bit of each field is set to $1$. Note that, because we have set the size of each field of $M$ to have an additional bit, this corresponds to prefix a zero to each $\sqrt{w}$ field:
+    We define another vector $t_9$ consisting of $\sqrt{w}/2$ concatenated copies of $x_s$ where each of the copies is prefixed by zero. This vector is achieved by multiplying $x_s$ with a word $M$ consisting of $\sqrt{w}/2$ fields of size $\sqrt{w} + 1$ where the least significant bit of each field is set to $1$. Note that, because we have set the size of each field of $M$ to have an additional bit, this corresponds to prefix a zero to each $\sqrt{w}$ field:
     \begin{align*}
-        t_9 = 0000\ 0000\ 0000\ &\underline{1011}_2\\ 
+        x_s = 0000\ 0000\ 0000\ &\underline{1011}_2\\ 
         M = 0\ 0001\ 0\ &0001_2\\ \cline{1-2}
-        t_{10} = t_9 \times M = 0\ \underline{1011}\ 0\ &\underline{1011}_2
+        t_9 = x_s \times M = 0\ \underline{1011}\ 0\ &\underline{1011}_2
     \end{align*}
     
     \item \label{blt:parallel3}
-    To find the first non-empty field of $x$, we take the differences between $t_{10}$ and $hi$ and $lo$ respectively. The answer will lie one the first field which leading bit resulted in a zero after the operation.
+    To find the first non-empty field of $x$, we take the differences between $t_9$ and $hi$ and $lo$ respectively. The answer will lie one the first field which leading bit resulted in a zero after the operation.
     \begin{align*}
                           hi &= \underline{1}\ \underline{1}000\ \underline{1}\ \underline{01}00_2\\
                           lo &= \underline{1}\ \underline{001}0\ \underline{1}\ \underline{0001}_2 \\
-                      t_{10} &= 0\ 1011\ 0\ 1011_2\\ \cline{1-2}
-        t_{11} = hi - t_{10} &= \underline{0}\ ????\ \underline{0}\ ????_2 \\
-        t_{12} = lo - t_{10} &= \underline{0}\ ????\ \underline{0}\ ????_2
+                      t_9 &= 0\ 1011\ 0\ 1011_2\\ \cline{1-2}
+        t_{10} = hi - t_9 &= \underline{0}\ ????\ \underline{0}\ ????_2 \\
+        t_{11} = lo - t_9 &= \underline{0}\ ????\ \underline{0}\ ????_2
     \end{align*}
     
     \item \label{blt:parallel4}
-    Looking at $t_{11}$, we note that the first non-empty field of $x$ is the first, because the leading bit of first field resulting from difference between $hi$ and $t_{10}$ is now zero. Nevertheless,  we will do the same operations on both $t_{11}$ and $t_{12}$ and concatenate the results so we end up with a single result for the whole query. Note that in the previous step the actual values within each field besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryfields} and \ref{sec:summaryCompression}.
+    Looking at $t_{10}$, we note that the first non-empty field of $x$ is the first because the leading bit of first field resulting from the difference between $hi$ and $t_9$ is now zero. Nevertheless,  we will do the same operations on both $t_{10}$ and $t_{11}$ and concatenate the results, so we end up with a single result for the whole query. Note that in the previous step, the actual values within each field besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryfields} and \ref{sec:summaryCompression}.
     \begin{enumerate}
         \item
         The first step is to clear all the irrelevant bits in the fields and turn the leading bits from zero to one. We choose a mask for this specific purpose.
         \begin{align*}
+            t_{10} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
             t_{11} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
-            t_{12} = \underline{0}\ ????\ \underline{0}\ ????_2&\\
             Mask_1 = 1\ 0000\ 1\ 0000_2&\\ \cline{1-2}
-            t_{13} = (t_{11} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&\\
-            t_{14} = (t_{12} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&
+            t_{12} = (t_{10} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&\\
+            t_{13} = (t_{11} \wedge Mask_1) \oplus Mask_1 = \underline{1}\ 0000\ \underline{1}\ 0000_2&
         \end{align*}
         \item
         Secondly, we wish to summarize the results in a single field. To achieve so, we first multiply the vectors by an integer $V$, which construction follows what we have done for \ref{sec:summaryCompression}.\ref{blt:summCompression2}, and that result will put all the important bits consecutive in the most significant field.
         
         \begin{align*}
+            t_{14} = t_{12} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
             t_{15} = t_{13} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
-            t_{16} = t_{14} \gg \sqrt{w} = 0\ 000\underline{1}\ 0\ 000\underline{1}_2& \\
             \cline{1-2}
             V =\ 01000\ 10000_2 & \\
+            t_{16} = t_{14} \times V =\ ???????\ \underline{11}00?\ ?????_2& \\
             t_{17} = t_{15} \times V =\ ???????\ \underline{11}00?\ ?????_2& \\
-            t_{18} = t_{16} \times V =\ ???????\ \underline{11}00?\ ?????_2& \\
         \end{align*}
         \item
         After the multiplication, we have to remove the noise and move the result to the least significant field. We achieve this by defining another mask for this purpose, followed by the necessary bit shifts. The final step will be to merge the results of the higher and the lower powers of two: $t_{hi} \vee t_{lo}$.
         
         \begin{align*}
             Mask_2 = 11_2&\\
+            t_{18} = t_{16} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
             t_{19} = t_{17} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
-            t_{20} = t_{18} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
             \cline{1-2}
-            t_{hi} = t_{19} \gg (\sqrt{w} + \sqrt{w}/2) = 00\ 0000\ \underline{11}00_2 &\\
-            t_{lo} = t_{20} \gg (\sqrt{w} \cdot \sqrt{w} / 2) = 00\ 0000\ 00 \underline{11}_2 &\\
+            t_{hi} = t_{18} \gg (\sqrt{w} + \sqrt{w}/2) = 00\ 0000\ \underline{11}00_2 &\\
+            t_{lo} = t_{19} \gg (\sqrt{w} \cdot \sqrt{w} / 2) = 00\ 0000\ 00 \underline{11}_2 &\\
             \cline{1-2}
             t_{q} = t_{hi} \vee t_{lo} = \underline{1111}_2 &\\
         \end{align*}
     \end{enumerate}
     \item
-    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ in to a single field, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table in this case will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we return the value in the lookup table plus a constant corresponding to the least significant positions ($\sqrt{w}/2$). Should it be $0$, then we do the lookup for $t_{lo}$ and return the corresponding value in the lookup table.
+    Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ into a single field, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table, in this case, will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we return the value in the lookup table plus a constant corresponding to the least significant positions ($\sqrt{w}/2$). Should it be $0$, then we do the lookup for $t_{lo}$ and return the corresponding value in the lookup table.
     
     In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $3$ (three), meaning, the method should now look at field $c_3$ (the most significant field).
 \end{enumerate}
@@ -440,7 +548,7 @@ After learning in which field lies the most significant bit, we now run the same
         x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
         Mask_3 = 0000\ 0000\ 0000\ 1111_2 &\\
         \cline{1-2}
-        t_{21} = (x \gg \underbrace{(\sqrt{w} \cdot (\sqrt{w} - 1 - i))}_{4\times(4-1-0)}\ \wedge\ Mask_3 = 0000\ 0000\ 0000\ \underline{0101}_2 &
+        t_{20} = (x \gg \underbrace{(\sqrt{w} \cdot (\sqrt{w} - 1 - i))}_{4\times(4-1-0)}\ \wedge\ Mask_3 = 0000\ 0000\ 0000\ \underline{0101}_2 &
     \end{align*}
     \item
     We run another parallel comparison with $0101_2$. Let $d$ be the result of computing the parallel comparison of the first non-empty field of $x$, then in our example $d = 2$.
@@ -471,9 +579,9 @@ Example:
     \text{lsb}(x) = \text{msb}((x - 1) \oplus x) = \text{msb}(0000\ 0000\ 0000\ 0\underline{1}00_2&) = 2
 \end{align*}
 
-\subsection{Rank Lemma 1}
+\subsection{Rank Lemma 1} \label{sec:rankLemma1}
 
-Another important operation for the purpose of the implementing the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. To achieve the latter, subroutines are established and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
+Another important operation to implement the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. For this purpose, some subroutines are required, and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
 \begin{lemma} \label{lemma1}
 Let $m \cdot b \leq w$. If we are given a b-bit number x and a word A with m b-bit numbers stored in sorted order, that is, $A\langle 0 \rangle_b < A\langle 1 \rangle_b < \dots < A\langle m - 1 \rangle_b$, then in constant time, we can find the rank of x in A, denoted rank(x,A).
 \end{lemma}
@@ -489,7 +597,7 @@ An algorithm that implements rank$(x,A)$ works as the following:
     If the leading bit of $x$ is zero, then:
     \begin{enumerate}
         \item
-        We bit-shift and/or mask $A$ such that the fields whose leading bit is one are no longer present in $A$.
+        We bit-shift and mask $A$ as needed, such that the fields whose leading bit is one are no longer present in $A$.
         
         \item
         We compute a word consisting of as many concatenated copies of $x$ as there are fields left in $A$.
@@ -518,7 +626,7 @@ An algorithm that implements rank$(x,A)$ works as the following:
     
 \end{enumerate}
 
-This operation takes $O(1)$ time and we will run an example of this algorithm, explaining its intricacies.
+This operation takes $O(1)$ time, and we will run an example of this algorithm, explaining its intricacies.
 
 \subsubsection{Parameters}
 
@@ -533,7 +641,7 @@ Since this algorithm branches depending on the leading bit of the query, we will
 
 \subsubsection{Step 1 --- Computing which fields have zero as their leading bit} \label{sec:computeM}
 
-Since the keys in $A$ are sorted, we know that finding the position the least significant field whose first bit is one in $A$ will be tell us how many fields there are with zero at their leading bit.
+Since the keys in $A$ are sorted, we know that finding the position the least significant field whose first bit is one in $A$ will tell us how many fields there are with zero at their leading bit.
 
 \begin{enumerate}
     \item
@@ -680,7 +788,8 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             \cline{1-2}
             A := \text{getFields}(0, t_3, b, A) = &\ 0000\ 0000\ \underline{0110}\ \underline{0101}_2 \\
             \cline{1-2}
-            A := M \vee A = 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \vee &\ 0000\ 0000\ \underline{0}110\ \underline{0}101_2 \\
+            A := M \vee A = &\ 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
+            \vee &\ 0000\ 0000\ \underline{0}110\ \underline{0}101_2 \\
             \cline{1-2}
             A = &\ 0000\ 0000\ \underline{1}110\ \underline{1}101_2
         \end{align*}
@@ -705,12 +814,12 @@ We will now run the algorithm for each of its branches. If the leading bit of th
     \end{enumerate}
 \end{itemize}
 
-
-
-
 \chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 
 \subsection{Code base navigation}
+
+\section{Utility functions}
+the functions that have not been described in the paper but that I have implemented as helper functions for the algorithms. They go in this section.
 
 \section{The {\ttfamily RankSelectPredecessorUpdate} interface}
 
@@ -872,7 +981,7 @@ The class holds the following fields:
     {\ttfamily binaryRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily select(final long rank)} as a subroutine. As the name implies, the algorithm used in this implementation is binary search.
 \end{itemize}
 
-\subsection{Implementation of the interface methods}
+\subsection{Implementation of the interface methods} \label{sec:binaryRankInterfaceImplementation}
 \begin{itemize}
     \item
     {\ttfamily insert(final long x)}:
@@ -932,8 +1041,174 @@ The class holds the following fields:
     Resetting the set is easily done by setting $n$ to zero and $bKey$ to $-1$ (because $-1$ has all the bits set to one in its two's complement binary representation).
 \end{itemize}
 
+\section{Rank via matching with "Don't Cares"}
+
+Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provide a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}.
+
+In order to make the algorithm work, taking one step beyond the static fusion node from Fredman and Willard, this algorithm uses the following:
+\begin{itemize}
+    \item
+    Compressing keys/sketching in the same style as fusion trees.
+    
+    \item
+    Encoding the information about "don't cares".
+    
+    \item
+    Computing the rank of compressed keys via Rank Lemma 1 (defined in Section~\ref{sec:rankLemma1}).
+\end{itemize}
+
+The sketches and the information regarding "don't cares" will be stored in two words, {\ttfamily branch} and {\ttfamily free}. These are to be updated every time the node is updated.
+
+Separate the compression function from the overall function. So, have a function compressNaive(x) that computes hat(x) (the compressed version or sketch of x). This function is currently implemented inefficiently (probably by iterating over all set bits in the word that tells you which indices are significant) and will only be made dynamic in Sec 3.2-4. In the meantime, leave it as is and treat it as a black box.
+
+\begin{enumerate}
+    \item
+    Sketching:
+    For a given node, compute the "significant" bit indices. A "significant" bit index is the most significant bit of the XOR of two keys. A naive algorithm is to XOR all the combinations of keys and compute the their msb, have a local variable where we set the bits we find to be significant, which we can then read from.
+    
+    \item
+    Don't cares:
+    We assume keys to be sorted and compressed, for instance in an array (done in the previous step)
+    The algorithm consists of the following recursion:
+    \begin{enumerate}
+        \item
+        Starting from the most significant bit of the sketch, if all bits are the same in all keys, then that position is a don't care for all keys
+        
+        \item
+        If one or more bits differ at that position, we care for that position.
+        
+        \item
+        Recurse, grouping the sketches that have the same bit at the position we looked that.
+    \end{enumerate}
+    
+    \item
+    We now have the sketches and we also know which positions are the don't cares. We need now to store this information in BRANCH and FREE. Given a key y, and we know its rank i in S (the node), at every "significant" position h:
+    \begin{itemize}
+        \item
+        If h is not a don't care, we store the bit of that position of y at position $\langle i,h\rangle_{k\times1}$ of BRANCH, and we set $\langle i,h\rangle_{k\times1}$ of FREE to zero.
+        
+        \item
+        Otherwise, h is a don't care, so we set $\langle i,h\rangle_{k\times1}$ of BRANCH to zero and $\langle i,h\rangle_{k\times1}$ of FREE to 1.
+    \end{itemize}
+    Note how subtle this is: we store exactly as many positions per key as we have keys in the set, hence the k*k, and hence why here a field in both BRANCH and FREE is of length k*1.
+    Now some math, $k^2$ must fit in 64 bits, and k must also be a power of 2: sqrt(64) = 8 which is also a power of 2. So here we have another constraint in regards to k, which until now could be up to 16, now it can only be 8.
+    
+    \item
+    We define a subroutine match(x), which uses rank lemma 1 (expression is on page 9)
+    
+    \item
+    Having match defined, we can compute the overall rank algorithm, which is also given the steps in the paper.
+\end{enumerate}
+
+\subsection{Key compression with "don't cares"}
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+  [level distance = 12mm,
+   sibling distance = 30mm,
+   dot/.style = {circle, fill, minimum size=1mm, inner sep=2pt}
+  ]
+  
+  \node[dot] {}
+    child{node[dot] {} 
+      child[missing] {} % left child
+      child{node[dot] {}
+        child{node[dot] {}
+          child{node[dot] {}
+            child{node[dot] {}
+              child{node(x1)[dot] {}
+                edge from parent node(lvl6_1) [left=3pt] {$0$}
+              }
+              child{node(x2)[dot] {}
+                edge from parent node(lvl6_2) [right=3pt] {$1$}
+              }
+              edge from parent node(lvl5_1) [left=3pt] {$0$}
+            }
+            child{node[dot] {}
+              child[missing] {}
+              child{node(x3)[dot] {}
+                edge from parent node(lvl6_3) [right=3pt] {$1$}
+              }
+              edge from parent node(lvl5_2) [right=3pt] {$1$}
+            }
+            edge from parent node[left=3pt] {$0$}
+          }
+          child[missing] {}
+          edge from parent node(lvl3_1) [left=3pt] {$0$}
+        }
+        child{node[dot] {}
+          child{node[dot] {}
+            child[missing] {}
+            child{node[dot] {}
+              child[missing] {}
+              child{node(x4)[dot] {}
+                edge from parent node(lvl6_4) [right=3pt] {$1$}
+              }
+              edge from parent node(lvl5_3) [right=3pt] {$1$}
+            }
+            edge from parent node[left=3pt] {$0$}
+          }
+          child[missing] {}
+          edge from parent node(lvl3_2) [right=3pt] {$1$}
+        }
+        edge from parent node[right=3pt] {$1$}
+      }
+      edge from parent node[left=3pt] {$0$}
+    }
+    child[missing] {};
+
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl3_1) (lvl3_2)] {};
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl5_1) (lvl5_2) (lvl5_3)] {};
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl6_1) (lvl6_2) (lvl6_3) (lvl6_4)] {};
+  
+  \node(labelx1) [below=10pt of x1] {$01\underline{0}0\underline{0}\underline{0}$};
+  \node(labelx1_2) [below=10pt of labelx1] {$000$};
+
+  \node(labelx2) [below=10pt of x2] {$01\underline{0}0\underline{0}\underline{1}$};
+  \node[below=10pt of labelx2] {$001$};
+
+  \node(labelx3) [below=10pt of x3] {$01\underline{0}0\underline{1}\underline{1}$};
+  \node[below=10pt of labelx3] {$011$};
+
+  \node(labelx4) [below=10pt of x4] {$01\underline{1}0\underline{1}\underline{1}$};
+  \node[below=10pt of labelx4] {$111$};
+
+  \node(legend) [left=10pt of labelx1_2] {$sketch(x_i)$:};
+  \node[above=10pt of legend] {$x_i$:};  
+\end{tikzpicture}
+\caption{An example of the $sketch$ function with $4$ keys. The levels 
+corresponding to the $3$ bits sketched are circled.}
+\label{fig1}
+\end{figure}
+
+
+make one example of match, compressing keys and the table from the paper. explain why match works and what exactly it means.
+
+
+\textbf{RUN THE ALGORITHM WITH AN EXAMPLE; AS I'VE DONE IN PREVIOUS SECTIONS}
+
 \section{Dynamic Fusion Node with constant time Rank}
 BRANCH and FREE
+
+\section{Inserting while maintaining BRANCH and FREE}
+
+The algorithm for inserting a key {\ttfamily x} in the set while maintaining {\ttfamily branch} and {\ttfamily free}, e.g. the compressed sketches of keys with "don't cares", is comprised of the following steps:
+\begin{itemize}
+    \item
+    If the set is empty, we simply insert the key as described in steps 2-6 of {\ttfamily insert} in Section~\ref{sec:binaryRankInterfaceImplementation}.
+    
+    \item
+    Otherwise:
+    \begin{enumerate}
+        \item
+        We compute {\ttfamily match(x)} and store it in a local variable $i$.
+        
+        \item
+        We query {\ttfamily select(i)} and 
+        
+    \end{enumerate}
+\end{itemize}
 
 \chapter{Correctness tests}
 
@@ -975,7 +1250,7 @@ A pass in this test consists of:
     Varying $b$ (size in bits of each key). This range is specified in fields of the {\ttfamily UtilTest} class.
     
     \item
-    For each value $b$ takes, the number of keys to be stored in $A$, $m$, is computed by taking the minimum between $2^b$ and $w/b$. This is because the method requires that all keys stored in $A$ must be distinct (and all combinations of keys of size $b$ is given by $2^b$), but also $A$ can only store up to $w/b$ keys.
+    For each value $b$ takes, the number of keys to be stored in $A$, $m$, is computed by taking the minimum between $2^b$ and $w/b$. This is because the method requires that all keys stored in $A$ must be distinct (and all combinations of keys of size $b$ are given by $2^b$), but also $A$ can only store up to $w/b$ keys.
     
     \item
     We produce $m$ distinct keys by using a pseudo-random generator and inserting them in a set. We stop once the size of the set is $m$.
