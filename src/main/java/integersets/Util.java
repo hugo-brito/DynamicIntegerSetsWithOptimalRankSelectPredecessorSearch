@@ -112,7 +112,7 @@ public abstract class Util {
    * @return The field at the specified position in the {@code A} word
    */
   public static int getField(final int i, final int f, final int A) {
-    if (f < 0 || f >= Integer.SIZE || i < 0 || i * f >= Integer.SIZE) {
+    if (f < 0 || f >= Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
       throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     return (A >>> (i * f)) & ((1 << f) - 1);
@@ -127,7 +127,7 @@ public abstract class Util {
    * @return The field at the specified position in the {@code A} word
    */
   public static long getField(final int i, final int f, final long A) {
-    if (f < 0 || f >= Long.SIZE || i < 0 || i * f >= Long.SIZE) {
+    if (f < 0 || f >= Long.SIZE || i < 0 || i * f > Long.SIZE) {
       throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     return (A >>> (i * f)) & ((1L << f) - 1);
@@ -146,7 +146,7 @@ public abstract class Util {
    * @return The specified subfield
    */
   public static int getField2d(final int i, final int j, final int g, final int f, final int A) {
-    if (f < 0 || f >= Integer.SIZE || i < 0 || i * g + j >= Integer.SIZE || g > f) {
+    if (f < 0 || f >= Integer.SIZE || i < 0 || i * g + j > Integer.SIZE || g > f) {
       throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     return getField(i * g + j, f, A);
@@ -165,7 +165,7 @@ public abstract class Util {
    * @return The specified subfield
    */
   public static long getField2d(final int i, final int j, final int g, final int f, final long A) {
-    if (f < 0 || f >= Long.SIZE || i < 0 || i * g + j >= Long.SIZE || g > f) {
+    if (f < 0 || f > Long.SIZE || i < 0 || i * g + j > Long.SIZE || g > f) {
       throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     return getField(i * g + j, f, A);
@@ -220,6 +220,9 @@ public abstract class Util {
    * @return A word containing the remaining fields after the operation
    */
   public static int getFields(final int i, final int f, final int A) {
+    if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     return (A >>> (i * f));
   }
 
@@ -232,6 +235,9 @@ public abstract class Util {
    * @return A word containing the remaining fields after the operation
    */
   public static long getFields(final int i, final int f, final long A) {
+    if (f < 0 || f > Long.SIZE || i < 0 || i * f > Long.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     return (A >>> (i * f));
   }
 
@@ -247,6 +253,9 @@ public abstract class Util {
    * @return returns the word {@code A} after the operation
    */
   public static int setField(final int i, final int y, final int f, final int A) {
+    if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     final int m = ((1 << f) - 1) << (i * f);
     return (A & ~m) | (y << (i * f) & m);
   }
@@ -263,6 +272,9 @@ public abstract class Util {
    * @return returns the word {@code A} after the operation
    */
   public static long setField(final int i, final long y, final int f, final long A) {
+    if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
+      throw new IndexOutOfBoundsException("Query out of bounds.");
+    }
     final long m = ((1L << f) - 1) << (i * f);
     return (A & ~m) | (y << (i * f) & m);
   }
@@ -344,37 +356,39 @@ public abstract class Util {
   }
 
   /**
-   * Returns a binary representation of integer x in a String containing leading
-   * zeroes.
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros and suffixed by {@code l}.
    * 
    * @param x the target
-   * @return a String representation of {@code x}
+   * @return a String representation of {@code x} in binary
    */
   public static String bin(final int x) {
     return bin(x, 0);
   }
 
   /**
-   * Returns a binary representation of integer x in a String containing leading
-   * zeroes.
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros, spaced by {@code _} every {@code f} bits counting from the least significant
+   * bit.
    * 
    * @param x the target
-   * @return a String representation of {@code x}
+   * @param f the field length in bits
+   * @return a String representation of {@code x} in binary
    */
-  public static String bin(final int x, final int blockSize) {
+  public static String bin(final int x, final int f) {
     final StringBuilder res = new StringBuilder("0b");
-    if (blockSize <= 0 || blockSize >= Integer.SIZE) {
+    if (f <= 0 || f >= Integer.SIZE) {
       for (int i = Integer.SIZE - 1; i > -1; i--) {
         res.append(bit(i, x));
       }
     } else {
-      final int r = Integer.SIZE % blockSize == 0 ? blockSize : Integer.SIZE % blockSize;
+      final int r = Integer.SIZE % f == 0 ? f : Integer.SIZE % f;
       for (int i = Integer.SIZE - 1; i > Integer.SIZE - 1 - r; i--) {
         res.append(bit(i, x));
       }
-      for (int i = Integer.SIZE - 1 - r; i > -1; i -= blockSize) {
+      for (int i = Integer.SIZE - 1 - r; i > -1; i -= f) {
         res.append("_");
-        for (int j = i; j > i - blockSize; j--) {
+        for (int j = i; j > i - f; j--) {
           res.append(bit(j, x));
         }
       }
@@ -383,37 +397,39 @@ public abstract class Util {
   }
 
   /**
-   * Returns a binary representation of integer x in a String containing leading
-   * zeroes.
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros and suffixed by {@code l}.
    * 
    * @param x the target
-   * @return a String representation of {@code A}
+   * @return a String representation of {@code x} in binary
    */
   public static String bin(final long x) {
     return bin(x, 0);
   }
 
   /**
-   * Returns a binary representation of integer x in a String containing leading
-   * zeroes.
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros, spaced by {@code _} every {@code f} bits counting from the least significant
+   * bit and suffixed by {@code l}.
    * 
    * @param x the target
-   * @return a String representation of {@code x}
+   * @param f the field length in bits
+   * @return a String representation of {@code x} in binary
    */
-  public static String bin(final long x, final int blockSize) {
+  public static String bin(final long x, final int f) {
     final StringBuilder res = new StringBuilder("0b");
-    if (blockSize <= 0 || blockSize >= Integer.SIZE) {
+    if (f <= 0 || f >= Integer.SIZE) {
       for (int i = Long.SIZE - 1; i > -1; i--) {
         res.append(bit(i, x));
       }
     } else {
-      final int r = Long.SIZE % blockSize == 0 ? blockSize : Long.SIZE % blockSize;
+      final int r = Long.SIZE % f == 0 ? f : Long.SIZE % f;
       for (int i = Long.SIZE - 1; i > Long.SIZE - 1 - r; i--) {
         res.append(bit(i, x));
       }
-      for (int i = Long.SIZE - 1 - r; i > -1; i -= blockSize) {
+      for (int i = Long.SIZE - 1 - r; i > -1; i -= f) {
         res.append("_");
-        for (int j = i; j > i - blockSize; j--) {
+        for (int j = i; j > i - f; j--) {
           res.append(bit(j, x));
         }
       }
@@ -462,19 +478,19 @@ public abstract class Util {
    * floating point numbers is that we avoid the universal constants depending on w used in [FW93].
    */
 
-  /** Returns the index of the most significant bit of the target {@code A}.
-   * 
+  /**
+   * Returns the index of the most significant bit of the target {@code x}.
    * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code A}
+   * @return the index of the most significant bit of {@code x}
    */
   public static int msb(final int x) {
     return msbConstant(x);
   }
 
-  /** Returns the index of the most significant bit of the target {@code A}.
-   * 
+  /**
+   * Returns the index of the most significant bit of the target {@code x}.
    * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code A}
+   * @return the index of the most significant bit of {@code x}
    */
   public static int msb(final long x) {
     return msbConstant(x);
@@ -686,7 +702,13 @@ public abstract class Util {
     return Integer.SIZE + high;
   }
 
-  private static int parallelComparison(final long cluster) {
+  /**
+   * Helper function for the {@code rankLemma1} method. Returns the index of the transition from 0
+   * to 1 in {@code field}, e.g., which powers of two are smaller than the input {@code field}.
+   * @param field the field to evaluate
+   * @return the index of the transition from 0 to 1 in {@code field}
+   */
+  private static int parallelComparison(final long field) {
 
     final int blockSize = 8;
 
@@ -704,7 +726,7 @@ public abstract class Util {
 
     final long hiPowers = 0b1_01111111_1_00111111_1_00011111_1_00001111L;
 
-    final long hi = ((((((hiPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+    final long hi = ((((((hiPowers - (m * field)) & mask) ^ mask) >>> blockSize) * d) & fetch)
         >>> 4 * blockSize;
 
     if (hi > 0) {
@@ -712,7 +734,7 @@ public abstract class Util {
     }
 
     final long loPowers = 0b1_00000111_1_00000011_1_00000001_1_00000000L;
-    final long lo = ((((((loPowers - (m * cluster)) & mask) ^ mask) >>> blockSize) * d) & fetch)
+    final long lo = ((((((loPowers - (m * field)) & mask) ^ mask) >>> blockSize) * d) & fetch)
         >>> 4 * blockSize;
 
     return parallelLookup((int) lo);
@@ -984,12 +1006,11 @@ public abstract class Util {
   }
 
   /**
-   * No padding version of rank_lemma_1 Lemma 1: Let mb <= w. If we are given a
-   * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
-   * in constant time we can find the rank of x in A, denoted rank(x, A). In order
-   * for this method to give plausible results, the following requirements *must*
-   * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
-   * the words in A must also be sorted.
+   * Implementation of Rank Lemma 1.
+   * Lemma 1: Let mb <= w. If we are given a b-bit number {@code x} and a word {@code A} with
+   * {@code m} {@code b}-bit numbers stored in sorted order, then in constant time we can find the
+   * rank of {@code x} in {@code A}, denoted rank(x, A).
+   * In order for this method to return plausible results the fields in A must be sorted.
    * 
    * @param x the query of b size
    * @param A the A word
@@ -1047,13 +1068,11 @@ public abstract class Util {
   }
 
   /**
-   * No padding version of rank_lemma_1 with terminal comments.
-   * Lemma 1: Let mb <= w. If we are given a
-   * b-bit number x and a word A with m b-bit numbers stored in sorted order, then
-   * in constant time we can find the rank of x in A, denoted rank(x, A). In order
-   * for this method to give plausible results, the following requirements *must*
-   * be fulfilled: Each b-bit word in A must be prefixed (padded) with a 1, and
-   * the words in A must also be sorted.
+   * Implementation of Rank Lemma 1, verbose version.
+   * Lemma 1: Let mb <= w. If we are given a b-bit number {@code x} and a word {@code A} with
+   * {@code m} {@code b}-bit numbers stored in sorted order, then in constant time we can find the
+   * rank of {@code x} in {@code A}, denoted rank(x, A).
+   * In order for this method to return plausible results the fields in A must be sorted.
    * 
    * @param x the query of b size
    * @param A the A word
