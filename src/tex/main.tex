@@ -59,7 +59,7 @@
 \input{01_Preamble/PDF-Related.tex}
 
 % PDF related packages
-\input{01_Preamble/RandomTextPackage.tex}
+% \input{01_Preamble/RandomTextPackage.tex}
 
 %
 % #######################
@@ -79,7 +79,7 @@
 \cleardoublepage
 
 % Activate header and footer defined in the file:
-% 01_Preamble/HeaderFooterMarginnote.tex
+% \input{01_Preamble/HeaderFooterMarginnote.tex}
 \pagestyle{scrheadings}
 
 % Activate roman numbering (e. g. xii)	
@@ -100,18 +100,19 @@
 % Table of Contents and Lost of Figures/Tables
 \input{02_Chapters/04_TOC-AND-ListOf.tex}
 
+% Introduction
+\input{02_Chapters/10_Introduction.tex}
+
 % Activate arabic numbering (e. g. 12)	
 \pagenumbering{arabic}
+% put this after the page/file you want it to start counting, not before!
 
 % Start with page 1
 \setcounter{page}{1}
 
-% Introduction
-\input{02_Chapters/10_Introduction.tex}
-
 % Main Parts
 \input{02_Chapters/11_Implementation.tex}
-\input{02_Chapters/12_Evaluation.tex}
+% \input{02_Chapters/12_Evaluation.tex}
 
 % Final Thoughts
 \input{02_Chapters/13_FinalThoughts.tex}
