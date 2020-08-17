@@ -272,7 +272,7 @@ public abstract class Util {
    * @return returns the word {@code A} after the operation
    */
   public static long setField(final int i, final long y, final int f, final long A) {
-    if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
+    if (f < 0 || f > Long.SIZE || i < 0 || i * f > Long.SIZE) {
       throw new IndexOutOfBoundsException("Query out of bounds.");
     }
     final long m = ((1L << f) - 1) << (i * f);
