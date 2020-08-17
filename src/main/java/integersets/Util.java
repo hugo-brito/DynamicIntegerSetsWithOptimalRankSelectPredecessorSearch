@@ -329,7 +329,7 @@ public abstract class Util {
 
   /**
    * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array. The
-   * most significant bits of x will be at position 0 of the array, whereas the
+   * least significant bits of x will be at position 0 of the array, whereas the
    * least significant bits will be at position 1.
    * 
    * @param x the long to be split
@@ -337,22 +337,22 @@ public abstract class Util {
    */
   public static int[] splitLong(final long x) {
     final int[] res = new int[2];
-    res[0] = (int) (x >>> Integer.SIZE);
-    res[1] = (int) (x << Integer.SIZE >>> Integer.SIZE);
+    res[0] = (int) (x << Integer.SIZE >>> Integer.SIZE);
+    res[1] = (int) (x >>> Integer.SIZE);
     return res;
   }
 
   /**
    * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using
    * the bits from those integers. Entry 0 of the 32-bit int array will be the
-   * most significant bits of resulting long.
+   * least significant bits of resulting long.
    * 
    * @param x The 32-bit integers
    * @return The resulting long
    */
   public static long mergeInts(final int[] x) {
-    final long res = x[0];
-    return (res << Integer.SIZE) | Integer.toUnsignedLong(x[1]);
+    final long res = x[1];
+    return (res << Integer.SIZE) | Integer.toUnsignedLong(x[0]);
   }
 
   /**
@@ -445,15 +445,15 @@ public abstract class Util {
    * @param A The word containing the matrix
    * @return The String representation of the matrix
    */
-  public static String matrixToString(int rows, int columns, long A) {
-    StringBuilder sb = new StringBuilder("  ");
+  public static String matrixToString(final int rows, final int columns, final long A) {
+    final StringBuilder sb = new StringBuilder("  ");
     for (int c = columns - 1; c >= 0; c--) {
       sb.append(" ").append(c);
     }
     sb.append("\n");
     for (int r = rows - 1; r >= 0; r--) {
       sb.append(r).append(" ");
-      long row = Util.getField(r, columns, A);
+      final long row = Util.getField(r, columns, A);
       for (int c = columns - 1; c >= 0; c--) {
         sb.append(" ").append(Util.bit(c, row));
       }
@@ -470,16 +470,18 @@ public abstract class Util {
     System.out.println(o);
   }
 
-  /* Finding the most and least significant bits in constant time.
-   * We have an operation msb(x) that for an integer x computes the index of its most significant
-   * set bit. Fredman and Willard [FW93] showed how to implement this in constant time using
-   * multiplication, but msb can also be implemented very efficiently by assigning x to a floating
-   * point number and extract the exponent. A theoretical advantage to using the conversion to
-   * floating point numbers is that we avoid the universal constants depending on w used in [FW93].
+  /*
+   * Finding the most and least significant bits in constant time. We have an operation msb(x) that
+   * for an integer x computes the index of its most significant set bit. Fredman and Willard
+   * showed how to implement this in constant time using multiplication, but msb can also be
+   * implemented very efficiently by assigning x to a floating point number and extract the
+   * exponent. A theoretical advantage to using the conversion to floating point numbers is that we
+   * avoid the universal constants depending on w used in [FW93].
    */
 
   /**
    * Returns the index of the most significant bit of the target {@code x}.
+   * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
@@ -489,6 +491,7 @@ public abstract class Util {
 
   /**
    * Returns the index of the most significant bit of the target {@code x}.
+   * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
    */
@@ -524,7 +527,8 @@ public abstract class Util {
     return msb((x - 1) ^ x);
   }
 
-  /** Uses the standard library function to calculate msb(x).
+  /**
+   * Uses the standard library function to calculate msb(x).
    * 
    * @param x the key to be evaluated
    * @return the index of the most significant bit of {@code x}
@@ -589,7 +593,7 @@ public abstract class Util {
    * Populates a lookup table for fast queries of msb.
    * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
    */
-  public static void generateLookupTable() {
+  private static void generateLookupTable() {
     if (LogTable256 == null) {
       LogTable256 = new int[256];
       LogTable256[0] = -1; // if you want log(0) to return -1
@@ -640,10 +644,10 @@ public abstract class Util {
     }
 
     final int[] aux = splitLong(x);
-    final int high = msbLookupDistributedOutput(aux[0]);
+    final int high = msbLookupDistributedOutput(aux[1]);
 
     if (high == -1) {
-      return msbLookupDistributedOutput(aux[1]);
+      return msbLookupDistributedOutput(aux[0]);
     }
 
     return Integer.SIZE + high;
@@ -693,18 +697,20 @@ public abstract class Util {
     }
 
     final int[] aux = splitLong(x);
-    final int high = msbLookupDistributedInput(aux[0]);
+    final int high = msbLookupDistributedInput(aux[1]);
 
     if (high == -1) {
-      return msbLookupDistributedInput(aux[1]);
+      return msbLookupDistributedInput(aux[0]);
     }
 
     return Integer.SIZE + high;
   }
 
   /**
-   * Helper function for the {@code rankLemma1} method. Returns the index of the transition from 0
-   * to 1 in {@code field}, e.g., which powers of two are smaller than the input {@code field}.
+   * Helper function for the {@code rankLemma1} method. Returns the index of the
+   * transition from 0 to 1 in {@code field}, e.g., which powers of two are
+   * smaller than the input {@code field}.
+   * 
    * @param field the field to evaluate
    * @return the index of the transition from 0 to 1 in {@code field}
    */
@@ -949,7 +955,8 @@ public abstract class Util {
     // In my example:
     // (((x&F) | (~(F-(x^(x&F))) & F)) >>> (sqrt(w) - 1)) * C) >>> (w - sqrt(w))
     res >>>= w - blockSize;
-    // println("Summary of the important bits on the right-most cluster (res >>> (w - sqrt(w))");
+    // println("Summary of the important bits on the right-most cluster (res >>> (w
+    // - sqrt(w))");
     // println(bin(res, blockSize));
 
     // So do parallel comparison between 1011 and:
@@ -989,9 +996,10 @@ public abstract class Util {
   }
 
   /**
-   * Produces a {@code long} word with at {@code 1}-bit set every {@code b}
-   * position, up to {@code w-positions}. The first set position is the least
-   * significant position of the word.
+   * The helper method below produces a word comprised of {@code w / b} fields of
+   * {@code b} bits in length, having each field its least significant bit set to
+   * {@code 1}. E.g., the resulting word will have the bits at index zero and
+   * every {@code b}-th index set to {@code 1}.
    * 
    * @param b the block size
    * @param w the word size
@@ -1006,11 +1014,11 @@ public abstract class Util {
   }
 
   /**
-   * Implementation of Rank Lemma 1.
-   * Lemma 1: Let mb <= w. If we are given a b-bit number {@code x} and a word {@code A} with
-   * {@code m} {@code b}-bit numbers stored in sorted order, then in constant time we can find the
-   * rank of {@code x} in {@code A}, denoted rank(x, A).
-   * In order for this method to return plausible results the fields in A must be sorted.
+   * Implementation of Rank Lemma 1. Lemma 1: Let mb <= w. If we are given a b-bit
+   * number {@code x} and a word {@code A} with {@code m} {@code b}-bit numbers
+   * stored in sorted order, then in constant time we can find the rank of
+   * {@code x} in {@code A}, denoted rank(x, A). In order for this method to
+   * return plausible results the fields in A must be sorted.
    * 
    * @param x the query of b size
    * @param A the A word
@@ -1068,11 +1076,11 @@ public abstract class Util {
   }
 
   /**
-   * Implementation of Rank Lemma 1, verbose version.
-   * Lemma 1: Let mb <= w. If we are given a b-bit number {@code x} and a word {@code A} with
-   * {@code m} {@code b}-bit numbers stored in sorted order, then in constant time we can find the
-   * rank of {@code x} in {@code A}, denoted rank(x, A).
-   * In order for this method to return plausible results the fields in A must be sorted.
+   * Implementation of Rank Lemma 1, verbose version. Lemma 1: Let mb <= w. If we
+   * are given a b-bit number {@code x} and a word {@code A} with {@code m}
+   * {@code b}-bit numbers stored in sorted order, then in constant time we can
+   * find the rank of {@code x} in {@code A}, denoted rank(x, A). In order for
+   * this method to return plausible results the fields in A must be sorted.
    * 
    * @param x the query of b size
    * @param A the A word
@@ -1102,7 +1110,7 @@ public abstract class Util {
     // an extra variable.
 
     int numClustersLeadingBitIs0 = m;
-    
+
     print("    A & 1000 = ");
     final long leadingBitOfEachCluster = A & (M << (b - 1));
     println(bin(leadingBitOfEachCluster, b));
@@ -1145,7 +1153,7 @@ public abstract class Util {
       x *= M;
       print("    x copied = ");
       println(bin(x, b));
-      
+
       M <<= b - 1;
       print("        mask = ");
       println(bin(M, b));
@@ -1165,7 +1173,7 @@ public abstract class Util {
         println("   rank(x,A) = " + (numClustersLeadingBitIs0 + numClustersSmallerThanX));
         return numClustersLeadingBitIs0 + numClustersSmallerThanX;
       }
-      
+
       println("   rank(x,A) = " + m);
       return m;
 
@@ -1209,8 +1217,7 @@ public abstract class Util {
       println(bin(d, b));
 
       if (d != 0) {
-        final int numClustersLargerThanX = numClustersLeadingBitIs0
-            - (lsb(d & M)) / b;
+        final int numClustersLargerThanX = numClustersLeadingBitIs0 - (lsb(d & M)) / b;
         print("#clusters >x = ");
         println(numClustersLargerThanX);
         println("   rank(x,A) = " + (lsb(d) / b));
@@ -1228,12 +1235,8 @@ public abstract class Util {
    * @param args --
    */
   public static void main(final String[] args) {
-    final long A = 0b01111111_01111001_01101000_01010100_01001001_01000110_00101010_00000100l;
-    final int x = 0b00000000_00000000_00000000_00011110;
-
-    
-    rankLemma1Verbose(x, A, 8, 8);
-
-    Long.bitCount(-1);
+    final int b = 4;
+    final int m = b * 2;
+    println(bin(M(b, m), b));
   }
 }
