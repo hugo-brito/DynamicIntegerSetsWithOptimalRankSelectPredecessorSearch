@@ -823,7 +823,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
    */
   public static void main(final String[] args) {
     final DynamicFusionNodeDontCaresInsert insertNode = new DynamicFusionNodeDontCaresInsert();
-    final DynamicFusionNodeDontCares naiveNode = new DynamicFusionNodeDontCares();
+    final DynamicFusionNodeDontCaresRank naiveNode = new DynamicFusionNodeDontCaresRank();
 
     final long[] keys = new long[] {
         // 0b0110011100,
