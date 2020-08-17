@@ -233,7 +233,7 @@ Pătrașcu and Thorup refer to some useful constants that we will denote by mask
     \end{align*}
 \end{itemize}
 
-\subsection{Fields of words}
+\subsection{Fields of words} \label{sec:fieldsOfWords}
 
 We follow the definitions from \cite{patrascu2014dynamic} in regards to viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is comprised of fields, analogously to bit indexing of a word, its least significant field is the rightmost one, denoted $A\langle0\rangle_f$; its most significant field is the leftmost one, denoted $A\langle f-1\rangle_f$, and so on.
 Note that the functions presented in this section consist of simple bit-wise shifting and masking with the expressions defined in \ref{sec:masks}. Regarding running times, all these algorithms take $O(1)$ time.
@@ -326,7 +326,7 @@ Example:
     \text{setField}(1, y, 4, A) = 0101\ 1101\ \underline{1001}\ 0111_2&
 \end{align*}
 
-\subsection{Most significant set bit}
+\subsection{Most significant set bit} \label{sec:msbAlgorithm}
 
 Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we will look at different ways to achieve this result. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully. We denote the most significant set bit of $x$ by msb$(x)$.
 
@@ -346,7 +346,7 @@ Otherwise, if the first field zero, the algorithm looks at the second most signi
 
 This approach takes $O(1)$ time after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
 
-\subsubsection{Constant time with parallel comparison}
+\subsubsection{Constant time with parallel comparison} \label{sec:msbO1}
 
 This operation consists of 4 steps. Let $x$ be the query for the most significant set bit:
 \begin{enumerate}
@@ -496,7 +496,7 @@ If the power of two vectors are sorted, this parallel comparison will be a monot
     \end{align*}
     
     \item \label{blt:parallel4}
-    Looking at $t_{10}$, we note that the first non-empty field of $x$ is the first because the leading bit of first field resulting from the difference between $hi$ and $t_9$ is now zero. Nevertheless,  we will do the same operations on both $t_{10}$ and $t_{11}$ and concatenate the results, so we end up with a single result for the whole query. Note that in the previous step, the actual values within each field besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryfields} and \ref{sec:summaryCompression}.
+    Looking at $t_{10}$, we note that the first non-empty field of $x$ is the most significant one because the leading bit of first field resulting from the difference between $hi$ and $t_9$ is now zero. Nevertheless, we will do the same operations on both $t_{10}$ and $t_{11}$ and concatenate the results, so we end up with a single result for the whole query. Note that in the previous step, the actual values within each field besides the leading bit are irrelevant, so we do some masking and shifting, similar to what was done in \ref{sec:summaryfields} and \ref{sec:summaryCompression}.
     \begin{enumerate}
         \item
         The first step is to clear all the irrelevant bits in the fields and turn the leading bits from zero to one. We choose a mask for this specific purpose.
@@ -522,7 +522,7 @@ If the power of two vectors are sorted, this parallel comparison will be a monot
         After the multiplication, we have to remove the noise and move the result to the least significant field. We achieve this by defining another mask for this purpose, followed by the necessary bit shifts. The final step will be to merge the results of the higher and the lower powers of two: $t_{hi} \vee t_{lo}$.
         
         \begin{align*}
-            Mask_2 = 11_2&\\
+            Mask_2 = (1 \ll (\sqrt{w}/2)) - 1 = 11_2&\\
             t_{18} = t_{16} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
             t_{19} = t_{17} \wedge (Mask_2 \ll 2\cdot \sqrt{w}) =\ \underline{11}\ 0000\ 0000_2& \\
             \cline{1-2}
@@ -535,7 +535,7 @@ If the power of two vectors are sorted, this parallel comparison will be a monot
     \item
     Note that $t_q$ can only be one of $\sqrt{w}$ possibilities: $0001_2$, $0011_2$, $0111_2$, or $1111_2$. For this reason, we implement a lookup table of size $\sqrt{w}$ for these values, which we return at the end of the method. We can even halve the size of the lookup table by applying the following trick: instead of merging $t_{hi}$ and $t_{lo}$ into a single field, shift $t_{hi}$ all the way to the right. In this scenario, $t_{hi}$ can either be $11_2$, $01_2$ or $0$. The values of the lookup table, in this case, will be only $11_2$ and $01_2$, so if $t_{hi}$ takes one of those values, we return the value in the lookup table plus a constant corresponding to the least significant positions ($\sqrt{w}/2$). Should it be $0$, then we do the lookup for $t_{lo}$ and return the corresponding value in the lookup table.
     
-    In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $3$ (three), meaning, the method should now look at field $c_3$ (the most significant field).
+    In our example, since $t_{q} = 1111_2$ the result of this parallel comparison would be $3$ (three), meaning, the method should now look at $x\langle 3\rangle_4$ (the most significant field).
 \end{enumerate}
 
 \paragraph{Step 4 --- Final result}
@@ -546,7 +546,7 @@ After learning in which field lies the most significant bit, we now run the same
     We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $f_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and ANDing the result with a mask for this purpose.
     \begin{align*}
         x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
-        Mask_3 = 0000\ 0000\ 0000\ 1111_2 &\\
+        Mask_3 = (1 \ll \sqrt{w}) - 1 = 0000\ 0000\ 0000\ 1111_2 &\\
         \cline{1-2}
         t_{20} = (x \gg \underbrace{(\sqrt{w} \cdot (\sqrt{w} - 1 - i))}_{4\times(4-1-0)}\ \wedge\ Mask_3 = 0000\ 0000\ 0000\ \underline{0101}_2 &
     \end{align*}
@@ -563,7 +563,7 @@ After learning in which field lies the most significant bit, we now run the same
     \end{equation*}
 \end{enumerate}
 
-\subsection{Least significant set bit}
+\subsection{Least significant set bit} \label{sec:lsbAlgorithm}
 
 Let lsb$(x)$ denote the least significant set bit of $x$. Citing Pătrașcu and Thorup, after computing the msb$(x)$ we can in $O(1)$ time compute lsb$(x)$ with the expression:
 \begin{equation*}
@@ -581,7 +581,7 @@ Example:
 
 \subsection{Rank Lemma 1} \label{sec:rankLemma1}
 
-Another important operation to implement the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. For this purpose, some subroutines are required, and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
+Another important operation in the context of the implementation of the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. For this purpose, some subroutines are required, and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
 \begin{lemma} \label{lemma1}
 Let $m \cdot b \leq w$. If we are given a b-bit number x and a word A with m b-bit numbers stored in sorted order, that is, $A\langle 0 \rangle_b < A\langle 1 \rangle_b < \dots < A\langle m - 1 \rangle_b$, then in constant time, we can find the rank of x in A, denoted rank(x,A).
 \end{lemma}
@@ -603,7 +603,7 @@ An algorithm that implements rank$(x,A)$ works as the following:
         We compute a word consisting of as many concatenated copies of $x$ as there are fields left in $A$.
         
         \item
-        We do parallel comparison between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining fields of $A$ to one and computing the difference between those words.
+        We do parallel comparison\footnote{See Section~\ref{sec:parallel} to learn more about parallel comparison.} between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining fields of $A$ to one and computing the difference between those words.
         
         \item
         The result of rank$(x,A)$ is given by the number of fields whose leading bit is now zero because if the leading bit (that has been set to one in the previous step) is borrowed in the subtraction, then $x$ is larger than the key stored at that field.
@@ -630,7 +630,7 @@ This operation takes $O(1)$ time, and we will run an example of this algorithm, 
 
 \subsubsection{Parameters}
 
-Since this algorithm branches depending on the leading bit of the query, we will run the example with two queries $x_1$ and $x_2$ such that we explore both branches of the algorithm. Let $A$ be the concatenation of the keys of $S = \{0101_2, 0110_2, 1100_2, 1110_2 \}$. Note that if key $y_i < y_j$, then $y_i$ will be present in $A$ on a lesser significant position than $y_j$.
+Since this algorithm branches depending on the leading bit of the query $x$, we will run the example with two queries $x_1$ and $x_2$ such that we explore both branches of the algorithm. Let $A$ be the concatenation of the keys of $S = \{0101_2, 0110_2, 1100_2, 1110_2 \}$. Note that if key $y_i < y_j$, then $y_i$ will be present in $A$ on a lesser significant position than $y_j$.
 \begin{align*}
     A &= \underbrace{1110}_{A\langle 3 \rangle_4}\ \underbrace{1100}_{A\langle 2 \rangle_4}\ \underbrace{0110}_{A\langle 1\rangle_4}\ \underbrace{0101}_{A\langle 0 \rangle_4}{}_2 \\
     x_1 &= 1100_2 \\
@@ -648,8 +648,12 @@ Since the keys in $A$ are sorted, we know that finding the position the least si
     We start by finding $M$. $M$ consists of a word with $m$ fields of $b$-bits, where each field is filled with zeroes excluding the least significant bit, which is set to one. In this particular example $M = 0001\ 0001\ 0001\ 0001_2$.
     
     \item % A & (M << (b - 1))
-    We mask the non-leading bits of each field of $A$. This is achieved with $A \wedge (M \ll (b - 1))$.
+    We mask the non-leading bits of each field of $A$. This is achieved with:
+    \begin{align*}
+        A \wedge (M \ll (b - 1))
+    \end{align*}
     
+    Thus we have:
     \begin{align*}
         M &= 0001\ 0001\ 0001\ 0001_2 \\
         t_1 = M \ll (b - 1) &= 1000\ 1000\ 1000\ 1000_2 \\
@@ -808,7 +812,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
         \item
         Note that $d_2$ is zero. Since there are no set bits in $d_2$ then $x_2$ is larger than all $x_2$ must be larger than all the remaining fields in $A$, so we just return $t_2$.
         \begin{align*}
-            \text{rank}(x_2,A) &= t_3 = 2 \\
+            \text{rank}(x_2,A) &= t_3 = 2
         \end{align*}
         
     \end{enumerate}
@@ -816,65 +820,260 @@ We will now run the algorithm for each of its branches. If the leading bit of th
 
 \chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
 
-\subsection{Code base navigation}
+% \subsection{Code base navigation}
+
+All the implementing classes described in this section can be found in the {\ttfamily src\textbackslash java\textbackslash integersets} folder. The files names are self-explanatory, e.g., the {\ttfamily BinarySearchTrie.java} file implements the {\ttfamily BinarySearchTrie} whereas {\ttfamily RankSelectPredecessorUpdate.java} implements the {\ttfamily RankSelectPredecessorUpdate} interface.
 
 \section{Utility functions}
-the functions that have not been described in the paper but that I have implemented as helper functions for the algorithms. They go in this section.
+
+This project features a class, {\ttfamily Util}, which implements static utility functions. Below find listed the functions included in this class, together with a brief explanation. The class also includes 32 and 64-bit versions for the input word, making the method signature different solely on the input word type.
+For brevity, the 32-bit version is omitted.
+
+\subsection{Bit operations}
+The algorithms which these functions implement are described in Section~\ref{sec:bit}.
+The functions included are:
+
+\begin{itemize}
+    \item
+    The method below returns the value of the bit at position $d$ in $A$. It is enforced that $d \in [0, w[$.
+    \begin{lstlisting}
+public static int bit(final int d, final long A)
+    \end{lstlisting}
+    
+    \item
+    The method below sets the bit at index $d$ in $A$ to 1 and returns $A$ after the change. If the bit was already 1 or if the provided index $d \not\in [0, w[$, then the function has no effect.
+    \begin{lstlisting}
+public static int setBit(final int d, int A)
+    \end{lstlisting}
+    
+    \item
+    The method below sets the bit at index $d$ to 0 and returns $A$ after the change. If the bit was already 0 or if the provided index $d \not\in [0, w[$, then the function has no effect.
+    \begin{lstlisting}
+public static int deleteBit(final int d, int A)
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Fields of words}
+The algorithms which these functions implement are described in Section~\ref{sec:fieldsOfWords}.
+The functions included are:
+
+\begin{itemize}
+    \item
+    The method below returns $A\langle i\rangle_f$. It is enforced that $f \in [0, w]$ and $i \times f \in [0, w]$.
+    \begin{lstlisting}
+public static long getField(final int i, final int f, final long A)
+    \end{lstlisting}
+    
+    \item
+    The method below returns $A\langle i, j \rangle_{g \times f}$. It is enforced that $f \in [0, w]$, $g < f$ and $i \times g + j \in [0, w]$.
+    \begin{lstlisting}
+public static int getField2d(final int i, final int j, final int g, final int f, final int A)
+    \end{lstlisting}
+    
+    \item
+    The method below returns the range of fields $A\langle i \dots j \rangle_f$. It is enforced that $f \in [0, w]$, $i \times f \in [0, w]$, $j \times f \in [0, w]$, $i < j$, and $f \cdot (j - i) < w$.
+    \begin{lstlisting}
+public static long getFields(final int i, final int j, final int f, final long A)
+    \end{lstlisting}
+    
+    \item
+    The method below returns the range of fields $A\langle i \dots * \rangle_f$. It is enforced that $f \in [0, w]$ and $i \times f \in [0, w]$.
+    \begin{lstlisting}
+public static long getFields(final int i, final int f, final long A)
+    \end{lstlisting}
+    
+    \item
+    The method below sets $A\langle i \rangle_f := y$ and returns $A$ after the change. It is enforced that $f \in [0, w]$ and $i \times f \in [0, w]$. Only the bits in $y\langle 0 \rangle_f$ are considered.
+    \begin{lstlisting}
+public static int setField(final int i, final int y, final int f, final long A)
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{String representation of an integer in binary}
+
+\begin{itemize}
+    \item
+    The method below returns a string representation of integer $x$ in binary prefixed by {\ttfamily 0b}, including leading zeros (and suffixed by {\ttfamily l} if it is a 64-bit integer).
+    \begin{lstlisting}
+public static String bin(final long x)
+    \end{lstlisting}
+    
+    \item
+    The method below returns a string representation of integer $x$ in binary prefixed by {\ttfamily 0b}, including leading zeros, spaced by {\ttfamily \_} every $f$ bits counting from the least significant bit (and suffixed by {\ttfamily l} if it is a 64-bit integer).
+    \begin{lstlisting}
+public static String bin(final long x, final int f)
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Helper functions}
+
+\begin{itemize}
+    \item
+    The method below implements a helper function for the {\ttfamily rankLemma1} method, returning the index of the transition from zero to one in $field$, e.g., which powers of two are smaller than the input $field$.
+    \begin{lstlisting}
+private static int parallelComparison(final long cluster)
+    \end{lstlisting}
+
+    \item
+    This method is a helper function for the {\ttfamily parallelComparison} method, and simply returns the value associated with a given $pow$ in a small lookup table.
+    \begin{lstlisting}
+private static int parallelLookup(final int pow)
+    \end{lstlisting}
+    
+    \item
+    The method below is a helper method for the most significant set bit lookup functions, as described in \cite{bittricks}\footnote{The following link redirects you to the function I took inspiration from: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogLookup}} and mentioned below. It populates a lookup table, allowing these functions to return the result quickly. 
+    \begin{lstlisting}
+private static void generateLookupTable()
+    \end{lstlisting}
+\end{itemize}
+
+\subsection{Most and least significant set bit}
+
+The algorithms which these functions implement are described in Sections~\ref{sec:msbAlgorithm} and \ref{sec:lsbAlgorithm}.
+The functions included are:
+
+\begin{itemize}
+    \item
+    The method below returns the index of the most significant set bit of the target $x$. It is used as a subroutine in many other functions. The actual operation used to compute the result can be easily changed in the body of the method by altering the function that is called. The version featured with this report calls {\ttfamily msbConstant}, defined a few bullet points below.
+    \begin{lstlisting}
+public static int msb(final long x)
+    \end{lstlisting}
+    
+    \item
+    The method below returns the index of the least significant set bit of $x$.
+    \begin{lstlisting}
+public static int lsb(final long x)
+    \end{lstlisting}
+    
+    \item
+    The method below returns the index of the most significant set bit of $x$ by calling a Java standard library function and computing the result with an expression.
+    \begin{lstlisting}
+public static int msbLibrary(final long x)
+    \end{lstlisting}
+    
+    \item
+    The method below implements a naive algorithm for computing the index of the most significant set bit of the target $x$, as described in \cite{bittricks}\footnote{The following link redirects you to the function I took inspiration from: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogObvious}}.
+    \begin{lstlisting}
+public static int msbObvious(long x)
+    \end{lstlisting}
+    
+    \item
+    The method below implements a lookup algorithm for computing the index of the most significant set bit of the target $x$, as described in \cite{bittricks}\footnote{The following link redirects the reader to the function I took inspiration from: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogLookup}}. For 64-bit integers, the function first splits the integer in two, calling the 32-bit method on the high half first, and then on the second in the first half is zero.
+    \begin{lstlisting}
+public static int msbLookupDistributedInput(final long x)
+    \end{lstlisting}
+
+    \item
+    The method below implements the algorithm from Section~\ref{sec:msbO1}, which follows the lecture noted from \cite{erikdemainelec12} and \cite{nelsonjelanilec2}.
+    \begin{lstlisting}
+public static int msbConstant(long x)
+    \end{lstlisting}
+    
+\end{itemize}
+
+\subsection{Rank Lemma 1}
+
+The method below implements rank$(x,A)$ from Section~\ref{sec:rankLemma1}.
+\begin{lstlisting}
+public static int rankLemma1(long x, long A, final int m, final int b)
+\end{lstlisting}
+The input parameters are:
+\begin{itemize}
+    \item
+    A query $x$, the integer to find the rank in $A$.
+    
+    \item
+    A word $A$, containing keys with the same size as $x$, which must be sorted for the method to return a sound result.
+    
+    \item
+    The number of keys in $A$, $m$.
+    
+    \item
+    The length of each key in $A$, $b$, in bits.
+\end{itemize}
+
+\subsection{Additional Utility Functions}
+
+\begin{itemize}
+    \item
+    The method below takes a 64-bit integer $x$ and returns a two-entry array, each position containing 32 of the 64 bits of $x$. The least significant bits of $x$ will be at index 0, whereas the most significant bits will be at position 0.
+    \begin{lstlisting}
+public static int[] splitLong(final long x)
+    \end{lstlisting}
+    
+    \item
+    The method below computes the reverse of the method just above. It takes a 32-bit integer array and combines its first two positions into a single 64-bit integer. Again, position 0 of the input array is used for the least significant bits of the resulting 64-bit integer, whereas position one will populate the remaining 32 most significant positions.
+    \begin{lstlisting}
+public static long mergeInts(final int[] x)
+    \end{lstlisting}
+    
+    \item
+    The helper method below produces a word comprised of $w / b$ fields of $b$ bits in length, having each field its least significant bit set to 1. E.g., the resulting word will have the bits at index zero and every $b$-th index set to 1.
+    \begin{lstlisting}
+public static long M(final int b, final int w)
+    \end{lstlisting}
+
+    \item
+    The helper method below returns a string representation of interpreting the matrix stored in the word $A$, with $\#rows$ rows and $\#columns$ columns.
+    \begin{lstlisting}
+public static String matrixToString(final int rows, final int columns, final long A)
+    \end{lstlisting}
+\end{itemize}
 
 \section{The {\ttfamily RankSelectPredecessorUpdate} interface}
 
-As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem. For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented with the methods:
+As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem. For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented with the method signatures and default methods:
 \begin{itemize}
     \item
     The $insert(x)$ operation sets $S=S \cup \{x\}$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
-    void insert(long x);
+void insert(long x);
     \end{lstlisting}
     
     \item
     The $delete(x)$ operation sets $S=S \setminus \{x\}$ and is to be implemented by a method with the signature:
     \begin{lstlisting}
-    void delete(long x);
+void delete(long x);
     \end{lstlisting}
     
     \item
     The $member(x)$ operation returns $[x \in S]$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
-    default boolean member(final long x) {
-        if (isEmpty()) {
-            return false;
-        }
-        final Long res = successor(x);
-        return res != null && res == x;
+default boolean member(final long x) {
+    if (isEmpty()) {
+        return false;
     }
+    final Long res = successor(x);
+    return res != null && res == x;
+}
     \end{lstlisting}
 
     \item
     The $predecessor(x)$ operation returns $max\{y\in S\ |\ y < x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
-    default Long predecessor(long x) {
-        return select(rank(x) - 1);
-    }
+default Long predecessor(long x) {
+    return select(rank(x) - 1);
+}
     \end{lstlisting}
 
     \item
     The $successor(x)$ operation returns $min\{y\in S\ |\ y \geq x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
-    default Long successor(long x) {
-        return select(rank(x));
-    }
+default Long successor(long x) {
+    return select(rank(x));
+}
     \end{lstlisting}
 
     \item
     The $rank(x)$ operation returns $\#\{ y \in S\ |\ y < x\}$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
-    long rank(long x);
+long rank(long x);
     \end{lstlisting}
 
     \item
     The $select(i)$ operation returns $y \in S$ with $rank(y) = i$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
-    Long select(long rank);
+Long select(long rank);
     \end{lstlisting}
 \end{itemize}
 Additionally, the following method signatures are included in the interface:
@@ -882,39 +1081,39 @@ Additionally, the following method signatures are included in the interface:
     \item
     A {\ttfamily size()} method that returns the current number of keys in the set:
     \begin{lstlisting}
-    long size();
+long size();
     \end{lstlisting}
 
     \item
     An {\ttfamily isEmpty()} default method that returns {\ttfamily true} if the set is empty and {\ttfamily false} otherwise:
     \begin{lstlisting}
-    default boolean isEmpty() {
-        return size() == 0;
-    }
+default boolean isEmpty() {
+    return size() == 0;
+}
     \end{lstlisting}
 
     \item
     A {\ttfamily reset()} method that removes all current elements from the set:
     \begin{lstlisting}
-    void reset();
+void reset();
     \end{lstlisting}
 \end{itemize}
 
-Note that some of the methods return a primitive type, whereas some others return a boxed type. This is due to the fact that some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such situation {\ttfamily null} is returned.
+Note that some of the methods return a primitive type, whereas some others return a boxed type. This is because some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such a situation, {\ttfamily null} is returned.
 
 \section{Naive implementation}
 We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}. It holds a $key$ array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
 
-The basic idea behind this implementation is to store the keys in $key$, making their respective rank the same as the their index in that array. In other words, $key$ is always sorted.
+The basic idea behind this implementation is to store the keys in $key$, making their respective rank the same as their index in that array. In other words, $key$ is always sorted.
 
-Updates, e.g. insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in $key$ is its rank, all the keys with rank larger than the new key have to be moved one position to the right in $key$ to make room for the new key and keeping rank consistent.
+Updates, e.g., insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in $key$ is its rank, all the keys with rank larger than the new key have to be moved one position to the right in $key$ to make room for the new key and keeping rank consistent.
 
 A rank query takes $O(\log_2(n))$ because a binary search is performed on $key$. Select is faster: $O(1)$, because we need only to access and return the key at position $i$ in $key$ to fulfill the query.
 
-\section{Dynamic Fusion Node with binary search for Rank}
-We take a step forward by improving on the previous idea: this time, two additional words, $index$ and $bKey$ are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the $rank$ operation resorts to binary search to produce the result.
+\section{Dynamic Fusion Node with binary search for Rank} \label{sec:DynamicFusionNodeBinaryRank}
+We take a step forward by improving the previous idea: this time, two additional words, $index$ and $bKey$, are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the $rank$ operation resorts to binary search to produce the result.
 
-We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$ and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
+We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$, and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
 
 We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
 \begin{equation}
@@ -929,8 +1128,8 @@ The class holds the following fields:
     \item
     The parameter $k$, accompanied with the constant $\lceil \log_2(k) \rceil$:
     \begin{lstlisting}
-    private final int k;
-    private final int ceilLgK = (int) Math.ceil(Math.log10(k)/Math.log10(2));
+private static final int k = 16;
+private static final int ceilLgK = (int) Math.ceil(Math.log10(k)/Math.log10(2));
     \end{lstlisting}
 
     \item
@@ -942,20 +1141,20 @@ The class holds the following fields:
     \item
     The $index$ word:
     \begin{lstlisting}
-    private long index;
+private long index;
     \end{lstlisting}
 
     \item
     The map of over empty entries in $key$, $bKey$:
     \begin{lstlisting}
-    private int bKey;
+private int bKey;
     \end{lstlisting}
     Note that only the first $k$ bits are relevant for any given instance.
     
     \item
     An integer $n$, containing the current number of keys in the set:
     \begin{lstlisting}
-    private int n;
+private int n;
     \end{lstlisting}
 \end{itemize}
 
@@ -975,7 +1174,7 @@ The class holds the following fields:
     
     \item
     The purpose of the overloaded method {\ttfamily updateIndex} is to maintain the correspondence between the rank of the keys in the set and their position in $key$.
-    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the {\ttfamily getFields} methods with the adequate parameters, merge the results with bitwise $\vee$ and write those back in $index$.
+    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the {\ttfamily getFields} methods with the adequate parameters, merge the results with bit-wise $\vee$ and write those back in $index$.
     
     \item
     {\ttfamily binaryRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily select(final long rank)} as a subroutine. As the name implies, the algorithm used in this implementation is binary search.
@@ -1002,7 +1201,7 @@ The class holds the following fields:
         We set the position taken $x$ in $key$ to not empty by calling {\ttfamily fillSlot(j)}.
         
         \item
-        We update the $index$ to reflect the insertion of the new key with a call to {\ttfamily updateIndex(i, j)}.
+        We update the $index$ to reflect the new key's insertion with a call to {\ttfamily updateIndex(i, j)}.
         
         \item
         Lastly, we increment $n$ by one, updating the current total number of keys in the set.
@@ -1188,6 +1387,59 @@ make one example of match, compressing keys and the table from the paper. explai
 
 \textbf{RUN THE ALGORITHM WITH AN EXAMPLE; AS I'VE DONE IN PREVIOUS SECTIONS}
 
+\subsection{Fields}
+
+This class shares many implementation details with the Dynamic Fusion Node with binary Rank from Section~\ref{sec:DynamicFusionNodeBinaryRank}. For that reason, below we will only see what has been added or altered in comparison with that implementation. These changes help enabling the new operations now implemented in the class:
+\begin{itemize}
+    \item
+    The parameter $k$ has been altered. This is because the implementation requires us to maintain some other variables that will limit the capacity of the set:
+    \begin{lstlisting}
+private static final int k = 8;
+    \end{lstlisting}
+    
+    \item
+    We will need a constant $M$ to be used as mask in some of methods. We resort to the {\ttfamily M} function of the {\ttfamily Util} class, and store the result as a class variable. 
+    \begin{lstlisting}
+private static final long M = Util.M(k, k * k);
+    \end{lstlisting}
+
+    \item
+    The operations introduced in this implementation require us to compress keys. To this extent, we store a word, $compressingKey$ which will retain the information regarding the bits to keep when compressing a $key$. If a bit is to be kept, then it will be set to one in $compressingKey$.
+    \begin{lstlisting}
+private long compressingKey;
+    \end{lstlisting}
+    
+    \item
+    The word $compressedKeys$ stores the compressed keys that are in the set. Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
+    \begin{lstlisting}
+private long compressedKeys;
+    \end{lstlisting}
+
+    \item
+    The word $dontCares$ stores the information regarding the "don't cares" of each of the keys in the set. It is designed in the same fashion as $compressedKeys$, Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
+    \begin{lstlisting}
+private long dontCares;
+    \end{lstlisting}
+    
+    \item
+    The word $compressedKeys$ stores the compressed keys that are in the set. Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
+    \begin{lstlisting}
+private long branch;
+    \end{lstlisting}
+    
+    \item
+    The word $compressedKeys$ stores the compressed keys that are in the set. Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
+    \begin{lstlisting}
+private long free;
+    \end{lstlisting}
+\end{itemize}
+
+
+
+\subsection{Helper methods}
+
+\subsection{Implementation of the interface methods}
+
 \section{Dynamic Fusion Node with constant time Rank}
 BRANCH and FREE
 
@@ -1214,7 +1466,7 @@ The algorithm for inserting a key {\ttfamily x} in the set while maintaining {\t
 
 \section{{\ttfamily Util} class tests}
 
-All the tests concerning the {\ttfamily Util} class can be found in the {\ttfamily UtilTest} class in the {\ttfamily src/test/java} folder.
+All the tests concerning the {\ttfamily Util} class can be found in the {\ttfamily UtilTest} class in the {\ttfamily src\textbackslash test\textbackslash java} folder.
 
 \subsection{msb series tests}
 
@@ -1236,10 +1488,10 @@ The {\ttfamily getField} and {\ttfamily setField} methods are tested in the {\tt
     For each value $f$ takes, the number of fields to be stored in $A$, $m$, is computed as a function of $f$. The goal is to fit as many fields as possible in $A$, having $f$ and $w$ as constraints. This is done with the expression $m = w / f$.
     
     \item
-    Then, $m$ keys of $f$ size are pseudo-randomly generated. Each time a key is generated, $A$ is shifted to the left by $f$ bits and the key is stored both in an auxiliary array and in $A$ with the {\ttfamily setField} function. 
+    Then, $m$ keys of $f$ size are pseudo-randomly generated. Each time a key is generated, $A$ is shifted to the left by $f$ bits, and the key is stored both in an auxiliary array and in $A$ with the {\ttfamily setField} function. 
     
     \item
-    When all $m$ keys have been generated and inserted, the auxiliary array is iterated and at each iteration $i$ it asserts that the key at index $i$ in the auxiliary array is the same as the one returned by the {\ttfamily getField} function.
+    When all $m$ keys have been generated and inserted, the auxiliary array is iterated, and at each iteration $i$, it asserts that the key at index $i$ in the auxiliary array is the same as the one returned by the {\ttfamily getField} function.
 \end{enumerate}
 
 \subsection{Test for Rank Lemma 1}
@@ -1247,7 +1499,7 @@ The {\ttfamily rankLemma1} function is tested in a method with the same name.
 A pass in this test consists of:
 \begin{enumerate}
     \item
-    Varying $b$ (size in bits of each key). This range is specified in fields of the {\ttfamily UtilTest} class.
+    Varying $b$ (size in bits of each key). This range is specified in the fields of the {\ttfamily UtilTest} class.
     
     \item
     For each value $b$ takes, the number of keys to be stored in $A$, $m$, is computed by taking the minimum between $2^b$ and $w/b$. This is because the method requires that all keys stored in $A$ must be distinct (and all combinations of keys of size $b$ are given by $2^b$), but also $A$ can only store up to $w/b$ keys.
@@ -1262,7 +1514,7 @@ A pass in this test consists of:
     The keys are then copied to a list, where they are sorted in descending order.
     
     \item
-    The list is then iterated from the largest key to smallest. Each iteration consists of inserting the current key in $A$. That key is also compared with $x$ in order to compute the rank of $x$, which is determined by the index of the current key in the list.
+    The list is then iterated from the largest key to the smallest. Each iteration consists of inserting the current key in $A$. That key is also compared with $x$ in order to compute the rank of $x$, which is determined by the index of the current key in the list.
     
     \item
     The list is iterated once more in order to assess if the rank of each key in the list agrees with the rank computed with {\ttfamily rankLemma1} function.
@@ -1273,20 +1525,20 @@ A pass in this test consists of:
 
 \section{Integer Data Structure tests}
 
-\subsection{Test parameters}
+Each implementation of {\ttfamily RankSelectPredecessorUpdate} has a corresponding test class, which in turn has {\ttfamily Test} appended to its name. For example, the {\ttfamily BinarySearchTrie} test class is called {\ttfamily BinarySearchTrieTest} and it can be found in the {\ttfamily src\textbackslash test\textbackslash java} folder.
 
-Each implementation of {\ttfamily RankSelectPredecessorUpdate} has a corresponding test class, which in turn has {\ttfamily Test} appended to its name. For example, the {\ttfamily BinarySearchTrie} test class is called {\ttfamily BinarySearchTrieTest} and it can be found in the {\ttfamily src/test/java} folder.
+\subsection{Test parameters}
 
 Each test class creates an instance of {\ttfamily RankSelectPredecessorUpdateTest} whose methods take a concrete implementation of {\ttfamily RankSelectPredecessorUpdate} to be tested. The constructor takes the following parameters:
 
 \begin{itemize}
-    \item {\ttfamily long seed}. This seed is used as parameter for instantiating a pseudo-random generator from the Java standard library --- {\ttfamily java.util.Random}. This instance will be later used to produce data for the test cases, such as seeds for passes (explained below), which in their turn will produce keys to be used in the tests.
-    \item {\ttfamily int passes}. Some tests can be executed in more than one pass. A pass in a particular test consists of generating data with its corresponding seed and running the test with that data. When $passes > 1$, then different seeds are generated, which will result in different pseudo-random values and the test is run {\ttfamily passes} number of times.
+    \item {\ttfamily long seed}. This seed is used as a parameter for instantiating a pseudo-random generator from the Java standard library --- {\ttfamily java.util.Random}. This instance will be later used to produce data for the test cases, such as seeds for passes (explained below), which in turn will produce keys to be used in the tests.
+    \item {\ttfamily int passes}. Some tests can be executed in more than one pass. A pass in a particular test consists of generating data with its corresponding seed and running the test with that data. When $passes > 1$, then different seeds are generated, which will result in different pseudo-random values, and the test is run {\ttfamily passes} number of times.
     \item {\ttfamily int numKeys}. This parameter defines the size of the data set to be generated. It is particular important for testing for instance {\ttfamily DynamicFusionNode}, which size cannot exceed $k$.
 \end{itemize}
 
 \subsection{{\ttfamily insertAndMemberSmallTest()}}
-The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. A small set of predetermined keys is inserted in the set and then {\ttfamily member} is called on the set with each of those keys. 
+The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. A small set of predetermined keys is inserted in the set, and then {\ttfamily member} is called on the set with each of those keys. 
 
 \subsection{{\ttfamily smallCorrectnessTest()}}
 
@@ -1323,7 +1575,7 @@ With the given set and the above-mentioned rules, a small test is performed. Tab
 The methods tested in this test are {\ttfamily insert} and {\ttfamily member}, and it can be executed in passes. It consists of:
 \begin{enumerate}
     \item
-    Iterating through all the the pseudo-randomly-generated keys and inserting them all in the instance to be tested.
+    Iterating through all the pseudo-randomly-generated keys and inserting them all in the instance to be tested.
     \item
     Iterating in random order through all the keys and asserting $key \in S$.
 \end{enumerate}
@@ -1339,11 +1591,11 @@ The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. I
     \item
     Asserting that the key {\ttfamily i} is in the set.
 \end{enumerate}
-Should the number of keys exceed 9, then every $1/10$ of {\ttfamily numKeys} the data structures is reset and all keys are removed.
+Should the number of keys exceed 9, then every $1/10$ of {\ttfamily numKeys} the data structure is reset, and all keys are removed.
 
 \subsection{{\ttfamily insertThenDeleteRandomKeysTest()}}
 
-The methods tested in this test are {\ttfamily insert} and {\ttfamily delete} and it can be executed in passes. After inserting all the pseudo-randomly-generated keys in the set, the keys are iterated in random order. Each iteration consists of:
+The methods tested in this test are {\ttfamily insert} and {\ttfamily delete}, and it can be executed in passes. After inserting all the pseudo-randomly-generated keys in the set, the keys are iterated in random order. Each iteration consists of:
 \begin{enumerate}
     \item
     Asserting that $key \in S$.
@@ -1355,12 +1607,12 @@ The methods tested in this test are {\ttfamily insert} and {\ttfamily delete} an
 
 \subsection{{\ttfamily deleteTest()}}
 
-This test aims at asserting that only when deleting an existing key the cardinality of the set is altered. It tests the methods {\ttfamily delete} and size, and it can be executed in passes. At each pass:
+This test aims at asserting that only when deleting an existing key, the cardinality of the set is altered. It tests the methods {\ttfamily delete} and size, and it can be executed in passes. At each pass:
 \begin{enumerate}
     \item
     Pseudo-random keys are generated and delete on the set is called with that key.
     \item
-    If the key was in the set, them the size must have decreased, otherwise it must remain the same.
+    If the key was in the set, then the size must have decreased; otherwise, it must remain the same.
 \end{enumerate}
 
 \subsection{{\ttfamily sizeTest()}}
@@ -1368,27 +1620,27 @@ This test aims at asserting that only when deleting an existing key the cardinal
 The methods tested in this test are {\ttfamily insert}, {\ttfamily size} and {\ttfamily delete} and it can be executed in passes. Each pass consists of:
 \begin{enumerate}
     \item
-    Iterating the pseudo-randomly-generated keys in random order. At each iteration the key is inserted and it is asserted that {\ttfamily size} has increased by 1.
+    Iterating the pseudo-randomly-generated keys in random order. At each iteration, the key is inserted, and it is asserted that {\ttfamily size} has increased by 1.
     \item
-    After all the keys have been inserted, the keys are iterated in random order once more and at each iteration the key is removed and it is asserted that {\ttfamily size} has decreased by 1.
+    After all the keys have been inserted, the keys are iterated in random order once more, and at each iteration, the key is removed, and it is asserted that {\ttfamily size} has decreased by 1.
 \end{enumerate}
 
 \subsection{{\ttfamily growingRankTest()}}
 
-This test aims ensuring that the following property holds for all the keys in the set: the rank of keys in sorted order is a monotone increasing function. It can be executed in passes and it is works the following way:
+This test aims at ensuring that the following property holds for all the keys in the set: the rank of keys in sorted order is a monotone increasing function. It can be executed in passes, and it works the following way:
 \begin{itemize}
     \item
     After inserting all the keys in the set, a copy of those keys is kept on a {\ttfamily TreeSet} (a set that keeps its values in sorted order) such that we can iterate them in their sorted order.
     \item
     A counter {\ttfamily i} is kept and initialized as $0$. It is incremented at each iteration.
     \item
-    The test then asserts that the rank of the key is the same as the number of current iteration. Note that we can assume that this condition must hold because the keys are iterated in sorted order. 
+    The test then asserts that the key's rank is the same as the number of the current iteration. Note that we can assume that this condition must hold because the keys are iterated in sorted order. 
 \end{itemize}
 
 \subsection{{\ttfamily selectOfRankTest()}}
 
-This test aims ensuring that the following property holds for all the keys in the set: if a key is present in the set, knowing its rank and them querying for select of that must return the key. It can be executed in passes and it is works by iterating through the pseudo-randomly-generated keys and at each iteration it is asserted that {\ttfamily key == select(rank(key))}.
+This test aims at ensuring that the following property holds for all the keys in the set: if a key is present in the set, knowing its rank and them querying for select of that must return the key. It can be executed in passes, and it works by iterating through the pseudo-randomly-generated keys, and at each iteration, it is asserted that {\ttfamily key == select(rank(key))}.
 
 \subsection{{\ttfamily rankOfSelectTest()}}
 
-This test aims ensuring that the following property holds for all the keys in the set: the rank of select a query is the query. It can be executed in passes and it is works by iterating from {\ttfamily 0} to {\ttfamily numKeys}. At each iteration {\ttfamily i}, it is asserted that {\ttfamily i == rank(select(i))}.
+This test aims at ensuring that the following property holds for all the keys in the set: the rank of select a query is the query. It can be executed in passes, and it works by iterating from {\ttfamily 0} to {\ttfamily numKeys}. At each iteration {\ttfamily i}, it is asserted that {\ttfamily i == rank(select(i))}.
