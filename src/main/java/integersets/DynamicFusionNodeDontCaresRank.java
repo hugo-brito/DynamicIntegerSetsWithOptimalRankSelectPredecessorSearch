@@ -1,10 +1,14 @@
 package integersets;
 
-/** This version of DynamicFusionNode iterates from the DynamicFusionNodeBinaryRank by introducing
- * key sketching and "don't cares", as described in pages 7--9 of the paper.
- * The sketches and the "don't cares" are stored in 2 words of k^2 size. For this reason, we limit
- * k to 8, because sqrt(64) = 8, and k must also be a power of 2. This way we maximize the number
- * of keys in the node but keep the 
+import java.util.Random;
+
+/**
+ * This version of DynamicFusionNode iterates from the
+ * DynamicFusionNodeBinaryRank by introducing key sketching and "don't cares",
+ * as described in pages 7--9 of the paper. The sketches and the "don't cares"
+ * are stored in 2 words of k^2 size. For this reason, we limit k to 8, because
+ * sqrt(64) = 8, and k must also be a power of 2. This way we maximize the
+ * number of keys in the node but keep the
  */
 
 public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpdate {
@@ -22,7 +26,6 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
    */
   private long compressingKey;
   private long compressedKeys;
-  private long dontCares;
   private long branch;
   private long free;
 
@@ -58,10 +61,10 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
       // compressed Keys
       updateKeyCompression();
       // dontcares
-      updadeDontCares();
+      updadeFree();
       // branch
       // free
-      updateBranchAndFree();
+      updateBranch();
     }
 
   }
@@ -88,10 +91,10 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     // compressed Keys
     updateKeyCompression();
     // dontcares
-    updadeDontCares();
+    updadeFree();
     // branch
     // free
-    updateBranchAndFree();
+    updateBranch();
   }
 
   @Override
@@ -121,8 +124,7 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
 
     compressingKey = 0;
     compressedKeys = 0;
-    dontCares = -1;
-
+    
     branch = 0;
     free = -1;
   }
@@ -325,47 +327,44 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     }
   }
 
-  private void updateBranchAndFree() {
+  private void updateBranch() {
     final int numSignificantBits = Long.bitCount(compressingKey); // how many bits are set in the
     // compressing key
 
     for (int i = 0; i < n; i++) {
       final long compKey = Util.getField(i, k, compressedKeys);
-      final long dontCare = Util.getField(i, k, dontCares);
+      final long dontCare = Util.getField(i, k, free);
       long keyBranch = 0L;
-      long keyFree = -1L;
 
       for (int bit = 0; bit < numSignificantBits; bit++) {
-        if (Util.bit(bit, dontCare) == 0) { // we care
-          keyFree = Util.deleteBit(bit, keyFree);
-          if (Util.bit(bit, compKey) == 1) {
-            keyBranch = Util.setBit(bit, keyBranch);
-          }
+        if (Util.bit(bit, dontCare) == 0 && Util.bit(bit, compKey) == 1) { // we care
+          keyBranch = Util.setBit(bit, keyBranch);
         }
       }
-
       branch = Util.setField(i, keyBranch, k, branch);
-      free = Util.setField(i, keyFree, k, free);
     }
   }
 
-  private void updadeDontCares() {
-    dontCares = dontCares(0, k - 1, 0, n);
+  private void updadeFree() {
+    free = dontCares(0, k - 1, 0, n);
+    for (int i = n; i < k; i++) {
+      free = Util.setField(i, -1, k, free);
+    }
   }
 
   /**
-   * Finds the how many compressed keys have {@code bit} set to zero. Since bits
-   * can either be zero or one, we can easily compute the which keys start with
-   * one.
+   * Finds the how many compressed keys have {@code bit} set to zero. Since bits can either be zero
+   * or one, we can easily compute the which keys start with one.
    * 
-   * @param compressedKeys The array containing the compressed keys
-   * @param bit            The bit to look at
-   * @param lo             The minimum index to look at in compressed keys
-   * @param hi             The maximum index to look at in compressed keys
+   * @param free The word where the results are to be stored
+   * @param bit The column in {@code compressedKeys} to look at
+   * @param lo The lower bound (row in {@code compressedKeys}) considered in the range
+   * @param hi The upper bound (row in {@code compressedKeys}) considered in the range
+   * @return {@code free} after the given iteration
    */
-  private long dontCares(long dontCares, final int bit, final int lo, final int hi) {
+  private long dontCares(long free, final int bit, final int lo, final int hi) {
     if (bit == -1) {
-      return dontCares;
+      return free;
     }
     // if all bits are the same in all keys, then that position is a don't care for
     // all keys
@@ -379,15 +378,15 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     // all keys
     if (mid == lo || mid == hi) {
       for (int i = lo; i < hi; i++) {
-        dontCares = Util.setField(i, Util.setBit(bit, Util.getField(i, k, dontCares)), k, dontCares);
+        free = Util.setField(i, Util.setBit(bit, Util.getField(i, k, free)), k, free);
+        // free = Util.setField(i, Util.getField(i, k, free) & ~(1L << bit), k, free);
       }
       // recursive call with the same range, next least significant bit
-      return dontCares(dontCares, bit - 1, lo, hi);
+      return dontCares(free, bit - 1, lo, hi);
     } else {
       // don't need to delete anything in dontCares as it is zero.
-
       // 2 x recursive calls
-      return dontCares(dontCares, bit - 1, lo, mid) | dontCares(dontCares, bit - 1, mid, hi);
+      return dontCares(free, bit - 1, lo, mid) | dontCares(free, bit - 1, mid, hi);
     }
   }
 
@@ -680,98 +679,33 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
    */
   public static void main(final String[] args) {
 
-    // long[] keys = generateKeys();
-    // long significantBits = significantBits(keys); // compressing key
-    // int compressedLength = Long.bitCount(significantBits); // how many bits are
-    // set in the
-    // // compressing key
+    DynamicFusionNodeDontCaresRank node = new DynamicFusionNodeDontCaresRank();
+    Random rand = new Random();
+    long[] keys = null;
 
-    // long compressedKeys = compressKeys(keys);
-    // long dontCares = dontCaresR(compressedKeys, keys.length);
+    while (Long.bitCount(node.compressingKey) < 7) {
+      node.reset();
+      keys = Util.distinctBoundedSortedLongs(8, (long) Math.pow(2, 12), rand.nextLong());
+      for (int i = 0; i < keys.length; i++) {
+        node.insert(keys[i]);
+      }
+    }
 
-    // long[] BRANCHandFREE = BRANCHandFREE(compressedKeys, dontCares,
-    // compressedLength, keys.length);
 
-    // Util.println("BRANCH = " + Util.bin(BRANCHandFREE[0], k));
-    // Util.println("FREE = " + Util.bin(BRANCHandFREE[1], k));
-    // Util.println("FREE: if it is set to 1, we don't care; if it's set to 0, then
-    // we care.");
+    for (int i = 0; i < keys.length; i++) {
+      Util.println(Util.bin(keys[i], 4));
+    }
 
-    // // match(x, significantBits, BRANCHandFREE[0], BRANCHandFREE[1]);
-    // long[] keyRanks = new long[]{10, 11, 12, 42, -1337, -1000, -42, -1};
+    Util.println("CompressingKey:");
+    Util.println(Util.bin(node.compressingKey, k));
 
-    // for (int i = 0; i < keyRanks.length; i++) {
-    // Util.println("rank(" + keyRanks[i] + ") = " + rankDontCares(keyRanks[i],
-    // significantBits, BRANCHandFREE[0], BRANCHandFREE[1], keys));
+    Util.println("CompressedKeys:");
+    Util.println(Util.matrixToString(k, k, node.compressedKeys));
 
-    // }
-
-    // ^^^^--------^^^^ Works ^^^^--------^^^^ //
-
-    final DynamicFusionNodeDontCaresRank node = new DynamicFusionNodeDontCaresRank();
-    node.insert(10);
-    node.insert(12);
-    node.insert(42);
-    // node.insert(-1337);
-    // node.insert(-42);
-
-    // Util.println(node.member(7));
-    // Util.println(node.member(10));
-    // Util.println(node.member(12));
-
-    // System.out.println("RANK OF 12 :");
-    // Util.println(node.rank(12));
-    // node.insert(42);
-    // Util.println(node.rank(-1337));
-
-    // node.insert(-1337);
-
-    // int j = 3;
-    // Util.println(Util.bin(~((1L << j) - 1), j));
-    // Util.println(Util.bin((1L << j) - 1, j));
-
-    // long significantBits = significantBits(keys);
-
-    // Util.println("-------------");
-    // Util.println("Compressing word:");
-    // Util.println(Util.bin(significantBits, Util.msb(significantBits) + 1));
-    // Util.println("-------------");
-    
-
-    // Util.println("Compressed keys:");
-    // int compressedLength = Long.bitCount(significantBits);
-    // long[] compressedKeys = new long[keys.length];
-    // for (int i = 0; i < keys.length; i++) {
-    //   compressedKeys[i] = compress(keys[i], significantBits);
-    //   Util.println(Util.bin(compressedKeys[i], compressedLength));
-    // }
-    // Util.println("-------------");
-
-    // // - Starting from the most significant bit of the sketch, if all bits are the same in all
-    // // keys, then that position is a don't care for all keys
-
-    // int bit = compressedLength - 1;
-
-    // int transition7 = dontCares(compressedKeys, bit, 0, compressedKeys.length - 1);
-    // // - Recurse, grouping the sketches that have the same bit at the position we looked that.
-
-    // long[] dontCares = new long[keys.length];
-
-    // Util.println("-------------");
-
-    // if (transition7 == -1) { // then everything is in the same group, all bits are don't care
-    //   for (int i = 0; i < dontCares.length; i++) {
-    //     dontCares[i] = Util.setBit(bit, dontCares[i]);
-    //   }
-    //   // recursive call with the same range, next least significant bit
-    //   dontCares(compressedKeys, bit - 1, 0, compressedKeys.length - 1);
-    // } else {
-    //   // don't need to delete anything in dontCares as it is zero.
-
-    //   // 2 x recursive calls
-    //   dontCares(compressedKeys, bit - 1, 0, transition7);
-    //   dontCares(compressedKeys, bit - 1, transition7 + 1, compressedLength - 1);
-    // }
+    Util.println("BRANCH:");
+    Util.println(Util.matrixToString(k, k, node.branch));
+    Util.println("FREE:");
+    Util.println(Util.matrixToString(k, k, node.free));
 
   }
 }
