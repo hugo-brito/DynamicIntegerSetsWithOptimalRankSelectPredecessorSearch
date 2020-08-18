@@ -734,21 +734,7 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
   }
 
   private void updateBranch() {
-    final int numSignificantBits = Long.bitCount(compressingKey); // how many bits are set in the
-    // compressing key
-
-    for (int i = 0; i < n; i++) {
-      final long compKey = Util.getField(i, k, compressedKeys);
-      final long dontCare = Util.getField(i, k, free);
-      long keyBranch = 0L;
-
-      for (int bit = 0; bit < numSignificantBits; bit++) {
-        if (Util.bit(bit, dontCare) == 0 && Util.bit(bit, compKey) == 1) { // we care
-          keyBranch = Util.setBit(bit, keyBranch);
-        }
-      }
-      branch = Util.setField(i, keyBranch, k, branch);
-    }
+    branch = compressedKeys & ~free;
   }
 
   private void updateFree() {
