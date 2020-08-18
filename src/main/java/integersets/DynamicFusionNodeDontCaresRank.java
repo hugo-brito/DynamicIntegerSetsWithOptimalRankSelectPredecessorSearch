@@ -61,7 +61,7 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
       // compressed Keys
       updateKeyCompression();
       // dontcares
-      updadeFree();
+      updateFree();
       // branch
       // free
       updateBranch();
@@ -91,7 +91,7 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     // compressed Keys
     updateKeyCompression();
     // dontcares
-    updadeFree();
+    updateFree();
     // branch
     // free
     updateBranch();
@@ -345,10 +345,10 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     }
   }
 
-  private void updadeFree() {
+  private void updateFree() {
     free = dontCares(0, k - 1, 0, n);
-    for (int i = n; i < k; i++) {
-      free = Util.setField(i, -1, k, free);
+    if (n < k) { // making the unused rows all 1
+      free = free | ~((1L << (k * n)) - 1);
     }
   }
 
