@@ -428,21 +428,25 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
     if (!member(x)) {
       return;
     }
+    
+    if (size() == 1) {
+      reset();
+      return;
+    }
 
     final int i = (int) rank(x);
     vacantSlot(getIndex(i));
     updateIndex(i);
     n--;
-
+    
     // Update:
     // Compressing key
     updateCompressingKey();
     // compressed Keys
     updateKeyCompression();
-    // dontcares
+    // free
     updateFree();
     // branch
-    // free
     updateBranch();
   }
 

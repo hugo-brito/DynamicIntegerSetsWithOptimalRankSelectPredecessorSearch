@@ -60,10 +60,9 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
       updateCompressingKey();
       // compressed Keys
       updateKeyCompression();
-      // dontcares
+      // free
       updateFree();
       // branch
-      // free
       updateBranch();
     }
 
@@ -90,10 +89,9 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     updateCompressingKey();
     // compressed Keys
     updateKeyCompression();
-    // dontcares
+    // free
     updateFree();
     // branch
-    // free
     updateBranch();
   }
 
