@@ -25,7 +25,6 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
    * Variables for maintaining the rank with don't cares algorithm. 
    */
   private long compressingKey;
-  private long compressedKeys;
   private long branch;
   private long free;
 
@@ -59,11 +58,11 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
       // Compressing key
       updateCompressingKey();
       // compressed Keys
-      updateKeyCompression();
+      long compressedKeys = compressedKeys();
       // free
-      updateFree();
+      updateFree(compressedKeys);
       // branch
-      updateBranch();
+      updateBranch(compressedKeys);
     }
 
   }
@@ -88,11 +87,11 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     // Compressing key
     updateCompressingKey();
     // compressed Keys
-    updateKeyCompression();
+    long compressedKeys = compressedKeys();
     // free
-    updateFree();
+    updateFree(compressedKeys);
     // branch
-    updateBranch();
+    updateBranch(compressedKeys);
   }
 
   @Override
@@ -116,15 +115,14 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
 
   @Override
   public void reset() {
-    index = 0;
+    index = 0L;
     n = 0;
     bKey = -1;
 
-    compressingKey = 0;
-    compressedKeys = 0;
+    compressingKey = 0L;
     
-    branch = 0;
-    free = -1;
+    branch = 0L;
+    free = -1L;
   }
 
   /** Returns the index of the first empty slot in KEY.
@@ -319,18 +317,20 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     return res;
   }
 
-  private void updateKeyCompression() {
+  private long compressedKeys() {
+    long compressedKeys = 0L;
     for (int i = 0; i < n; i++) {
       compressedKeys = Util.setField(i, compress(select(i)), k, compressedKeys);
     }
+    return compressedKeys;
   }
 
-  private void updateBranch() {
+  private void updateBranch(long compressedKeys) {
     branch = compressedKeys & ~free;
   }
 
-  private void updateFree() {
-    free = dontCares(0, k - 1, 0, n);
+  private void updateFree(long compressedKeys) {
+    free = dontCares(compressedKeys, 0, k - 1, 0, n);
     if (n < k) { // making the unused rows all 1
       free = free | ~((1L << (k * n)) - 1);
     }
@@ -346,7 +346,7 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
    * @param hi The upper bound (row in {@code compressedKeys}) considered in the range
    * @return {@code free} after the given iteration
    */
-  private long dontCares(long free, final int bit, final int lo, final int hi) {
+  private long dontCares(long compressedKeys, long free, final int bit, final int lo, final int hi) {
     if (bit == -1) {
       return free;
     }
@@ -366,11 +366,11 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
         // free = Util.setField(i, Util.getField(i, k, free) & ~(1L << bit), k, free);
       }
       // recursive call with the same range, next least significant bit
-      return dontCares(free, bit - 1, lo, hi);
+      return dontCares(compressedKeys, free, bit - 1, lo, hi);
     } else {
       // don't need to delete anything in dontCares as it is zero.
       // 2 x recursive calls
-      return dontCares(free, bit - 1, lo, mid) | dontCares(free, bit - 1, mid, hi);
+      return dontCares(compressedKeys, free, bit - 1, lo, mid) | dontCares(compressedKeys, free, bit - 1, mid, hi);
     }
   }
 
@@ -684,7 +684,7 @@ public class DynamicFusionNodeDontCaresRank implements RankSelectPredecessorUpda
     Util.println(Util.bin(node.compressingKey, k));
 
     Util.println("CompressedKeys:");
-    Util.println(Util.matrixToString(k, k, node.compressedKeys));
+    // Util.println(Util.matrixToString(k, k, node.compressedKeys));
 
     Util.println("BRANCH:");
     Util.println(Util.matrixToString(k, k, node.branch));
