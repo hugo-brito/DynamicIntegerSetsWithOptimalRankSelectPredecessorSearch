@@ -1,5 +1,9 @@
 package integersets;
 
+import java.util.Comparator;
+import java.util.Random;
+import java.util.TreeSet;
+
 /**
  * Utility class, containing many helful functions.
  */
@@ -1227,6 +1231,77 @@ public abstract class Util {
       println("   rank(x,A) = " + numClustersLeadingBitIs0);
       return numClustersLeadingBitIs0;
     }
+
+
+  }
+
+  /**
+   * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code seed}
+   * and unsignedly sorted and between 0 and {@code bound}.
+   * 
+   * @param n the number of {@code long} keys to produce
+   * @param bound the upper bound of the keys (exclusive)
+   * @param seed the seed to be used in the pseudo-random generator
+   * @return the array containing the keys generated with the specified parameters
+   */
+  public static long[] distinctBoundedSortedLongs(final int n, final long bound, final long seed) {
+    if (Long.compareUnsigned(bound, n) < 0) {
+      throw new IndexOutOfBoundsException("bound must be larger than n");
+    }
+    final Random rand = new Random(seed);
+    final TreeSet<Long> keys = new TreeSet<>(new Comparator<Long>() {
+      @Override
+      public int compare(final Long x, final Long y) {
+        return Long.compareUnsigned(x, y);
+      }
+    });
+
+    while (keys.size() < n) {
+      keys.add((Long.remainderUnsigned(rand.nextLong(), bound)));
+    }
+    final long[] res = new long[n];
+    int i = 0;
+    for (final long key : keys) {
+      res[i] = key;
+      i++;
+    }
+
+    return res;
+  }
+
+  /**
+   * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code 42}
+   * and unsignedly sorted and between 0 and {@code bound}.
+   * 
+   * @param n the number of {@code long} keys to produce
+   * @param bound the upper bound of the keys (exclusive)
+   * @return the array containing the keys generated with the specified parameters
+   */
+  public static long[] distinctBoundedSortedLongs(final int n, final long bound) {
+    return distinctBoundedSortedLongs(n, bound, 42);
+  }
+
+  /**
+   * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code seed}
+   * and unsignedly sorted.
+   * 
+   * @param n the number of {@code long} keys to produce
+   * @param seed the seed to be used in the pseudo-random generator
+   * @return the array containing the keys generated with the specified parameters
+   */
+  public static long[] distinctSortedLongs(final int n, final long seed) {
+    return distinctBoundedSortedLongs(n, -1, seed);
+  }
+
+  /**
+   * Returns an array containing {@code n} distinct {@code long}s produced with seed 42
+   * and unsignedly sorted.
+   * 
+   * @param n the number of {@code long} keys to produce
+   * @return the array containing the keys generated with the specified parameters
+   */
+  public static long[] distinctSortedLongs(final int n) {
+    return distinctSortedLongs(n, 42);
   }
 
   /**
