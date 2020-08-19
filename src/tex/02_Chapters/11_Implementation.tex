@@ -1018,6 +1018,30 @@ public static long M(final int b, final int w)
     \begin{lstlisting}
 public static String matrixToString(final int rows, final int columns, final long A)
     \end{lstlisting}
+    
+    \item
+    The helper method below returns an array containing $n$ distinct {\ttfamily long} keys between 0 and $bound$ (exclusive) produced with seed $seed$ and sorted with an unsigned comparator.
+    \begin{lstlisting}
+public static long[] distinctBoundedSortedLongs(final int n, final long bound, final long seed)
+    \end{lstlisting}
+    
+    \item
+    The helper method below returns an array containing $n$ distinct {\ttfamily long} keys between 0 and $bound$ (exclusive) produced with the default seed $42$ and sorted with an unsigned comparator.
+    \begin{lstlisting}
+public static long[] distinctBoundedSortedLongs(final int n, final long bound)
+    \end{lstlisting}
+    
+    \item
+    The helper method below returns an array containing $n$ distinct {\ttfamily long} keys between 0 and the maximum unsigned value (exclusive) produced with the seed $seed$ and sorted with an unsigned comparator.
+    \begin{lstlisting}
+public static long[] distinctSortedLongs(final int n, final long seed)
+    \end{lstlisting}
+    
+    \item
+    The helper method below returns an array containing $n$ distinct {\ttfamily long} keys between 0 and the maximum unsigned value (exclusive) produced with the default seed $42$ and sorted with an unsigned comparator.
+    \begin{lstlisting}
+public static long[] distinctSortedLongs(final int n)
+    \end{lstlisting}
 \end{itemize}
 
 \section{The {\ttfamily RankSelectPredecessorUpdate} interface}
@@ -1115,14 +1139,15 @@ We take a step forward by improving the previous idea: this time, two additional
 
 We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$, and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
 
-We interpret {\ttfamily index} as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
-\begin{equation}
-    k \cdot log_2(k) = 64 \iff k = 16
-\end{equation}
-If $k=16$, then $\lceil \log_2(k) \rceil = 4$. Each $\lceil \log_2(k) \rceil$-bit field of {\ttfamily index} stores the index of the key in {\ttfamily key} in their sorted order.
+We interpret $index$ as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
+\begin{align*}
+    k \cdot log_2(k) &\leq 64 \\
+    \iff k &\leq 16
+\end{align*}
+If $k = 16$, then $\lceil \log_2(k) \rceil = 4$. Each $\lceil \log_2(k) \rceil$-bit field of {\ttfamily index} stores the index of the key in {\ttfamily key} in their sorted order.
 It is important to note that \cite{patrascu2014dynamic} mentions only that $k$ has to be a power of two. The implementation allows for $k$ to take other values just as long as they are smaller than $16$ and a power of two.
 
-\subsection{Fields}
+\subsection{Fields} \label{sec:binaryRankFields}
 The class holds the following fields:
 \begin{itemize}
     \item
@@ -1135,7 +1160,7 @@ private static final int ceilLgK = (int) Math.ceil(Math.log10(k)/Math.log10(2));
     \item
     The array of keys, $key$:
     \begin{lstlisting}
-    private final long[] key = new long[k];
+private final long[] key = new long[k];
     \end{lstlisting}
     
     \item
@@ -1158,7 +1183,7 @@ private int n;
     \end{lstlisting}
 \end{itemize}
 
-\subsection{Helper methods}
+\subsection{Helper methods} \label{sec:binaryRankHelperMethods}
 \begin{itemize}
     \item
     {\ttfamily firstEmptySlot()} returns the first available spot in $key$ by computing lsb$(bKey)$. Since only the first $k$ spots are valid results, a check is done to see if this result is within the range, returning $-1$ if not.
@@ -1240,208 +1265,350 @@ private int n;
     Resetting the set is easily done by setting $n$ to zero and $bKey$ to $-1$ (because $-1$ has all the bits set to one in its two's complement binary representation).
 \end{itemize}
 
-\section{Rank via matching with "Don't Cares"}
+\section{Rank via matching with "don't cares"} \label{sec:rankWithDontCares}
 
-Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provide a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}.
+Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}.
 
-In order to make the algorithm work, taking one step beyond the static fusion node from Fredman and Willard, this algorithm uses the following:
+In this incremental step, we keep the most of the implementation details of \ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in \cite{patrascu2014dynamic}.
+
+Enabling this operation entails the following:
 \begin{itemize}
     \item
-    Compressing keys/sketching in the same style as fusion trees.
+    Compressing keys (or \textit{sketching}) in the same style as fusion trees, from Fredman and Willard.
+    
+    In order to compress keys, we need a compressing key. A naive way to compute a compressing key is to store $\text{msb}(x_i \oplus x_j)$ of all $\{x_i, \dots, x_j\}$ keys in the set in a word.
+    
+    We denote the compressed version of $x$ by $\hat x $. A naive way to compress a key $x$ is to iterate through the set bits of the compressing key, storing the bits' values at those positions of $x$ in $\hat x$.
     
     \item
-    Encoding the information about "don't cares".
+    Encoding the information about "don't cares". We denote a compressed key with "don't cares" by $\hat x^?$. A compressed key with "don't cares" has length $k$ and can be any combination of the characters $\{0, 1, ?\}$. Since the bits of a word in a real machine can only take the values $\{0, 1\}$, we need an additional construct to enable the third character. This shows that a single word for storing the compressed keys with "don't cares" is not enough. So we will use two words in total: $branch$ and $free$.
     
-    \item
-    Computing the rank of compressed keys via Rank Lemma 1 (defined in Section~\ref{sec:rankLemma1}).
-\end{itemize}
-
-The sketches and the information regarding "don't cares" will be stored in two words, {\ttfamily branch} and {\ttfamily free}. These are to be updated every time the node is updated.
-
-Separate the compression function from the overall function. So, have a function compressNaive(x) that computes hat(x) (the compressed version or sketch of x). This function is currently implemented inefficiently (probably by iterating over all set bits in the word that tells you which indices are significant) and will only be made dynamic in Sec 3.2-4. In the meantime, leave it as is and treat it as a black box.
-
-\begin{enumerate}
-    \item
-    Sketching:
-    For a given node, compute the "significant" bit indices. A "significant" bit index is the most significant bit of the XOR of two keys. A naive algorithm is to XOR all the combinations of keys and compute the their msb, have a local variable where we set the bits we find to be significant, which we can then read from.
-    
-    \item
-    Don't cares:
-    We assume keys to be sorted and compressed, for instance in an array (done in the previous step)
-    The algorithm consists of the following recursion:
-    \begin{enumerate}
-        \item
-        Starting from the most significant bit of the sketch, if all bits are the same in all keys, then that position is a don't care for all keys
-        
-        \item
-        If one or more bits differ at that position, we care for that position.
-        
-        \item
-        Recurse, grouping the sketches that have the same bit at the position we looked that.
-    \end{enumerate}
-    
-    \item
-    We now have the sketches and we also know which positions are the don't cares. We need now to store this information in BRANCH and FREE. Given a key y, and we know its rank i in S (the node), at every "significant" position h:
+    These words are to be interpreted as two $k \times k$ bit matrices, and they are defined the following way:
     \begin{itemize}
         \item
-        If h is not a don't care, we store the bit of that position of y at position $\langle i,h\rangle_{k\times1}$ of BRANCH, and we set $\langle i,h\rangle_{k\times1}$ of FREE to zero.
+        We see each $branch\langle i \rangle_k$ as a row in the matrix, and each row maps to a compressed key in the set with rank $i$.
+        As its name implies, $branch$ will contain the values of the branching bits. 
+        So each column $j$, e.g. $branch\langle i, j\rangle_{1 \times k}$, corresponds to a branching bit.
+        We will store the compressed keys except for the "don't cares" positions, which are always stored with value zero.
+        In other words, if a particular branching bit of a compressed key is not a "don't care", then the value of the bit at that position in $branch$ (in its corresponding row) will be the same as of bit at that position in the corresponding compressed key; otherwise, it is 0.
         
         \item
-        Otherwise, h is a don't care, so we set $\langle i,h\rangle_{k\times1}$ of BRANCH to zero and $\langle i,h\rangle_{k\times1}$ of FREE to 1.
+        In regards to $free$, its rows and columns have the same correspondence as in $branch$.
+        When seeing the keys in a matrix and ordered by their rank, we can see that the value of some of those positions has no influence in the rank of the (compressed) keys.
+        These positions will be "don't cares".
+        We will encode this data the following way: If a particular branching bit of a compressed key is not a "don't care", the bit at the same index in $free$ (in its corresponding row) is 0, otherwise it is one.
     \end{itemize}
-    Note how subtle this is: we store exactly as many positions per key as we have keys in the set, hence the k*k, and hence why here a field in both BRANCH and FREE is of length k*1.
-    Now some math, $k^2$ must fit in 64 bits, and k must also be a power of 2: sqrt(64) = 8 which is also a power of 2. So here we have another constraint in regards to k, which until now could be up to 16, now it can only be 8.
     
-    \item
-    We define a subroutine match(x), which uses rank lemma 1 (expression is on page 9)
     
+    Now assume that we have a word, where each of that word's fields stores a compressed key. If we interpret this word as a matrix, then its rows (which are simply the word's fields) will correspond to a compressed key, and its columns will correspond to the indices of bits in the compressed keys, e.g., significant positions.
+
+    
+
     \item
-    Having match defined, we can compute the overall rank algorithm, which is also given the steps in the paper.
-\end{enumerate}
+    A subroutine $match(x)$ that uses all of the above and rank via Rank Lemma 1 (defined in Section~\ref{sec:rankLemma1}).
+    
+    Let $\hat x^k$ be the compressed version of $x$ copied $k$ times and stored in a word. We use the $M$ helper function from the {\ttfamily Util} class to achieve this. Note that we have also done similar in \ref{sec:computeM}.
+    Then $\text{match}(x)$ is computed with the following expression \cite{patrascu2014dynamic}:
+    \begin{align*}
+        \text{match}(x) = \underbrace{\text{rank}(\hat x, branch \vee (\hat x^? \wedge free))}_{\text{Rank Lemma 1}}
+    \end{align*}
+\end{itemize}
 
-\subsection{Key compression with "don't cares"}
+The implementation of Section~\ref{sec:DynamicFusionNodeBinaryRank} had $index$ word as the limiting factor of $k$ because we had to be able to index all the positions of the set. This time, the limiting factor for $k$ will be the $branch$ and $free$ matrices: since those have $k$ rows and $k$ columns and a word in our machine is of length 64, we have:
+\begin{align*}
+    k^2 \leq 64\\
+    \implies k \leq \sqrt{64}\\
+    \iff k \leq 8
+\end{align*}
 
-\begin{figure}[h!]
-\centering
-\begin{tikzpicture}
-  [level distance = 12mm,
-   sibling distance = 30mm,
-   dot/.style = {circle, fill, minimum size=1mm, inner sep=2pt}
-  ]
-  
-  \node[dot] {}
-    child{node[dot] {} 
-      child[missing] {} % left child
-      child{node[dot] {}
-        child{node[dot] {}
-          child{node[dot] {}
-            child{node[dot] {}
-              child{node(x1)[dot] {}
-                edge from parent node(lvl6_1) [left=3pt] {$0$}
-              }
-              child{node(x2)[dot] {}
-                edge from parent node(lvl6_2) [right=3pt] {$1$}
-              }
-              edge from parent node(lvl5_1) [left=3pt] {$0$}
-            }
-            child{node[dot] {}
-              child[missing] {}
-              child{node(x3)[dot] {}
-                edge from parent node(lvl6_3) [right=3pt] {$1$}
-              }
-              edge from parent node(lvl5_2) [right=3pt] {$1$}
-            }
-            edge from parent node[left=3pt] {$0$}
-          }
-          child[missing] {}
-          edge from parent node(lvl3_1) [left=3pt] {$0$}
-        }
-        child{node[dot] {}
-          child{node[dot] {}
-            child[missing] {}
-            child{node[dot] {}
-              child[missing] {}
-              child{node(x4)[dot] {}
-                edge from parent node(lvl6_4) [right=3pt] {$1$}
-              }
-              edge from parent node(lvl5_3) [right=3pt] {$1$}
-            }
-            edge from parent node[left=3pt] {$0$}
-          }
-          child[missing] {}
-          edge from parent node(lvl3_2) [right=3pt] {$1$}
-        }
-        edge from parent node[right=3pt] {$1$}
-      }
-      edge from parent node[left=3pt] {$0$}
-    }
-    child[missing] {};
-
-  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl3_1) (lvl3_2)] {};
-  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl5_1) (lvl5_2) (lvl5_3)] {};
-  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl6_1) (lvl6_2) (lvl6_3) (lvl6_4)] {};
-  
-  \node(labelx1) [below=10pt of x1] {$01\underline{0}0\underline{0}\underline{0}$};
-  \node(labelx1_2) [below=10pt of labelx1] {$000$};
-
-  \node(labelx2) [below=10pt of x2] {$01\underline{0}0\underline{0}\underline{1}$};
-  \node[below=10pt of labelx2] {$001$};
-
-  \node(labelx3) [below=10pt of x3] {$01\underline{0}0\underline{1}\underline{1}$};
-  \node[below=10pt of labelx3] {$011$};
-
-  \node(labelx4) [below=10pt of x4] {$01\underline{1}0\underline{1}\underline{1}$};
-  \node[below=10pt of labelx4] {$111$};
-
-  \node(legend) [left=10pt of labelx1_2] {$sketch(x_i)$:};
-  \node[above=10pt of legend] {$x_i$:};  
-\end{tikzpicture}
-\caption{An example of the $sketch$ function with $4$ keys. The levels 
-corresponding to the $3$ bits sketched are circled.}
-\label{fig1}
-\end{figure}
-
-
-make one example of match, compressing keys and the table from the paper. explain why match works and what exactly it means.
-
-
-\textbf{RUN THE ALGORITHM WITH AN EXAMPLE; AS I'VE DONE IN PREVIOUS SECTIONS}
+This class shares many implementation details with the Dynamic Fusion Node with binary Rank from Section~\ref{sec:DynamicFusionNodeBinaryRank}. For that reason, in the next few sections, we will see what is kept, added, or altered compared with that implementation while expanding only on the last two. The changes enable the new operations of this class.
 
 \subsection{Fields}
+The following fields were kept unchanged and stand for the same as in \ref{sec:binaryRankFields}:
+\begin{lstlisting}
+private final long[] key = new long[k];
+private long index;
+private int bKey;
+private int n;
+\end{lstlisting}
 
-This class shares many implementation details with the Dynamic Fusion Node with binary Rank from Section~\ref{sec:DynamicFusionNodeBinaryRank}. For that reason, below we will only see what has been added or altered in comparison with that implementation. These changes help enabling the new operations now implemented in the class:
+The following fields were either altered or introduced:
 \begin{itemize}
     \item
-    The parameter $k$ has been altered. This is because the implementation requires us to maintain some other variables that will limit the capacity of the set:
+    The parameter $k$ has been altered. This is because, as explained in \ref{sec:rankWithDontCares}, $branch$ and $free$ will limit further the capacity of the set:
     \begin{lstlisting}
 private static final int k = 8;
     \end{lstlisting}
     
     \item
-    We will need a constant $M$ to be used as mask in some of methods. We resort to the {\ttfamily M} function of the {\ttfamily Util} class, and store the result as a class variable. 
+    We will need a constant $M$ to be used as mask in some of methods. We resort to the {\ttfamily M} function of the {\ttfamily Util} class, and store the result as a class variable.
     \begin{lstlisting}
 private static final long M = Util.M(k, k * k);
     \end{lstlisting}
 
     \item
-    The operations introduced in this implementation require us to compress keys. To this extent, we store a word, $compressingKey$ which will retain the information regarding the bits to keep when compressing a $key$. If a bit is to be kept, then it will be set to one in $compressingKey$.
+    The operations introduced in this implementation require us to compress keys. To this extent, we store a word, $compressingKey$, which will retain the information regarding the bits to keep when compressing a $key$. If a bit is significant, then it will be set to one in $compressingKey$.
     \begin{lstlisting}
 private long compressingKey;
     \end{lstlisting}
-    
-    \item
-    The word $compressedKeys$ stores the compressed keys that are in the set. Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
-    \begin{lstlisting}
-private long compressedKeys;
-    \end{lstlisting}
 
     \item
-    The word $dontCares$ stores the information regarding the "don't cares" of each of the keys in the set. It is designed in the same fashion as $compressedKeys$, Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
-    \begin{lstlisting}
-private long dontCares;
-    \end{lstlisting}
-    
-    \item
-    The word $compressedKeys$ stores the compressed keys that are in the set. Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
+    As explained in \ref{sec:rankWithDontCares}, the word $branch$ maps to one of the $k \times k$ bit matrices, $BRANCH$, that Pătrașcu and Thorup use to store the part of the data of compressed keys with "don't cares".
+    We see each $branch\langle i \rangle_k$ as a row in the matrix, each row corresponding to the key with rank $i$ in the set.
+    Each column $j$, e.g., $branch\langle i, j\rangle_{1 \times k}$ corresponds to a branching bit.
     \begin{lstlisting}
 private long branch;
     \end{lstlisting}
     
     \item
-    The word $compressedKeys$ stores the compressed keys that are in the set. Each of its $compressedKeys\langle i \rangle_k$ contains the compressed key of rank $i$ in the set.
+    Similarly to $branch$, the word $free$ is the second $k \times k$ bit matrix, $FREE$, which is also used for storing the rest of the data of the compressed keys with "don't cares". Indexing of rows and columns are mapped in the same way as in $branch$.
     \begin{lstlisting}
 private long free;
     \end{lstlisting}
 \end{itemize}
 
-
-
 \subsection{Helper methods}
 
-\subsection{Implementation of the interface methods}
+The following helper methods suffered no changes and serve the same purposed as the implementation from \ref{sec:binaryRankHelperMethods}:
+\begin{itemize}
+    \item
+    {\ttfamily firstEmptySlot()}
+    
+    \item
+    {\ttfamily fillSlot(final int j)}
+    
+    \item
+    {\ttfamily vacantSlot(int j)}
+    
+    \item
+    {\ttfamily getIndex(final long i)}
+    
+    \item
+    The overloaded methods {\ttfamily updateIndex}
+\end{itemize}
 
-\section{Dynamic Fusion Node with constant time Rank}
-BRANCH and FREE
+The following are helper methods introduced in this implementation:
+\begin{itemize}
+    \item
+    {\ttfamily updateCompressingKey()} updates the compressing key by looping through all the combinations of keys in the set and setting all the first branching bits between those keys in $compressingKey$. E.g., let $x$ and $y$ be a particular combination of two keys in the set. The method sets in $compressingKey$ the $\text{msb}(x \oplus y)$ of all combinations of keys in the set. This approach is naive and slow, with $O(n^2)$ time.
+    
+    \item
+    {\ttfamily compress(final long x)} uses $compressingKey$ in order to compute the compressed version of the input key, $x$. It loops through the set bits of $compressingKey$, setting the bits $\hat x$ by reading actual bit values at those positions in $x$. Since this is done naively, it takes $O(k)$ time.
+
+    \item
+    {\ttfamily long compressedKeys()} returns a word containing all the compressed keys present in the set and ordered by rank. This is done by looping through all keys in the set and calling the {\ttfamily compress(x)} method on every key. This method is called after upon updating the set, and since all the compressed keys are recomputed, this takes $O(n)$ time.
+    
+    \item
+    The {\ttfamily updateFree(final long compressedKeys)} method makes a call to the recursive {\ttfamily dontCares} method (explained below) which updates $free$ after the insertion or deletion of a key.
+
+    \item
+    The {\ttfamily dontCares} method has the following signature:
+    \begin{lstlisting}
+private long dontCares(long compressedKeys, long free, final int bit, final int lo, final int hi)
+    \end{lstlisting}
+    The parameters $compressedKeys$ and $free$ are the compressed keys stored in a word and the data about "don't cares", respectively. $bit$ refers to index of the column (in both $compressedKeys$ and $free$), whereas $hi$ and $lo$ refers to a range of rows (also in both $compressedKeys$ and $free$).
+    It follows these steps to update $free$:
+    \begin{enumerate}
+        \item
+        Starting from the most significant column (given by the parameter $bit$), e.g., the most significant bit of the compressed key and a range of keys that includes all rows:
+        \begin{itemize}
+            \item
+            If all bits in that column are the same, then that position is a "don't care" for all keys. This is because, in this range, regardless of the value of the bit, the order of the keys is always the same.
+            
+            \item
+            If at least one bit differs in that column, then we care for that position in all keys. Again, the particular value for these rows and column contributes to the order of the compressed keys.
+        \end{itemize}
+        
+        \item
+        The method is called recursively:
+        \begin{itemize}
+            \item
+            If the bits were all the same for that range and in that column, then the method is called with the same range of rows, but now on the next lesser significant column.
+            
+            \item
+            Otherwise, we do two recursive calls: one for the range of rows whose bit was set to 0 and another for the keys that had the bit set to 1 in that column.
+        \end{itemize}
+        
+        \item
+        The recursive call chain reaches its end when the column index, $bit$, is $-1$.
+    \end{enumerate}
+    Because we iterate through all columns in $free$, which are the significant bits, and the by row, which are the keys in the set, this algorithm takes $O(k \cdot n)$ time.
+    
+    \item
+    After having $compressedKeys$ and $free$ computed, the {\ttfamily final long compressedKeys} method updates $branch$ with the expression:
+    \begin{align*}
+        branch := compressedKeys \wedge \neg free
+    \end{align*}
+    This takes $O(1)$ time.
+    
+    \item
+    The helper method {\ttfamily match(x)} has the signature:
+\begin{lstlisting}
+private int match(final long x)
+\end{lstlisting}
+    As mentioned in \ref{sec:rankWithDontCares}, it follows closely the definition from \cite{patrascu2014dynamic}.
+    Since it uses {\ttfamily compress(final long x)} as a subroutine, its running time is bounded its subroutine.
+    
+    \item
+    The {\ttfamily dontCaresRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily match(final long x)}, {\ttfamily select(final long rank)} {\ttfamily msb(final int x)} as a subroutines.
+    The implementation follows the algorithm presented by Pătrașcu and Thorup in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
+    Its running time is bound by the running time of its slowest subroutine, {\ttfamily match(final long x)}, which in turn calls {\ttfamily compress(final long x)}, which takes $O(k)$ time.
+
+\end{itemize}
+
+\subsection{Implementation of the interface methods} \label{sec:dontCaresRankInterfaceImplementation}
+
+The following interface methods suffered no changes and serve the same purposed as the implementation from \ref{sec:binaryRankInterfaceImplementation}:
+\begin{itemize}
+    \item
+    {\ttfamily select(final long rank)}
+    
+    \item
+    {\ttfamily size()}
+\end{itemize}
+
+The following interface methods suffered changes in relation to \ref{sec:binaryRankInterfaceImplementation}:
+\begin{itemize}
+    \item
+    {\ttfamily insert(final long x)} keeps all the steps from \ref{sec:binaryRankHelperMethods} and adds the following right after inserting $x$ in the set:
+    \begin{enumerate}
+        \item
+        The $compressingKey$ is updated with a call to {\ttfamily updateCompressingKey()}.
+        
+        \item
+        All the keys a compressed and the result is stored in a local variable with the statement:
+        \begin{lstlisting}
+final long compressedKeys = compressedKeys();
+        \end{lstlisting}
+        
+        \item
+        $free$ is updated with the call:
+        \begin{lstlisting}
+updateFree(compressedKeys);
+        \end{lstlisting}
+        
+        \item
+        And the last step is to update $branch$, which is done with:
+        \begin{lstlisting}
+updateBranch(compressedKeys);
+        \end{lstlisting}
+    \end{enumerate}
+    
+    \item
+    Similarly to {\ttfamily insert}, {\ttfamily delete(final long x)} keeps all the steps from \ref{sec:binaryRankHelperMethods} and adds the following right after removing $x$ from the set:
+    \begin{enumerate}
+        \item
+        The $compressingKey$ is updated with a call to {\ttfamily updateCompressingKey()}.
+        
+        \item
+        All the keys a compressed and the result is stored in a local variable with the statement:
+        \begin{lstlisting}
+final long compressedKeys = compressedKeys();
+        \end{lstlisting}
+        
+        \item
+        $free$ is updated with the call:
+        \begin{lstlisting}
+updateFree(compressedKeys);
+        \end{lstlisting}
+        
+        \item
+        And the last step is to update $branch$, which is done with:
+        \begin{lstlisting}
+updateBranch(compressedKeys);
+        \end{lstlisting}
+    \end{enumerate}
+    
+    \item
+    {\ttfamily rank(final long x)} returns the rank of $x$ in the set by calling the {\ttfamily dontCaresRank(final long x)} helper method.
+    
+    \item
+    {\ttfamily reset()}.
+    Resetting the set is easily done by setting $n$ to zero and $bKey$ to $-1$ (because $-1$ has all the bits set to one in its two's complement binary representation).
+\end{itemize}
+
+\subsection{Example}
+
+We will run {\ttfamily rank(x)} with an example. For brevity, the selected set of keys will only have bits set between the indices 0 and 11. This way we know that the $64 - 12$ leading bits will have no influence when running the algorithm.
+% {p{0.1\textwidth}p{0.8\textwidth}}
+\begin{table}[!h]
+\centering
+\begin{tabular}{
+m{0.025\textwidth}<{\centering}|
+>{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth} 
+>{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth} >{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth} >{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth}  >{\centering}m{0.025\textwidth}
+>{\centering}m{0.025\textwidth}
+>{\centering}m{0.025\textwidth}
+>{\centering}m{0.025\textwidth}
+>{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth} 
+>{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth} >{\centering\columncolor[HTML]{DEDEDE}}m{0.025\textwidth} >{\columncolor[HTML]{DEDEDE}}m{0.025\textwidth}<{\centering}  }
+\hline
+& 11 & 10 & 9 & 8 & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\ \hline
+7 & 1 & 1 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 1 \\ \hline
+6 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 0 \\ \hline
+5 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 0 & 0 & 1 & 0 \\ \hline
+4 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 1 \\ \hline
+3 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 1 \\ \hline
+2 & 1 & 1 & 0 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 0 & 0 \\ \hline
+1 & 0 & 1 & 1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 & 1 & 1 \\ \hline
+0 & 0 & 0 & 0 & 1 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 1 \\ \hline
+\end{tabular}
+\caption{Keys already present in the set}
+\label{tab:keysInTheSetForRank}
+\end{table}
+
+The keys from \ref{tab:keysInTheSetForRank} will have a corresponding compressing key.
+
+\begin{table}[!h]
+\centering
+\begin{tabular}{
+m{0.025\textwidth}<{\centering}|
+>{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth} 
+>{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth} >{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth} >{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth}  >{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth}
+>{\centering}m{0.025\textwidth}
+>{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth}
+>{\centering}m{0.025\textwidth}
+>{\centering\columncolor[HTML]{9B9B9B}}m{0.025\textwidth} 
+>{\centering}m{0.025\textwidth} >{\centering}m{0.025\textwidth}m{0.025\textwidth}<{\centering}  }
+\hline
+& 11 & 10 & 9 & 8 & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\ \hline
+7 & 1 & 1 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 1 \\ \hline
+6 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 0 \\ \hline
+5 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 0 & 0 & 1 & 0 \\ \hline
+4 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 1 \\ \hline
+3 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 1 \\ \hline
+2 & 1 & 1 & 0 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 0 & 0 \\ \hline
+1 & 0 & 1 & 1 & 0 & 0 & 1 & 0 & 1 & 1 & 0 & 1 & 1 \\ \hline
+0 & 0 & 0 & 0 & 1 & 0 & 1 & 1 & 1 & 0 & 1 & 0 & 1 \\ \hline
+\end{tabular}
+\caption{The highlighted columns correspond to the set bits of the compressing key. When compressing a key, we keep only the bits of the highlighted columns.}
+\label{tab:compressingKeyBits}
+\end{table}
+
+Compressing key:\\
+$0b00000000\_00000000\_00000000\_00000000\_00000000\_00000000\_00001111\_10101000l$
+
+The compressed keys:
+\begin{table}[!h]
+\centering
+\begin{tabular}{c|ccccccc}
+\hline
+  & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\ \hline
+7 & 1 & 1 & 1 & 0 & 1 & 0 & 1 \\ \hline
+6 & 1 & 0 & 0 & 1 & 0 & 0 & 0 \\ \hline
+5 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+4 & 0 & 0 & 1 & 0 & 1 & 1 & 0 \\ \hline
+3 & 0 & 0 & 0 & 0 & 1 & 1 & 0 \\ \hline
+2 & 0 & 0 & 0 & 0 & 1 & 0 & 1 \\ \hline
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ \hline
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ \hline
+\end{tabular}
+\caption{Compressed Keys}
+\label{tab:my-table}
+\end{table}
+
+
+make one example of match, compressing keys and the table from the paper. explain why match works and what exactly it means.
 
 \section{Inserting while maintaining BRANCH and FREE}
 

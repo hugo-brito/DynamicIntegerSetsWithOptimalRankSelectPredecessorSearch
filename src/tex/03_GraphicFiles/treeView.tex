@@ -1,0 +1,73 @@
+\begin{tikzpicture}
+  [level distance = 12mm,
+   sibling distance = 30mm,
+   dot/.style = {circle, fill, minimum size=1mm, inner sep=2pt}
+  ]
+  
+  \node[dot] {}
+    child{node[dot] {} 
+      child[missing] {} % left child
+      child{node[dot] {}
+        child{node[dot] {}
+          child{node[dot] {}
+            child{node[dot] {}
+              child{node(x1)[dot] {}
+                edge from parent node(lvl6_1) [left=3pt] {$0$}
+              }
+              child{node(x2)[dot] {}
+                edge from parent node(lvl6_2) [right=3pt] {$1$}
+              }
+              edge from parent node(lvl5_1) [left=3pt] {$0$}
+            }
+            child{node[dot] {}
+              child[missing] {}
+              child{node(x3)[dot] {}
+                edge from parent node(lvl6_3) [right=3pt] {$1$}
+              }
+              edge from parent node(lvl5_2) [right=3pt] {$1$}
+            }
+            edge from parent node[left=3pt] {$0$}
+          }
+          child[missing] {}
+          edge from parent node(lvl3_1) [left=3pt] {$0$}
+        }
+        child{node[dot] {}
+          child{node[dot] {}
+            child[missing] {}
+            child{node[dot] {}
+              child[missing] {}
+              child{node(x4)[dot] {}
+                edge from parent node(lvl6_4) [right=3pt] {$1$}
+              }
+              edge from parent node(lvl5_3) [right=3pt] {$1$}
+            }
+            edge from parent node[left=3pt] {$0$}
+          }
+          child[missing] {}
+          edge from parent node(lvl3_2) [right=3pt] {$1$}
+        }
+        edge from parent node[right=3pt] {$1$}
+      }
+      edge from parent node[left=3pt] {$0$}
+    }
+    child[missing] {};
+
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl3_1) (lvl3_2)] {};
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl5_1) (lvl5_2) (lvl5_3)] {};
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl6_1) (lvl6_2) (lvl6_3) (lvl6_4)] {};
+  
+  \node(labelx1) [below=10pt of x1] {$01\underline{0}0\underline{0}\underline{0}$};
+  \node(labelx1_2) [below=10pt of labelx1] {$000$};
+
+  \node(labelx2) [below=10pt of x2] {$01\underline{0}0\underline{0}\underline{1}$};
+  \node[below=10pt of labelx2] {$001$};
+
+  \node(labelx3) [below=10pt of x3] {$01\underline{0}0\underline{1}\underline{1}$};
+  \node[below=10pt of labelx3] {$011$};
+
+  \node(labelx4) [below=10pt of x4] {$01\underline{1}0\underline{1}\underline{1}$};
+  \node[below=10pt of labelx4] {$111$};
+
+  \node(legend) [left=10pt of labelx1_2] {$sketch(x_i)$:};
+  \node[above=10pt of legend] {$x_i$:};  
+\end{tikzpicture}
