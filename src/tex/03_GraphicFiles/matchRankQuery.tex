@@ -1,0 +1,106 @@
+\begin{tikzpicture}
+  [level 1/.style = {sibling distance = 64mm},
+   level 2/.style = {sibling distance = 32mm},
+   level 3/.style = {sibling distance = 16mm},
+   level 4/.style = {sibling distance = 8mm}, 
+   dot/.style = {circle, fill, minimum size=1mm, inner sep=2pt}]
+
+  \node (root) [dot] {} 
+    child{node (n) [dot] {}
+      child{node [dot] {}
+        child{node [dot] {}
+          child{node (x1) [dot] {}
+          }
+          child{node [dot] {} 
+            edge from parent[thin, solid]
+          }
+          edge from parent node (lvl3_1)[minimum size=5mm, draw = none] {}
+        }
+        child{node [dot] {} 
+          child{node (x2) [dot] {}
+          }
+          child{node [dot] {} 
+            edge from parent[thin, solid]
+          }
+        }
+      }
+      child{node [dot] {} 
+        child{node [dot] {}
+          child{node [dot] {}
+            edge from parent[thin, solid]
+          }
+          child{node (q) [dot] {} 
+          }
+        }
+        child{node [dot] {} 
+          child{node [dot] {}
+          }
+          child{node [dot] {}
+          }
+          edge from parent[thin, solid]
+        }
+        edge from parent[dashed, ultra thick]
+      }
+      edge from parent[ultra thick] node (lvl1_1)[minimum size=5mm, draw=none] {} 
+    }
+    child{node [dot] {}
+      child{node [dot] {}
+        child{node [dot] {}
+          child{node [dot] {}
+          }
+          child{node [dot] {} 
+          }
+        }
+        child{node [dot] {} 
+          child{node [dot] {}
+          }
+          child{node [dot] {} 
+          }
+        }
+        edge from parent[thin, solid]
+      }
+      child{node [dot] {} 
+        child{node [dot] {}
+          child{node (x3) [dot] {}
+          }
+          child{node [dot] {} 
+            edge from parent[thin, solid]
+          }
+        }
+        child{node [dot] {} 
+          child{node [dot] {}
+            edge from parent[thin, solid]
+          }
+          child{node (x4) [dot] {} 
+          }
+          edge from parent node (lvl3_2)[minimum size=5mm, draw = none] {}
+        }
+      }
+      edge from parent[ultra thick] node (lvl1_2)[minimum size=5mm, draw=none] {} 
+    }
+  ;
+
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl1_1) (lvl1_2)] {};
+  \node[draw = black, inner sep = 0pt, thick, ellipse, fit = (lvl3_1) (lvl3_2)] {};
+
+  \node[right=0pt of q] {$q$};
+  \node[left=3pt of n] {$n$};
+
+  \node(labelx1) [below=10pt of x1] {$\underline{0}0\underline{0}0$};
+  \node(labelx1_2) [below=10pt of labelx1] {$00$};
+
+  \node(labelx2) [below=10pt of x2] {$\underline{0}0\underline{1}0$};
+  \node[below=10pt of labelx2] {$01$};
+
+  \node(labelx3) [below=10pt of x3] {$\underline{1}1\underline{0}0$};
+  \node[below=10pt of labelx3] {$10$};
+
+  \node(labelx4) [below=10pt of x4] {$\underline{1}1\underline{1}1$};
+  \node[below=10pt of labelx4] {$11$};
+
+  \node(labelq) [below=10pt of q] {$\underline{0}1\underline{0}1$};
+  \node(labelq2) [below=10pt of labelq] {$00$};
+
+  \node(legend) [left=10pt of labelx1_2] {$sketch(x_i\text{ or }q)$:};
+  \node[above=10pt of legend] {$x_i$ or $q$:};
+\end{tikzpicture}
