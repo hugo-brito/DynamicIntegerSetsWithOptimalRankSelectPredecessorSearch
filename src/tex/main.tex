@@ -101,14 +101,12 @@
 \input{02_Chapters/04_TOC-AND-ListOf.tex}
 
 % Introduction
-\input{02_Chapters/10_Introduction.tex}
-
+\chapter{Introduction} % this had to be moved here due to page numbering issues
 % Activate arabic numbering (e. g. 12)	
 \pagenumbering{arabic}
-% put this after the page/file you want it to start counting, not before!
-
-% Start with page 1
+% Restart the page counting
 \setcounter{page}{1}
+\input{02_Chapters/10_Introduction.tex}
 
 % Main Parts
 \input{02_Chapters/11_Implementation.tex}
