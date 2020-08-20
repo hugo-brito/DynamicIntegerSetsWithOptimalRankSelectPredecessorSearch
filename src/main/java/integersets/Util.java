@@ -466,6 +466,32 @@ public abstract class Util {
     return sb.toString();
   }
 
+  /**
+   * Returns a String representation of the interpretation of the matrix stored in the word
+   * {@code A}, with #{@code rows} rows and #{@code columns} columns. The rows and columns
+   * will be seperated by commas, making this useful to be parsed as CSV values.
+   * @param rows The number of rows
+   * @param columns The number of columns
+   * @param A The word containing the matrix
+   * @return The String representation of the matrix
+   */
+  public static String matrixToCSVString(final int rows, final int columns, final long A) {
+    final StringBuilder sb = new StringBuilder(" ");
+    for (int c = columns - 1; c >= 0; c--) {
+      sb.append(",").append(c);
+    }
+    sb.append("\n");
+    for (int r = rows - 1; r >= 0; r--) {
+      sb.append(r);
+      final long row = Util.getField(r, columns, A);
+      for (int c = columns - 1; c >= 0; c--) {
+        sb.append(",").append(Util.bit(c, row));
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
+
   public static void print(final Object o) {
     System.out.print(o);
   }
