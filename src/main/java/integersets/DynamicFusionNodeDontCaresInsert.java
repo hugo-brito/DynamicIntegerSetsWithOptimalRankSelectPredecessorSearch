@@ -611,7 +611,9 @@ public class DynamicFusionNodeDontCaresInsert implements RankSelectPredecessorUp
 
   private int match(final long x) {
     final long xCompressed = compress(x);
-    return Util.rankLemma1(xCompressed, branch | ((xCompressed * Util.getFields(0, n, k, M)) & free), n, k);
+    return Util.rankLemma1(xCompressed, branch | ((xCompressed * M) & free), k, k);
+    // also works:
+    // return Util.rankLemma1(xCompressed, branch | ((xCompressed * Util.getFields(0, n, k, M)) & free), n, k);
   }
 
   private int dontCaresRank(final long x) {
