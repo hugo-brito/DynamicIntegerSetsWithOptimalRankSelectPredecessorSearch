@@ -41,35 +41,35 @@ The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$
 Data structures that maintain a set, $S$ of (integer) keys and enable the following operations are said to solve the static predecessor problem \cite{beame1999optimal}:
 \begin{itemize}
     \item
-    $member(x)$ returns $[x \in S]$.
+    $\text{member}(x)$ returns $[x \in S]$.
     \item
-    $predecessor(x)$ returns $max\{y\in S\ |\ y < x\}$.
+    $\text{predecessor}(x)$ returns $\text{max}\{y\in S\ |\ y < x\}$.
     \item
-    $successor(x)$ returns $min\{y\in S\ |\ y \geq x\}$.
+    $\text{successor}(x)$ returns $\text{min}\{y\in S\ |\ y \geq x\}$.
 \end{itemize}
 
 The predecessor problem can also be dynamic \cite{beame1999optimal} if the said data structure also allows:
 \begin{itemize}
     \item
-    $insert(x)$ sets $S=S \cup \{x\}$.
+    $\text{insert}(x)$ sets $S=S \cup \{x\}$.
     \item
-    $delete(x)$ sets $S=S \setminus \{x\}$.
+    $\text{delete}(x)$ sets $S=S \setminus \{x\}$.
 \end{itemize}
 
 In this context, the following operations might also be relevant:
 \begin{itemize}
     \item
-    $rank(x)$ returns $\#\{ y \in S\ |\ y < x\}$.
+    $\text{rank}(x)$ returns $\#\{ y \in S\ |\ y < x\}$.
     \item
-    $select(i)$ returns $y \in S$ with $rank(y) = i$, if any.
+    $\text{select}(i)$ returns $y \in S$ with $\text{rank}(y) = i$, if any.
 \end{itemize}
 
 In particular, the data structure presented in \cite{patrascu2014dynamic} not only implements all of the above, but it also establishes that by having the operations defined in this manner \cite{patrascu2014dynamic}:
 \begin{itemize}
     \item
-    $predecessor(x) = select(rank(x - 1))$
+    $\text{predecessor}(x) = \text{select}(\text{rank}(x - 1))$
     \item
-    $successor(x) = select(rank(x))$
+    $\text{successor}(x) = \text{select}(\text{rank}(x))$
 \end{itemize}
 
 Given this set of standard operations, this data structure solves the dynamic predecessor problem.
@@ -138,7 +138,7 @@ Let $A$ be a $w$-bit length word. This section features a set of functions that 
 
 \subsubsection{Is the bit set}
 
-This operation aims at extracting the bit at position $d$ in $A$ or, in other words, getting the value of the bit at position $d$. Let us denote such operation by bit$(d, A)$, then:
+This operation aims at extracting the bit at position $d$ in $A$ or, in other words, getting the value of the bit at position $d$. Let us denote such operation by $\text{bit}(d, A)$, then:
 \begin{align*}
     \text{bit}(d, A) = (A \gg d) \wedge 1
 \end{align*}
@@ -157,7 +157,7 @@ Example:
 \end{align*}
 
 \subsubsection{Set bit}
-This operation sets the bit at position $d$ in $A$ to one. Let us denote such operation by setBit$(d, A)$, then:
+This operation sets the bit at position $d$ in $A$ to one. Let us denote such operation by $\text{setBit}(d, A)$, then:
 \begin{align*}
     \text{setBit}(d, A) = A \vee (1 \ll d)
 \end{align*}
@@ -176,7 +176,7 @@ Example:
 \end{align*}
 
 \subsubsection{Delete bit}
-This operation sets the bit at position $d$ in $A$ to zero. Let us denote such operation by deleteBit$(d, A)$, then:
+This operation sets the bit at position $d$ in $A$ to zero. Let us denote such operation by $\text{deleteBit}(d, A)$, then:
 \begin{align*}
     \text{deleteBit}(d, A) = A \wedge \neg(1 \ll d)
 \end{align*}
@@ -198,7 +198,7 @@ Example:
 
 \subsection{Masks} \label{sec:masks}
 
-Pătrașcu and Thorup refer to some useful constants that we will denote by masks, which are useful for bit-wise operations. In this section, we will see how we can compute them.
+Pătrașcu and Thorup refer constants that we will denote by masks, which are useful for bit-wise operations. In this section, we will see how we can compute them.
 
 \begin{itemize}
     \item
@@ -242,7 +242,7 @@ Note that the functions presented in this section consist of simple bit-wise shi
 
 \subsubsection{Field retrieval} \label{sec:fieldRetrieval}
 
-This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by getField$(i, f, A)$. It is defined by:
+This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by $\text{getField}(i, f, A)$. It is defined by:
 \begin{align*}
     \text{getField}(i, f, A) = (A \gg (i \times f)) \wedge ((1 \ll f) - 1)
 \end{align*}
@@ -260,7 +260,7 @@ Example:
     \text{getField}(1, 4, A) = 0000\ 0000\ 0000\ \underline{1100}_2&
 \end{align*}
 
-A range of fields can be retrieved in a single operation. We denote by getFields$(i, j, f, A)$ the operation consisting of retrieving the fields $\{A\langle i\rangle_f,\dots , A\langle j-1\rangle_f\}$, which is defined by:
+A range of fields can be retrieved in a single operation. We denote by $\text{getFields}(i, j, f, A)$ the operation consisting of the retrieval of the fields $\{A\langle i\rangle_f,\dots , A\langle j-1\rangle_f\}$, which is defined by:
 \begin{align*}
     \text{getFields}(i, j, f, A) = (A \gg (i \times f)) \wedge ((1 \ll ((j - i) \times f)) - 1)
 \end{align*}
@@ -279,7 +279,7 @@ Example:
     \text{getFields}(1, 2, 4, A) = 0000\ 0000\ \underline{1101}\ \underline{1100}_2&
 \end{align*}
 
-We can also specify a lower field and retrieve all the fields from that position up to the end of the word. This is denoted by getFields$(i, f, A)$ and it is defined by:
+We can also specify a lower field and retrieve all the fields from that position up to the end of the word. This is denoted by $\text{getFields}(i, f, A)$ and it is defined by:
 \begin{align*}
     \text{getFields}(i, f, A) = A \gg (i \times f)
 \end{align*}
@@ -567,7 +567,7 @@ After learning in which field lies the most significant bit, we now run the same
 
 \subsection{Least significant set bit} \label{sec:lsbAlgorithm}
 
-Let lsb$(x)$ denote the least significant set bit of $x$. Citing Pătrașcu and Thorup, after computing the msb$(x)$ we can in $O(1)$ time compute lsb$(x)$ with the expression:
+Let $\text{lsb}(x)$ denote the least significant set bit of $x$. Citing Pătrașcu and Thorup, after computing the $\text{msb}(x)$ we can in $O(1)$ time compute $\text{lsb}(x)$ with the expression:
 \begin{equation*}
     \text{lsb}(x) = \text{msb}((x - 1) \oplus x)
 \end{equation*}
@@ -585,9 +585,9 @@ Example:
 
 Another important operation in the context of the implementation of the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. For this purpose, some subroutines are required, and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
 \begin{lemma} \label{lemma1}
-Let $m \cdot b \leq w$. If we are given a b-bit number x and a word A with m b-bit numbers stored in sorted order, that is, $A\langle 0 \rangle_b < A\langle 1 \rangle_b < \dots < A\langle m - 1 \rangle_b$, then in constant time, we can find the rank of x in A, denoted rank(x,A).
+Let $m \cdot b \leq w$. If we are given a b-bit number x and a word A with m b-bit numbers stored in sorted order, that is, $A\langle 0 \rangle_b < A\langle 1 \rangle_b < \dots < A\langle m - 1 \rangle_b$, then in constant time, we can find the rank of x in A, denoted \text{rank}(x,A).
 \end{lemma}
-An algorithm that implements rank$(x,A)$ works as the following:
+An algorithm that implements $\text{rank}(x,A)$ works as the following:
 \begin{enumerate}
     \item
     Computing how many fields in $A$ have zero as their leading bit.
@@ -686,7 +686,7 @@ And for $x_2$:
 
 \subsubsection{Step 3 --- Computing rank with parallel comparison}
 
-We will now run the algorithm for each of its branches. If the leading bit of the query if one, then we run the first branch; otherwise, the second.
+We will now run the algorithm for each of its branches. If the leading bit of the query is one, then we run the first branch; otherwise, the second.
 \begin{itemize}
     \item
     In this branch our query is $x_1 = 1100_2$:
@@ -973,9 +973,9 @@ public static int msbConstant(long x)
     
 \end{itemize}
 
-\subsection{Rank Lemma 1}
+\subsection{Rank Lemma 1} \label{sec:rankLemma1Implementation}
 
-The method below implements rank$(x,A)$ from Section~\ref{sec:rankLemma1}.
+The method below implements $\text{rank}(x,A)$ from Section~\ref{sec:rankLemma1}.
 \begin{lstlisting}
 public static int rankLemma1(long x, long A, final int m, final int b)
 \end{lstlisting}
@@ -1052,19 +1052,19 @@ public static long[] distinctSortedLongs(final int n)
 As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem. For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented with the method signatures and default methods:
 \begin{itemize}
     \item
-    The $insert(x)$ operation sets $S=S \cup \{x\}$ and it is to be implemented by a method with the signature:
+    The $\text{insert}(x)$ operation sets $S=S \cup \{x\}$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
 void insert(long x);
     \end{lstlisting}
     
     \item
-    The $delete(x)$ operation sets $S=S \setminus \{x\}$ and is to be implemented by a method with the signature:
+    The $\text{delete}(x)$ operation sets $S=S \setminus \{x\}$ and is to be implemented by a method with the signature:
     \begin{lstlisting}
 void delete(long x);
     \end{lstlisting}
     
     \item
-    The $member(x)$ operation returns $[x \in S]$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
+    The $\text{member}(x)$ operation returns $[x \in S]$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
 default boolean member(final long x) {
     if (isEmpty()) {
@@ -1076,7 +1076,7 @@ default boolean member(final long x) {
     \end{lstlisting}
 
     \item
-    The $predecessor(x)$ operation returns $max\{y\in S\ |\ y < x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
+    The $\text{predecessor}(x)$ operation returns $\text{max}\{y\in S\ |\ y < x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
 default Long predecessor(long x) {
     return select(rank(x) - 1);
@@ -1084,7 +1084,7 @@ default Long predecessor(long x) {
     \end{lstlisting}
 
     \item
-    The $successor(x)$ operation returns $min\{y\in S\ |\ y \geq x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
+    The $\text{successor}(x)$ operation returns $\text{min}\{y\in S\ |\ y \geq x\}$ and it is implemented as a default method, making all implementing classes automatically inheriting the method:
     \begin{lstlisting}
 default Long successor(long x) {
     return select(rank(x));
@@ -1092,13 +1092,13 @@ default Long successor(long x) {
     \end{lstlisting}
 
     \item
-    The $rank(x)$ operation returns $\#\{ y \in S\ |\ y < x\}$ and it is to be implemented by a method with the signature:
+    The $\text{rank}(x)$ operation returns $\#\{ y \in S\ |\ y < x\}$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
 long rank(long x);
     \end{lstlisting}
 
     \item
-    The $select(i)$ operation returns $y \in S$ with $rank(y) = i$ and it is to be implemented by a method with the signature:
+    The $\text{select}(i)$ operation returns $y \in S$ with $rank(y) = i$ and it is to be implemented by a method with the signature:
     \begin{lstlisting}
 Long select(long rank);
     \end{lstlisting}
@@ -1139,16 +1139,16 @@ A rank query takes $O(\log_2(n))$ because a binary search is performed on $key$.
 
 \newpage
 \section{Dynamic Fusion Node with binary search for Rank} \label{sec:DynamicFusionNodeBinaryRank}
-We take a step forward by improving the previous idea: this time, two additional words, $index$ and $bKey$, are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} chapter of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the $rank$ operation resorts to binary search to produce the result.
+We take a step forward by improving the previous idea: this time, two additional words, $index$ and $bKey$, are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} section of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the $rank$ operation resorts to binary search to produce the result.
 
 We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$, and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
 
 We interpret $index$ as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
 \begin{align*}
-    k \cdot log_2(k) &\leq 64 \\
+    k \cdot \log_2(k) &\leq 64 \\
     \iff k &\leq 16
 \end{align*}
-If $k = 16$, then $\lceil \log_2(k) \rceil = 4$. Each $\lceil \log_2(k) \rceil$-bit field of {\ttfamily index} stores the index of the key in {\ttfamily key} in their sorted order.
+If $k = 16$, then $\lceil \log_2(k) \rceil = 4$. Each $\lceil \log_2(k) \rceil$-bit field of $index$ stores the index of the key in $key$ in their sorted order.
 It is important to note that \cite{patrascu2014dynamic} mentions only that $k$ has to be a power of two. The implementation allows for $k$ to take other values just as long as they are smaller than $16$ and a power of two.
 
 \subsection{Fields} \label{sec:binaryRankFields}
@@ -1190,20 +1190,20 @@ private int n;
 \subsection{Helper methods} \label{sec:binaryRankHelperMethods}
 \begin{itemize}
     \item
-    {\ttfamily firstEmptySlot()} returns the first available spot in $key$ by computing lsb$(bKey)$. Since only the first $k$ spots are valid results, a check is done to see if this result is within the range, returning $-1$ if not.
+    {\ttfamily firstEmptySlot()} returns the first available spot in $key$ by computing $\text{lsb}(bKey)$. Since only the first $k$ spots are valid results, a check is done to see if this result is within the range, returning $-1$ if not.
     
     \item
-    {\ttfamily fillSlot(final int j)} sets position $j$ in $bKey$ to not empty. This is done with a call to {\ttfamily deleteBit(j, bKey)}.
+    {\ttfamily fillSlot(final int j)} sets position $j$ in $bKey$ to not empty. This is done with a call to $\text{deleteBit}(j, bKey)$.
     
     \item
-    {\ttfamily vacantSlot(int j)} sets the $j^{th}$ position of $bKey$ to empty by calling {\ttfamily setBit(j, bKey)}.
+    {\ttfamily vacantSlot(int j)} sets the $j^{th}$ position of $bKey$ to empty by calling $\text{setBit}(j, bKey)$.
     
     \item
-    {\ttfamily getIndex(final long i)} returns the index in $key$ of the key with rank $i$. This operation is done with a call to {\ttfamily getField(i, ceilLgK, index)}.
+    {\ttfamily getIndex(final long i)} returns the index in $key$ of the key with rank $i$. This operation is done with a call to $\text{getField}(i, \lceil \log_2 k\rceil, index)$.
     
     \item
     The purpose of the overloaded method {\ttfamily updateIndex} is to maintain the correspondence between the rank of the keys in the set and their position in $key$.
-    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the {\ttfamily getFields} methods with the adequate parameters, merge the results with bit-wise $\vee$ and write those back in $index$.
+    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the $\text{getFields}$ methods with the adequate parameters, merge the results with bit-wise $\vee$ and write those back in $index$.
     
     \item
     {\ttfamily binaryRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily select(final long rank)} as a subroutine. As the name implies, the algorithm used in this implementation is binary search.
@@ -1218,7 +1218,7 @@ private int n;
         If the $x$ is already in the set, or if the node has reached its limit ($k$), the method does not progress.
         
         \item
-        The rank of the $x$ in the set is found with a call to {\ttfamily rank(x)} and stored in a local variable $i$.
+        The rank of the $x$ in the set is found with a call to  $\text{rank}(x)$ and stored in a local variable $i$.
         
         \item
         The first available spot in $key$ is found with a call to {\ttfamily firstEmptySlot()} and stored in a local variable $j$.
@@ -1240,10 +1240,10 @@ private int n;
     {\ttfamily delete(final long x)}:
     \begin{enumerate}
         \item
-        If the $x$ is not in the set, the method does not progress. This is done with a call to {\ttfamily member(x)}.
+        If the $x$ is not in the set, the method does not progress. This is done with a call to $\text{member}(x)$.
         
         \item
-        The rank of the $x$ in the set is found with a call to {\ttfamily rank(x)} and stored in a local variable $i$.
+        The rank of the $x$ in the set is found with a call to $\text{rank}(x)$ and stored in a local variable $i$.
         
         \item
         $bKey$ is updated by making the spot taken by $x$ in $key$ empty. This is done with the call {\ttfamily vacantSlot(getIndex(i))}.
@@ -1272,9 +1272,9 @@ private int n;
 \newpage
 \section{Rank via matching with "don't cares"} \label{sec:rankWithDontCares}
 
-Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}.
+Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}. By doing so, the data structure now supports queries and updates in $O(1)$ time.
 
-In this incremental step, we keep the most of the implementation details of \ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in the \textit{matching with "don't cares"} chapter of \cite{patrascu2014dynamic}.
+In this incremental step, we keep the most of the implementation details of \ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
 
 Enabling this operation entails the following:
 \begin{itemize}
@@ -1283,10 +1283,10 @@ Enabling this operation entails the following:
     
     In order to compress keys, we need a compressing key. A naive way to compute a compressing key is to store $\text{msb}(x_i \oplus x_j)$ of all $\{x_i, \dots, x_j\}$ keys in the set in a word.
     
-    We denote the compressed version of $x$ by $\hat x $. A naive way to compress a key $x$ is to iterate through the set bits of the compressing key, storing the bits' values at those positions of $x$ in $\hat x$.
+    We denote the compressed version of $x$ by $\hat x $. A naive way to compress a key $x$ is to iterate through the set bits of the compressing key, storing the bit values at those positions of $x$ in $\hat x$.
     
     \item
-    Encoding the information about "don't cares". We denote a compressed key with "don't cares" by $\hat x^?$. A compressed key with "don't cares" has length $k$ and can be any combination of the characters $\{0, 1, ?\}$. Since the bits of a word in a real machine can only take the values $\{0, 1\}$, we need an additional construct to enable the third character. This shows that a single word for storing the compressed keys with "don't cares" is not enough. So we will use two words in total: $branch$ and $free$.
+    Encoding the information about "don't cares". We denote a compressed key with "don't cares" by $\hat x^?$. A compressed key with "don't cares" has length $k$ and can be any combination of the characters $\{0, 1, ?\}$. Since the bits of a word in a real machine can only take the values $\{0, 1\}$, we need an additional construct to enable the third character. This shows that a single word for storing the compressed keys with "don't cares" is not enough. So we keep two new instance variables, the words: $branch$ and $free$.
     
     These words are to be interpreted as two $k \times k$ bit matrices, and they are defined the following way:
     \begin{itemize}
@@ -1299,24 +1299,22 @@ Enabling this operation entails the following:
         
         \item
         In regards to $free$, its rows and columns have the same correspondence as in $branch$.
-        When seeing the keys in a matrix and ordered by their rank, we can see that the value of some of those positions has no influence in the rank of the (compressed) keys.
+        When seeing the keys in a matrix and ordered by their rank, we can see that the value of some of those positions have no influence in the rank of the (compressed) keys.
         These positions will be "don't cares".
         We will encode this data the following way: If a particular branching bit of a compressed key is not a "don't care", the bit at the same index in $free$ (in its corresponding row) is 0, otherwise it is one.
     \end{itemize}
-    
-    Now assume that we have a word, where each of that word's fields stores a compressed key. If we interpret this word as a matrix, then its rows (which are simply the word's fields) will correspond to a compressed key, and its columns will correspond to the indices of bits in the compressed keys, e.g., significant positions.
 
     \item
-    A subroutine $match(x)$ that uses all of the above and rank via Rank Lemma 1 (defined in Section~\ref{sec:rankLemma1}).
+    A subroutine $\text{match}(x)$ that uses all of the above and rank via Rank Lemma 1 (defined in Section~\ref{sec:rankLemma1} and implemented in Section~\ref{sec:rankLemma1Implementation}).
     
-    Let $\hat x^k$ be the compressed version of $x$ copied $k$ times and stored in a word. We use the $M$ helper function from the {\ttfamily Util} class to achieve this. Note that we have also done similar in \ref{sec:computeM}.
+    Let $\hat x^k$ be the compressed version of $x$ copied $k$ times and stored in a word. After compressing the $x$, and by multiplying $\hat x$ with the mask $M$ (which has been computed via the {\ttfamily Util} helper function and stored as a class variable) we to achieve the intended result. Note that we have already used this multiplication operation in \ref{sec:computeM}.
     Then $\text{match}(x)$ is computed with the following expression \cite{patrascu2014dynamic}:
     \begin{align*}
         \text{match}(x) = \underbrace{\text{rank}(\hat x, branch \vee (\hat x^k \wedge free))}_{\text{Rank Lemma 1}}
     \end{align*}
 \end{itemize}
 
-The implementation of Section~\ref{sec:DynamicFusionNodeBinaryRank} had $index$ word as the limiting factor of $k$ because we had to be able to index all the positions of the set. This time, the limiting factor for $k$ will be the $branch$ and $free$ matrices: since those have $k$ rows and $k$ columns and a word in our machine is of length 64, we have:
+The implementation of Section~\ref{sec:DynamicFusionNodeBinaryRank} had the $index$ word as the limiting factor of $k$ because we had to be able to index all the positions of the set. This time, the limiting factor for $k$ will be the $branch$ and $free$ matrices: since those have $k$ rows and $k$ columns and a word in our machine is of length 64, we have:
 \begin{align*}
     k^2 \leq 64\\
     \implies k \leq \sqrt{64}\\
@@ -1357,7 +1355,7 @@ private long compressingKey;
     \item
     As explained in \ref{sec:rankWithDontCares}, the word $branch$ maps to one of the $k \times k$ bit matrices, $BRANCH$, that Pătrașcu and Thorup use to store the part of the data of compressed keys with "don't cares".
     We see each $branch\langle i \rangle_k$ as a row in the matrix, each row corresponding to the key with rank $i$ in the set.
-    Each column $j$, e.g., $branch\langle i, j\rangle_{1 \times k}$ corresponds to a branching bit.
+    Each column $j$, e.g., $branch\langle i, j\rangle_{k \times 1}$ corresponds to a branching bit of the compressed key with "don't cares" of rank $i$.
     \begin{lstlisting}
 private long branch;
     \end{lstlisting}
@@ -1408,8 +1406,8 @@ The following are helper methods introduced in this implementation:
     \begin{lstlisting}
 private long dontCares(long compressedKeys, long free, final int bit, final int lo, final int hi)
     \end{lstlisting}
-    The parameters $compressedKeys$ and $free$ are the compressed keys stored in a word and the data about "don't cares", respectively. $bit$ refers to index of the column (in both $compressedKeys$ and $free$), whereas $hi$ and $lo$ refers to a range of rows (also in both $compressedKeys$ and $free$).
-    It follows these steps to update $free$:
+    The parameters $compressedKeys$ and $free$ are the compressed keys stored in a word and word where the method with store the data about "don't cares" as it iterates, respectively. $bit$ refers to index of the column (in both $compressedKeys$ and $free$), whereas $hi$ and $lo$ refers to a range of rows (also in both $compressedKeys$ and $free$).
+    $free$ is updated by following the steps:
     \begin{enumerate}
         \item
         Starting from the most significant column (given by the parameter $bit$), e.g., the most significant bit of the compressed key and a range of keys that includes all rows:
@@ -1448,7 +1446,7 @@ private long dontCares(long compressedKeys, long free, final int bit, final int 
     \begin{lstlisting}
 private int match(final long x)
     \end{lstlisting}
-    As mentioned in \ref{sec:rankWithDontCares}, it implements the operation described in the \textit{Matching with "don't cares"} section of \cite{patrascu2014dynamic}.
+    As mentioned in \ref{sec:rankWithDontCares}, it implements the operation described in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
     Since it uses {\ttfamily compress(final long x)} as a subroutine, its running time is bounded the running time of that operation.
     
     \item
@@ -1526,7 +1524,7 @@ updateBranch(compressedKeys);
     
     \item
     {\ttfamily reset()}.
-    Resetting the data structure now also entails resetting some of the class variables. The additional operations are:
+    Resetting the data structure now also entails resetting some of the instance variables. The additional operations are:
     \begin{itemize}
         \item
         Setting $compressingKey$ to zero because, in an empty set, there are no branching bits.
@@ -1541,9 +1539,9 @@ updateBranch(compressedKeys);
 
 \subsection{Example} \label{sec:dontCaresRankExample}
 
-This section is aimed at showcasing how the compressed keys with "don't cares" are stored in the data structure and what are the steps taken by the algorithm to return a {\ttfamily rank(x)} query.
+This section is aimed at showcasing how the compressed keys with "don't cares" are stored in the data structure and what are the steps taken by the algorithm to return a $\text{rank}(x)$ query using the algorithm implemented in the {\ttfamily dontCaresRank(final long x)} method.
 
-We will have a concrete example, which consists of the keys from table~\ref{tab:keysInTheSetForRank}. For brevity, the selected set of keys will only have bits set between the indices 0 and 11. This way, we know that the 52 leading bits will have no influence when running the algorithm.
+Our example starts with a set containing the keys from table~\ref{tab:keysInTheSetForRank} and a rank query key $x = 1010\ 1010\ 1111_2$. For brevity, the selected set of keys will only have bits set between the indices 0 and 11. This way, we know that the 52 leading bits will have no influence when running the algorithm.
 
 \begin{table}[H]
 \centering
@@ -1551,8 +1549,6 @@ We will have a concrete example, which consists of the keys from table~\ref{tab:
 \caption{Keys present in the set stored in $key$ in binary. The header row are the bit indices and the rank of the keys is the first column.}
 \label{tab:keysInTheSetForRank}
 \end{table}
-
-Our rank query will be with the key $x = 1010\ 1010\ 1111_2$.
 
 \subsubsection{Key compression} \label{sec:keyCompression}
 
@@ -1581,7 +1577,7 @@ After compressing our keys with our $compressingKey$, we end up with the result 
 
 \subsubsection{Compressed keys with "don't cares"} \label{sec:keyCompressionWithDontCares}
 
-As previously mentioned, the particular value of some of the bits at some positions has no influence in the rank of the keys. These positions have been replaced with "$?$" on table~\ref{tab:compressedKeysWithDontCares}. The operation of transforming compressed keys in compressed keys with "don't cares" corresponds to what the {\ttfamily dontCares} method described in \ref{sec:dontCaresRankHelperMethods} naively does.
+As previously mentioned, the particular value of some of the bits at some positions has no influence in the rank of the keys. These positions have been replaced with "$?$" on table~\ref{tab:compressedKeysWithDontCares}. The operation of transforming compressed keys in compressed keys with "don't cares" corresponds to what the {\ttfamily dontCares} method described in \ref{sec:dontCaresRankHelperMethods} does.
 
 \begin{table}[H]
 \centering
@@ -1590,35 +1586,35 @@ As previously mentioned, the particular value of some of the bits at some positi
 \label{tab:compressedKeysWithDontCares}
 \end{table}
 
-In the data structure, this data is stored in the two class variables $branch$ and $free$. They are each a single word. If we lay them in a matrix, then each row will correspond to a compressed key.
+In the data structure, this data is stored in the two class variables $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
 
 \begin{table}[H]
 \centering
 \input{04_Tables/007_branchTable.tex}
-\caption{The resulting word $branch$ laid in a $k \times k$ matrix}
-\label{tab:branchTable}
+\caption{Compressed keys with "don't cares" stored in the resulting words $branch$ and $free$ displayed in $k \times k$ matrices}
+
 \end{table}
 
-\begin{table}[H]
-\centering
-\input{04_Tables/008_freeTable.tex}
-\caption{The resulting word $free$ laid in a $k \times k$ matrix}
-\label{tab:freeTable}
-\end{table}
+% \begin{table}[H]
+% \centering
+% \input{04_Tables/008_freeTable.tex}
+% \caption{The resulting word $free$ laid in a $k \times k$ matrix}
+% \label{tab:freeTable}
+% \end{table}
 
 \subsubsection{Querying} \label{sec:rankDontCaresQuery}
 
-Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have handled the contents of the set and the important class variables for this operation. Now we shall now see what unfolds as soon as we query $\text{rank}(1111\ 1001\ 0010_2)$.
+Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have handled the contents of the set and the relevant class variables for this operation. We shall now see what unfolds as soon as we query $\text{rank}(1010\ 1010\ 1111_2)$.
 
 \begin{enumerate}
     \item
     The method starts by checking if the set is empty, returning zero in such a situation. This is not the case, so we proceed.
     
     \item
-    A call to {\ttfamily match} with the query $x$ is done. In $\text{match}(1111\ 1001\ 0010_2)$. The operation entails compressing the query, computing the word $branch \vee (\hat x^k \wedge free)$ and computing the rank of $\hat x$ in that word via Rank Lemma 1.
+    A call to {\ttfamily match} with the query $x$ is done. In $\text{match}(1010\ 1010\ 1111_2)$. The operation entails compressing the query, computing the word $branch \vee (\hat x^k \wedge free)$ and computing the rank of $\hat x$ in that word via Rank Lemma 1.
     \begin{enumerate}
         \item
-        We compress the query with $\text{compress}(1111\ 1001\ 0010_2)$. Thus we have:
+        We compress the query with $\text{compress}(1010\ 1010\ 1111_2)$. Thus we have:
         \begin{align*}
             compressingKey = 1111\ 1001\ 0010_2\\
             x = \underline{1010}\ \underline{1}01\underline{0}\ 11\underline{1}1_2\\
@@ -1643,7 +1639,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $\hat x^k \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By ANDing tables \ref{tab:xCompressedCopied} and \ref{tab:freeTable} we have:
+        We compute $\hat x^k \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise ANDing tables \ref{tab:xCompressedCopied} and \ref{tab:freeTable} we have:
         \begin{table}[H]
         \centering
         \input{04_Tables/010_xCompressedANDfree.tex}
@@ -1652,7 +1648,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $branch \vee (\hat x^k \wedge free)$. This will project the bits of $\hat x^k$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
+        We compute $branch \vee (\hat x^k \wedge free)$, which is done which bit-wise ORing tables~\ref{tab:branchTable} and \ref{tab:xCompressedANDfree}. This will project the bits of $\hat x^k$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
         \begin{table}[H]
         \centering
         \input{04_Tables/011_branchORxCompressedANDfree.tex}
@@ -1669,11 +1665,11 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
     This result is stored in a local variable, $i$.
     
     \item
-    We perform the query $select(i)$:
+    We perform the query $\text{select}(i)$:
     \begin{align*}
         i = 5\\
         \cline{1-2}
-        select(5) = 1010\ 1100\ 1111_2
+        \text{select}(5) = 1010\ 1100\ 1111_2
     \end{align*}
     This is stored in a local variable, $y$.
     
@@ -1685,7 +1681,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \cline{1-2}
         x < y \implies comp = -1
     \end{align*}
-    If $comp = 0$ then $x = y$, which means that $x$ is already present in the set, thus its rank will be $i$. In this case, the method returns $i$. This is not the case; thus, we proceed.
+    If $comp = 0$ then $x = y$, which means that $x$ is already present in the set, thus its rank will be $i$. In this case, the method would return $i$. This is not the case; thus, we proceed.
     
     \item
     We find the branching bit between $x$ and $y$ and store it in a local variable, $j$. This is done with $\text{msb}(x \oplus y)$:
@@ -1701,14 +1697,14 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
     \item
     The idea behind the current step is described in the \textit{Desketchifying} chapter of \cite{erikdemainelec12}.
     
-    To find the actual rank of $x$, we need to use the match function once again. We know now that there is a key, $y$, that matched $x$ that branched away from $x$ in the $6^{th}$ bit. The match of $x$ is either a successor or a predecessor of $x$.
+    To find the actual rank of $x$, we need to use the $\text{match}$ function once again. We know now that there is a key, $y$, that matched $x$ but branched away from $x$ in the $6^{th}$ bit.
     We have now two cases:
     \begin{itemize}
         \item
-        If $comp < 0$ then $x < y$ and $y$ is a successor of $x$, so we apply a mask to $x$ that keeps only its $w-j$ most significant bits. Let the value of $x$ after this mask be $x_m$; when applying \textit{match} to $x_m$, we go down the tree to the left as much as possible after the branching bit $j$ because all the bits of $x_m$ after $j$ will be zero. The rank of $x$ will be the $match(x_m)$, which Pătrașcu and Thorup denote by $i_0$ in \cite{patrascu2014dynamic}.
+        If $comp < 0$ then $x < y$, so we apply a mask to $x$ that keeps only its $w-j$ most significant bits. Let the value of $x$ after this mask be $x_m$; when applying \textit{match} to $x_m$, we go down the tree to the left as much as possible after the branching bit $j$ because all the bits of $x_m$ after $j$ will be zero. The rank of $x$ will be the $\text{match}(x_m)$, which Pătrașcu and Thorup denote by $i_0$ in \cite{patrascu2014dynamic}.
         
         \item
-        Otherwise, $x > y$ and $y$ is a predecessor of $x$. We apply a mask to $x$ that set its $j$ least significant bits to one. When applying \textit{match} to $x$ with this mask we go down the tree to the right as much as possible after the branching bit $j$ because all the bits of $x_m$ after $j$ will be one. The rank of $x$ will be the $match(x_m) + 1$, where, second Pătrașcu and Thorup, $match(x_m) = i_1$ in \cite{patrascu2014dynamic}.
+        Otherwise, $x > y$. We apply a mask to $x$ that set its $j$ least significant bits to one. When calling $\text{match}$ with $x$ after this mask, we will go down the tree to the right as much as possible after the branching bit $j$ because all the bits of $x_m$ after $j$ will be one. The rank of $x$ will be the $\text{match}(x_m) + 1$, where, according to Pătrașcu and Thorup, $\text{match}(x_m) = i_1$ in \cite{patrascu2014dynamic}.
     \end{itemize}
     The above-mentioned masks have been defined in Section~\ref{sec:masks}.
     
@@ -1718,18 +1714,18 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         mask = \neg((1 \ll j) - 1)\\
         \cline{1-2}
         mask = \underbrace{1111\ 11}_{w-j}\underbrace{00\ 0000}_j{}_2\\
-        x_m = \underline{1010}\ \underline{10}10\ 1111_2\\
+        x = \underline{1010}\ \underline{10}10\ 1111_2\\
         \cline{1-2}
         x_m = x \wedge mask = \underline{1010}\ \underline{10}00\ 0000_2
     \end{align*}
 
-    Finally we call {\ttfamily match} with $x_m$:
+    Finally we call $\text{match}$ with $x_m$:
     \begin{enumerate}
         \item
-        We compress the query with $\text{compress}(1111\ 1000\ 0000_2)$. Thus we have:
+        We compress the query with $\text{compress}(1010\ 1000\ 0000_2)$. Thus we have:
         \begin{align*}
             compressingKey = 1111\ 1001\ 0010_2\\
-            \hat x_m = \underline{1010}\ \underline{1}00\underline{0}\ 00\underline{0}0_2\\
+            x_m = \underline{1010}\ \underline{1}00\underline{0}\ 00\underline{0}0_2\\
             \cline{1-2}
             \hat x_m = 0\underline{101}\ \underline{0100}_2
         \end{align*}
@@ -1752,7 +1748,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         
         \item
         
-        We compute $\hat x^k_m \wedge free$, keeps only the "don't cares" bits in $\hat x^k$. By ANDing tables \ref{tab:xMaskedCompressedCopied} and \ref{tab:freeTable} we have:
+        We compute $\hat x^k_m \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise ANDing the tables \ref{tab:xMaskedCompressedCopied} and \ref{tab:freeTable} we have:
         \begin{table}[H]
         \centering
         \input{04_Tables/013_freeANDxMaskedCompressedCopied.tex}
@@ -1761,7 +1757,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $branch \vee (\hat x^k_m \wedge free)$. This will project the bits of $\hat x^k_m$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
+        We compute $branch \vee (\hat x^k_m \wedge free)$, which is done which bit-wise ORing tables~\ref{tab:branchTable} and \ref{tab:freeANDxMaskedCompressedCopied}. This will project the bits of $\hat x^k_m$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
         \begin{table}[H]
         \centering
         \input{04_Tables/014_branchORfreeANDxMCopied.tex}
@@ -1787,7 +1783,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
 \newpage
 \section{Inserting while maintaining the compressed keys with "don't cares"} \label{sec:InsertDontCares}
 
-In this section, we will address how to maintain the compressed keys with "don't cares" when inserting a new key, as described in section \textit{Inserting a key} of \cite{patrascu2014dynamic}. We take another incremental on the implementations from Sections~\ref{sec:binaryRankInterfaceImplementation} and \ref{sec:rankWithDontCares}, keeping most of their details with the exception of the {\ttfamily insert} method. To this extent, we also add some new helper methods.
+In this section, we will address how to maintain the compressed keys with "don't cares" when inserting a new key, as described in section \textit{Inserting a key} of \cite{patrascu2014dynamic}. We take another incremental on the implementations from Sections~\ref{sec:DynamicFusionNodeBinaryRank} and \ref{sec:rankWithDontCares}, keeping most of their details with the exception of the {\ttfamily insert} method. To this extent, we also add some new helper methods.
 
 The algorithm for inserting a key $x$ in the set while maintaining $branch$ and $free$ entails:
 \begin{itemize}
@@ -1798,10 +1794,10 @@ The algorithm for inserting a key $x$ in the set while maintaining $branch$ and 
     Assessing if introducing a new key adds a new branching bit, e.g., a new column in $branch$ and $free$.
     
     \item
-    Computing the rank of new significant positions. In other words, if adding a new key implies adding a new column $j$ in $branch$ and $free$ because it is a new significant position, then we need to know how many set bits are there in the $compressingKey$ up to $j$.
+    Computing the rank of new significant positions. In other words, if adding a new key implies adding a new column $j$ in $branch$ and $free$ because it is a new significant position, then we need to know how many set bits are there in the $compressingKey$ up to index $j$.
     
     \item
-    Matrix operations including in $branch$ and $free$ such as:
+    Matrix operations in $branch$ and $free$ such as:
     \begin{itemize}
         \item
         Adding rows and columns.
@@ -1817,11 +1813,9 @@ The algorithm for inserting a key $x$ in the set while maintaining $branch$ and 
     All of the operations described in the {\ttfamily insert (final long x)} method of Section~\ref{sec:binaryRankInterfaceImplementation}.
 \end{itemize}
 
-
-
 \subsection{Fields} \label{sec:dontCaresInsertFields}
 
-All the class variables remain unchanged in comparison with \ref{sec:dontCaresInsertFields}. They are:
+All the class and instance variables remain unchanged in comparison with Section~\ref{sec:dontCaresRankFields}. They are:
 \begin{lstlisting}
 private static final int k = 8;
 private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
@@ -1915,7 +1909,7 @@ The following are helper methods introduced in this implementation:
     \caption{Two examples of $branch$ and $free$}
     \label{tab:branchAndFreeExample}
     \end{table}
-    A call to {\ttfamily insertAndInitializeColumn(2)} will move all columns larger than $2$ one position to the left and set values in the new column them to their respective default. In \ref{tab:branchAndFreeAfterColumnInsertion} we can see the new column highlighted.
+    A call to {\ttfamily insertAndInitializeColumn(2)} will move all columns larger than $2$ one position to the left and set values in the new column them to their respective default. In table~\ref{tab:branchAndFreeAfterColumnInsertion} we can see the new column highlighted.
     \begin{table}[H]
     \centering
     \input{04_Tables/018_branchAndFreeAfterInsertion.tex}
@@ -1924,16 +1918,14 @@ The following are helper methods introduced in this implementation:
     \end{table}
     
     \item
-    {\ttfamily insertRow(final int rank)} introduces a new row in $branch$ and $free$ at position $rank$. All rows with rank larger than $rank$ will occupy their respective next row. Applying {\ttfamily insertRow(2)} on $branch$ and $free$ from \ref{tab:branchAndFreeExample} will result on the following:
+    {\ttfamily insertRow(final int rank)} introduces a new row in $branch$ and $free$ at position $rank$. All rows with rank larger than $rank$ will occupy their respective next row. Calling {\ttfamily insertRow(2)} while having $branch$ and $free$ from tables~\ref{tab:branchAndFreeExample} as instance variables will result on the following:
     \begin{table}[H]
     \centering
     \input{04_Tables/020_InsertingRow.tex}
     \caption{$branch$ and $free$ after insertion of row at position $2$}
     \label{tab:branchAndFreeAfterRowInsertion}
     \end{table}
-    
 \end{itemize}
-
 
 \subsection{Implementation of the interface methods}  \label{sec:dontCaresInsertInterfaceImplementation}
 
@@ -1958,19 +1950,19 @@ The following interface methods suffered no changes and serve the same purpose a
 The {\ttfamily insert(final long x)} is now implemented the following way:
 \begin{enumerate}
     \item
-    A placeholder for a local variable $rank$ is allocated.
+    A local variable $rank$ is initialized to zero.
     
     \item
     If the set is not empty:
     \begin{enumerate}
         \item
-        We compute $match(x)$ and store it in a local variable $i$.
+        We compute $\text{match}(x)$ and store it in a local variable $i$.
         
         \item
-        We query $select(i)$ and and store it in a local variable $y$.
+        We query $\text{select}(i)$ and and store it in a local variable $y$.
         
         \item
-        We use the unsigned comparator from the standard library {\ttfamily compareUnsigned} to assess if the keys, $x$ and $y$, are equal of one if larger than the other. This is stored in a local variable $comp$.
+        We use the unsigned comparator from the standard library, {\ttfamily compareUnsigned}, to assess if the keys, $x$ and $y$, are equal or if one is larger than the other. This is stored in a local variable $comp$.
         
         \item
         If $comp = 0$, then $x = y$, which means that $x$ is already present in the set. In such a case, the method returns, introducing no changes in the contents of the data structure.
@@ -1982,10 +1974,10 @@ The {\ttfamily insert(final long x)} is now implemented the following way:
         We find the branching bit between $x$ and $y$ and store it in a local variable, $j$.
         
         \item
-        We compute the rank of $j$ in the $compressingKey$ by masking all the bits at indices larger than $j$ and calling the standard library function {\ttfamily bitCount} on the masked $compressingKey$. This is stored in a local variable, $h$.
+        We compute the rank of $j$ in the $compressingKey$ by masking all the bits at indices larger than $j$ and calling the standard library function, {\ttfamily bitCount}, on the masked $compressingKey$. This is stored in a local variable, $h$.
         
         \item
-        We compute $i_0$ and $i_1$, given by the calls $match(x \wedge \neg((1 \ll j) - 1))$ and $match(x \vee ((1 \ll j) - 1))$. These masks and queries have been explained in \ref{sec:rankDontCaresQuery} and they will correspond to rows in $branch$ and $free$, e.g. concrete keys in the set.
+        We compute $i_0$ and $i_1$, given by the calls $\text{match}(x \wedge \neg((1 \ll j) - 1))$ and $\text{match}(x \vee ((1 \ll j) - 1))$. These masks and queries have been explained in \ref{sec:rankDontCaresQuery} and they will correspond to rows in $branch$ and $free$, e.g. the rank of actual keys in the set.
         
         \item
         Just like in \ref{sec:rankDontCaresQuery}, we compute the rank of $x$ based on how its value compares with $y$, updating the local variable $rank$ accordingly.
@@ -2000,20 +1992,20 @@ The {\ttfamily insert(final long x)} is now implemented the following way:
             We mark it as a significant bit in $compressingKey$.
             
             \item
-            Update $branch$ and $free$ with a call to {\ttfamily insertAndInitializeColumn(h)}.
+            We update $branch$ and $free$ with a call to {\ttfamily insertAndInitializeColumn(h)}.
         \end{itemize}
         
         \item \label{blt:matrixRowColumnMask}
-        We call {\ttfamily matrixMRowRange(i\_0, i\_1)} and intersect it with  {\ttfamily matrixM(h)}. This will produce a mask that has column $h$ in the range of rows between $i_0$ and $i_1$ set to one.
+        We call {\ttfamily matrixMRowRange(i\_0, i\_1)} and intersect it with  {\ttfamily matrixM(h)}. This will produce a mask that has column $h$ in the range of rows between $i_0$ and $i_1$ set to one, and every other rows and columns set to zero.
         
         \item
         We use the mask from \ref{blt:matrixRowColumnMask} to mark column $h$ in the range of rows between $i_0$ and $i_1$ as a "care" position. This entails setting those positions to zero in $free$ and storing the bit value of position $j$ in $y$ in $branch$.
         
         \item
-        We insert a new row in $branch$ and $free$ with a call to {\ttfamily insertRow(final int rank)}
+        We insert a new row in $branch$ and $free$ with a call to {\ttfamily insertRow(rank)}.
         
         \item
-        The local variable $i$, stores the rank of $y$, is updated. This means that if $x < y$, then the rank of $y$ has incremented.
+        The local variable $i$, which stores the rank of $y$, is updated. This means that if $x < y$, then after inserting $x$, the rank of $y$ will have incremented. In such a case, we increment $i$ to reflect that.
         
         \item
         The last steps consist of updating row $rank$, which stores the $\hat x^?$, with the appropriate values. These are:
@@ -2071,6 +2063,246 @@ The {\ttfamily insert(final long x)} is now implemented the following way:
 
 \subsection{Example} \label{sec:dontCaresInsertExample}
 
+We will now insert the key $x = 1001\ 0101\ 0001_2$ in a set containing the keys from table~\ref{tab:keysInTheSetBeforeInsertion}, showcasing all the steps. For brevity, the chosen keys only have set bits up to position 11 such that the 52 most significant bits do not influence any of the steps in the algorithm, and can safely be omitted.
+
+\begin{table}[H]
+\centering
+\input{04_Tables/021_keysInTheSetBeforeInsertion.tex}
+\caption{Binary representation of the keys present in the data structure before the insertion. The table also shows their rank (on the first column) and the bit indices (on the first row).}
+\label{tab:keysInTheSetBeforeInsertion}
+\end{table}
+
+This set of keys will produce the following compressing key:
+\begin{align*}
+    compressingKey = 1100\ 0001\ 0000_2
+\end{align*}
+
+The compressed keys with "don't cares" stored in $branch$ and $free$ are shown in table~\ref{tab:branchAndFreeBeforeInsertion}.
+
+\begin{table}[H]
+\centering
+\input{04_Tables/022_branchAndFreeBeforeInsertion.tex}
+\caption{Resulting $branch$ and $free$ after the compression of keys with "don't cares" from tables~\ref{tab:keysInTheSetBeforeInsertion}.}
+\label{tab:branchAndFreeBeforeInsertion}
+\end{table}
+
+Inserting $x$ in the given set is comprised of the following:
+
+\begin{itemize}
+    \item
+    We start by initializing a local variable $rank$, which will be used to store the rank of our query, $x$. Its initial value will be zero.
+    
+    \item
+    If the set is not empty (which for the moment it is not), then we have to run the steps from Sections~\ref{sec:updateI0_I1} to \ref{sec:updateRankRow}; otherwise we skip to \ref{sec:dontCaresInsert}. This is because when the set is empty, there is no need for updating the compressed keys with "don't cares".
+\end{itemize}
+
+\subsubsection{Updating the range of keys whose compressed key matches the insertion key} \label{sec:updateI0_I1}
+
+\begin{enumerate}
+    \item
+    We start by computing some variables that are used for computing the rank of $x$ along with $i_0$ and $i_1$, which specify a range of compressed keys with "don't cares" (rows in $branch$ and $free$) which have to be updated upon the present insertion:
+    \begin{enumerate}
+        \item
+        We run $\text{match}(x)$ and store it in a local variable $i$:
+        \begin{align*}
+            x = 1001\ 0101\ 0001_2\\
+            \cline{1-2}
+            i := \text{match}(x) = 3
+        \end{align*}
+        
+        \item
+        We query $\text{select}(i)$ and store it in a local variable $y$:
+        \begin{align*}
+            i = 3\\
+            \cline{1-2}
+            y := \text{select}(i) = 1010\ 1101\ 0110_2
+        \end{align*}
+
+        \item
+        We compare $x$ and $y$ with the {\ttfamily compareUnsigned} function from the standard library, storing the result in a local variable $comp$.
+        \begin{align*}
+            x = 1001\ 0101\ 0001_2\\
+            y = 1010\ 1101\ 0110_2\\
+            \cline{1-2}
+            x < y \implies comp = -1
+        \end{align*}
+        Since $comp \not= 0$, then $x$ is not in the set, so we proceed.
+        
+        \item
+        We check also if the set has room for $x$ with {\ttfamily size() < k}. In this case, it is not, so we proceed.
+
+        \item
+        To find the branching bit between $x$ and $y$, we compute $\text{msb}(x \oplus y)$ and store it in a local variable, $j$.
+        \begin{align*}
+            x = 10\underline{0}1\ 0101\ 0001_2\\
+            y = 10\underline{1}0\ 1101\ 0110_2\\
+            \cline{1-2}
+            x \oplus y = 00\underline{1}1\ 1000\ 0111_2\\
+            \cline{1-2}
+            j := \text{msb}(x \oplus y) = 9
+        \end{align*}
+        
+        \item
+        We need to find the rank of $j$ in the $compressingKey$ and store it in a local variable, $h$. This variable will specify the column where we will write the branching bit to. We mask the bits that are at higher positions than $j$ and call the standard library function, {\ttfamily bitCount}, on that result:
+        \begin{align*}
+            j = 9 \\
+            compressingKey = 110\underline{0}\ \underline{0001}\ \underline{0000}_2 \\
+            mask = (1 \ll j) - 1 = 0001\ 1111\ 1111_2\\
+            \cline{1-2}
+            h := \text{{\ttfamily bitCount}}(compressingKey \wedge mask) = 1
+        \end{align*}
+        
+        \item
+        We compute $i_0$ and $i_1$, which are computed by calling $\text{match}(x \wedge \neg((1 \ll j) - 1))$ and $\text{match}(x \vee ((1 \ll j) - 1))$:
+        \begin{align*}
+            j = 9 \\
+            x = 100\underline{1}\ \underline{0101}\ \underline{0001}_2 \\
+            \cline{1-2}
+            \neg((1 \ll j) - 1) = 1110\ 0000\ 0000_2 \\
+            x \wedge \neg((1 \ll j) - 1) = 100\underline{0}\ \underline{0000}\ \underline{0000}_2\\
+            i_0 :=\text{match}(x \wedge \neg((1 \ll j) - 1)) = 2\\
+            \cline{1-2}
+            (1 \ll j) - 1 = 0001\ 1111\ 1111_2 \\
+            x \vee ((1 \ll j) - 1) = 100\underline{1}\ \underline{1111}\ \underline{1111}_2\\
+            i_1 := \text{match}(x \vee ((1 \ll j) - 1)) = 3\\
+        \end{align*}
+        
+        \item
+        We compute $\text{rank}(x)$. If $x < y$, then $\text{rank}(x) = i_0$; otherwise, it is $i_1 + 1$:
+        \begin{align*}
+            i_0 = 2 \\
+            i_1 = 3 \\
+            \cline{1-2}
+            comp = -1 \implies \text{rank}(x) = i_0 \\
+            rank := 2
+        \end{align*}
+    \end{enumerate}
+    
+    \item
+    We compute the matrix mask needed for, among other things, adding a new column $h$ in $branch$ and $free$, storing the result in a local variable $matrixM_h$. This results in table~\ref{tab:matrixMh}, where we can also see column $h$ highlighted.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/023_matrixMh.tex}
+    \caption{$matrixM_h$}
+    \label{tab:matrixMh}
+    \end{table}
+    
+    \item
+    We check if $j$ was already a significant position:
+    \begin{align*}
+        j = 9 \\
+        compressingKey = 11\underline{0}0\ 0001\ 0000_2 \\
+        \cline{1-2}
+        \text{bit}(j, compressingKey) = 0
+    \end{align*}
+    Since it was not:
+    \begin{itemize}
+        \item
+        We mark it as a significant position by setting bit $j$ in $compressingKey$:
+        \begin{align*}
+            j = 9 \\
+            compressingKey = 11\underline{0}0\ 0001\ 0000_2\\
+            \cline{1-2}
+             compressingKey := \text{setBit}(j, compressingKey) = 11\underline{1}0\ 0001\ 0000_2
+        \end{align*}
+        
+        \item
+        We update $branch$ and $free$ to include the new column $h$. The {\ttfamily insertAndInitializeColumn(h)} method is called thus altering $branch$ and $free$ as we see in tables~\ref{tab:branchAndFreeInsertHcolumn}.
+        \begin{table}[H]
+        \centering
+        \input{04_Tables/024_branchAndFreeInsertHcolumn.tex}
+        \caption{Insertion of column $h$ in $branch$ and $free$}
+        \label{tab:branchAndFreeInsertHcolumn}
+        \end{table}
+    \end{itemize}
+
+    \item
+    We call the function {\ttfamily matrixMRowRange($i_0$, $i_1$)} which returns a mask comprised of the range of rows $\{ i_0, \dots, i_1 \}$. Bit-wise ANDing that mask with $matrixM_h$ computes a mask where only the bits of rows $\{ i_0, \dots, i_1 \}$ and column $h$ are set. These are the bits that of the compressed keys that need to be updated due the insertion of the new key $x$. Thus the mask needed for this effect is the one from table~\ref{tab:matrixMi_0Mi_1h}.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/025_matrixMi_0Mi_1h.tex}
+    \caption{$matrixM^{i_0:i_1}_h$}
+    \label{tab:matrixMi_0Mi_1h}
+    \end{table}
+    
+    \item
+    We update $branch$ and $free$ accordingly. We know that we care for these positions because $i_0$ and $i_1$ have matched $x$, so we set these positions to zero in $free$. The value to store at those positions in $branch$ has to be read from $y$:
+    \begin{align*}
+        y = 10\underline{1}0\ 1101\ 0110_2 \\
+        j = 9 \\
+        \cline{1-2}
+        \text{bit}(j, y) = 1
+    \end{align*}
+    We see that the bit value is one, thus this will be the value we will update $branch$ with. The result after this update can be seen in tables~\ref{tab:branchAndFreeAfterMatrixMi_0Mi_1h}.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/026_branchAndFreeAfterMatrixMi_0Mi_1h.tex}
+    \caption{Insertion of column h in branch and free.}
+    \label{tab:branchAndFreeAfterMatrixMi_0Mi_1h}
+    \end{table}
+\end{enumerate}
+
+\subsubsection{Updating the instance variables with the new compressed key} \label{sec:updateRankRow}
+
+We now have to insert a row for the new key in $branch$ and $free$ and write its corresponding values. This entails the following:
+
+\begin{enumerate}
+    \item
+    We call {\ttfamily insertRow(rank)}, making row for $\hat x^?$ in row $rank$ of $branch$ and $free$. Tables~\ref{tab:insertRowRank} show the result of this operation.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/027_insertRowRank.tex}
+    \caption{Insertion of column h in branch and free.}
+    \label{tab:insertRowRank}
+    \end{table}
+    
+    \item
+    Some of the values of $\hat x^?$ will be copied from $\hat y^?$. For this reason we have to update $i$, the rank of $y$, such that the needed values are copied from the right key.
+    \begin{align*}
+        i = 3 \\
+        x = 1001\ 0101\ 0001_2 \\
+        y = 1010\ 1101\ 0110_2 \\
+        \cline{1-2}
+        x < y \implies i:= 4
+    \end{align*}
+    
+    \item
+    Lastly, we write $\hat x^?$ to $branch$ and $free$.
+    \begin{itemize}
+        \item
+        Row $rank$ of $branch$ will be:
+        \begin{align*}
+            \textbf{(a)}\quad branch\langle rank, 0 \dots h - 1 \rangle_{k \times 1} &:= 0^h\\
+            \textbf{(b)}\quad branch\langle rank, h\rangle_{k \times 1} &:= x\langle j \rangle_1\\
+            \textbf{(c)}\quad branch\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} &:= branch\langle i, h + 1 \dots k - 1\rangle_{k \times 1}\\
+            \cline{1-2}
+            branch\langle rank \rangle_k &:=\underbrace{000010}_{\textbf{(c)}} \underbrace{0}_{\textbf{(b)}} \underbrace{0}_{\textbf{(a)}}
+        \end{align*}
+        
+        \item
+        Row $rank$ of $free$ will be:
+        \begin{align*}
+            \textbf{(a)}\quad free\langle rank, 0 \dots h - 1 \rangle_{k \times 1} &:= 1^h \\
+            \textbf{(b)}\quad free\langle rank, h\rangle_{k \times 1} &:= 0 \\
+            \textbf{(c)}\quad free\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} &:= free\langle i, h + 1 \dots k - 1\rangle_{k \times 1} \\
+            \cline{1-2}
+            free\langle rank \rangle_k &:=\underbrace{111101}_{\textbf{(c)}} \underbrace{0}_{\textbf{(b)}} \underbrace{1}_{\textbf{(a)}}
+        \end{align*}
+    \end{itemize}
+
+    We can see the updates described above in tables~\ref{tab:branchAndFreeAfterUpdatingValuesForRank}.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/028_branchAndFreeAfterUpdatingValuesForRank.tex}
+    \caption{branch and free after fixing the values in row rank.}
+    \label{tab:branchAndFreeAfterUpdatingValuesForRank}
+    \end{table}
+    
+\end{enumerate}
+
+\subsubsection{Storing the key} \label{sec:dontCaresInsert}
+
+With $branch$ and $free$ now updated, we proceed with remaining insertion operations, which have been described in Section~\ref{sec:binaryRankInsert}.
 
 \chapter{Correctness tests}
 
