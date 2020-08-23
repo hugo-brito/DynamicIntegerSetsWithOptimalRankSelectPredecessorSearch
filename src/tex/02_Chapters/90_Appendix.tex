@@ -1,0 +1,35 @@
+%%% File encoding is ISO-8859-1 (also known as Latin-1)
+%%% You can use special characters just like ä,ü and ñ
+
+\chapter{Appendix}
+
+This appendix features some additional data structures that have been either entirely or partially implemented in the scope of the dynamic predecessor problem. They have been included together in the repository of the project, and the goal was to use them to benchmark them with the Dynamic Fusion Tree once this was fully implemented.
+
+\section{{\ttfamily BitsKey}}
+
+The {\ttfamily BitsKey} implementation consists of a simple helper class that stores a {\ttfamily long} value and offers some useful functions such as:
+\begin{itemize}
+    \item
+    {\ttfamily int bit(final int d)} returns the value of the $\text{{\ttfamily d}}^{th}$ digit of the key stored in the instance.
+    
+    \item
+    {\ttfamily int compareTo(final BitsKey that)} returns an integer that represents the how the value of the present instance of {\ttfamily BitsKey} compares with the value of {\ttfamily that BitsKey} instance. If it returns $-1$, then {\ttfamily that} is larger than itself; zero is they have the same value and $1$ if itself is larger than {\ttfamily that}.
+    
+    \item
+    {\ttfamily boolean equals(final BitsKey that)} returns a {\ttfamily boolean} value that is {\ttfamily true} if and only if the values of the two instances are the same; and {\ttfamily false} otherwise.
+\end{itemize}
+
+This helper class is used in the implementations below.
+
+\section{Additional Dynamic Predecessor Problem data structures}
+
+\subsection{Binary search trie}
+The {\ttfamily BinarySearchTrie.java} file features a fully functioning implementation of a Binary Search Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}. This implementation implements the project's {\ttfamily RankSelectPredecessorUpdate} interface, which means that it has been expanded to answer dynamic predecessor problem queries. It has also been put through correctness tests as described in Section~\ref{sec:IntegerDataStructureTests}, passing all instances.
+
+\subsection{Patricia trie} \label{sec:PatriciaTrieImplementation}
+
+The {\ttfamily PatriciaTrie.java} features an implementation of a Patricia Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}, but it is missing the {\ttfamily rank} and {\ttfamily select} methods. It includes an overridden {\ttfamily member} method. In total, it supports insertion, deletion, and membership queries. For this reason, it does not pass all test instances from Section~\ref{sec:IntegerDataStructureTests}, but with the missing methods implemented, it is a valid data structure to be benchmarked with the other data structures mentioned in this paper.
+
+\subsection{Non-recursive Patricia trie}
+
+Recursion can be slow \cite{shirazi2003java}. For this reason, we adapted a non-recursive implementation of a Patricia Trie from \cite{patriciaSET} to store instances of our custom class {\ttfamily BitsKey} at their nodes instead of {\ttfamily String}s. This implementation is featured in the {\ttfamily NonRecursivePatriciaTrie.java} file, and it lacks the {\ttfamily rank} and {\ttfamily select} methods in order to solve the dynamic predecessor problem. Like the recursive Patricia Trie implementation mentioned in Section~\ref{sec:PatriciaTrieImplementation}, it supports insertion, deletion, and membership queries, but the missing methods make some of the test instances from Section~\ref{sec:IntegerDataStructureTests} fail. Implementing the missing methods makes this data structure another interesting instance to be benchmarked with the other data structures mentioned in this paper.

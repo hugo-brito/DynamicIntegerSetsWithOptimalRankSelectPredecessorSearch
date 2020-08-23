@@ -1,43 +1,44 @@
-%%% File encoding is ISO-8859-1 (also known as Latin-1)
-%%% You can use special characters just like ä,ü and ñ
+\chapter{Conclusion}
 
-\chapter{Final Remarks and Future Work}
+my conclusion: a balance between storing more stuff and querying faster, or store close to nothing but longer queries. Query fast but store the least possible
 
-\begin{itemize}
+\section{Future Work}
+In this section, we leave some suggestions on how further work on this topic can be conducted. We have split these into three main categories:
+\begin{enumerate}
     \item
-    Constant time bitcount --- maintaining the key compression in constant time
+    Implementation, which covers specific data structures or algorithms.
     
     \item
-    Benchmarking
+    Optimization, which entails improving the present code.
     
     \item
+    Benchmarking, which points to other data structures that either solve partially or totally the dynamic predecessor 
     
-\end{itemize}
+\end{enumerate}
 
-Open problems (what has not been done yet) and done quite concretely:
-\begin{itemize}
-    \item
-    "benchmark" this part of the implementation
-    
-    \item
-    delete methods
-    
-    \item
-    putting the node in a B-tree
-    
-    \item
-    benchmark the full implementation with the others that I have mentioned previously
-    
-    \item
-    my conclusion: a balance between storing more stuff and querying faster, or store close to nothing but longer queries. Query fast but store the least possible
-    
-    \item
-    longer word size could be simulated with allowing certain class variables to be of more than 1 word. simulating a larger w. this touches upon k
-    
-    \item
-    optimize the code. can some of the fields be avoided?
-    optimize the code further, such that it becomes competitive.
-    
-    \item
-    profiling, to see which parts of the code the cpu spends most time
-\end{itemize}
+\subsection{Implementation}
+
+\paragraph*{Delete methods} The implementation featured in Section~\ref{sec:InsertDontCares} implements the {\ttfamily delete} method naively, but all the ingredients needed to implement it while adhering to \cite{patrascu2014dynamic} are already present in the implementation.
+
+\paragraph*{Key compression in constant time} One of the bottlenecks of implementations from Sections~\ref{sec:rankWithDontCares} and \ref{sec:InsertDontCares} is how the compressed keys with "don't cares" are maintained. Specifically, the next step in the implementation is to implement functions that compute the compressed keys in $O(1)$ time, as explained in chapters $[3.2 - 3.3]$ of \cite{patrascu2014dynamic}.
+
+\paragraph*{Dynamic Fusion Tree} After enabling all the operations at the node level in $O(1)$ time with the implementation of the previous step, all that remains to complete the implementation is to implement a B-tree using a dynamic fusion node as its node. This is covered in chapter 4 of \cite{patrascu2014dynamic}.
+
+\paragraph*{Non-recursive implementation} Chapter 4 of \cite{patrascu2014dynamic} mentions that once the dynamic fusion tree is implemented, the rank operation on a tree is given by a recursive function. Recursion in Java can be slow \cite{shirazi2003java}, and for this reason, a non-recursive alternative is preferred.
+
+\paragraph*{Simulate a larger word size} One of the limitations of the present implementation is that on a common real machine, the maximum integer size is 64 bits. An interesting improvement would be to simulate larger word size $w$, which would consequently increase $k$, allowing to store more keys at the node level. This would have to be carefully studied to keep every operation in $O(1)$ time.
+
+\subsection{Benchmarking}
+
+\paragraph*{benchmark the full implementation with the others that I have mentioned previously}
+
+
+\subsection{Optimization}
+
+\paragraph*{Space} 
+optimize the code. can some of the fields be avoided?
+
+optimize the code further, such that it becomes competitive.
+
+\paragraph*{Profiling}
+to see which parts of the code the cpu spends most time

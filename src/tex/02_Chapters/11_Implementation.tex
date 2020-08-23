@@ -545,7 +545,7 @@ After learning in which field lies the most significant bit, we now run the same
 
 \begin{enumerate}
     \item
-    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $f_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and ANDing the result with a mask for this purpose.
+    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $f_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and bit-wise $\wedge$ the result with a mask for this purpose.
     \begin{align*}
         x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
         Mask_3 = (1 \ll \sqrt{w}) - 1 = 0000\ 0000\ 0000\ 1111_2 &\\
@@ -825,6 +825,8 @@ We will now run the algorithm for each of its branches. If the leading bit of th
 % \subsection{Code base navigation}
 
 All the implementing classes described in this section can be found in the {\ttfamily src\textbackslash java\textbackslash integersets} folder. The files names are self-explanatory, e.g., the {\ttfamily BinarySearchTrie.java} file implements the {\ttfamily BinarySearchTrie} whereas {\ttfamily RankSelectPredecessorUpdate.java} implements the {\ttfamily RankSelectPredecessorUpdate} interface.
+
+Note that all the functions and implementations consider the integer keys as unsigned integers.
 
 \section{Utility functions}
 
@@ -1143,7 +1145,7 @@ We take a step forward by improving the previous idea: this time, two additional
 
 We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$, and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
 
-We interpret $index$ as an array of $k$ entries, each taking $\lceil \log_2(k) \rceil$ bits. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
+We interpret $index$ as an array of $k$ entries of $\lceil \log_2 k \rceil$ bits in length. It indexes the keys in $key$ by their rank the following way: Let $i$ be the rank of a key in the the set, then $index\langle i\rangle_{\lceil \log_2 k \rceil}$ will have the index in $key$ of the key with rank $i$. In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit integers, we can solve the following equation:
 \begin{align*}
     k \cdot \log_2(k) &\leq 64 \\
     \iff k &\leq 16
@@ -1155,7 +1157,7 @@ It is important to note that \cite{patrascu2014dynamic} mentions only that $k$ h
 The class holds the following fields:
 \begin{itemize}
     \item
-    The parameter $k$, accompanied with the constant $\lceil \log_2(k) \rceil$:
+    The class constants $k$ and $\lceil \log_2(k) \rceil$:
     \begin{lstlisting}
 private static final int k = 16;
 private static final int ceilLgK = (int) Math.ceil(Math.log10(k)/Math.log10(2));
@@ -1269,6 +1271,143 @@ private int n;
     Resetting the set is easily done by setting $n$ to zero and $bKey$ to $-1$ (because $-1$ has all the bits set to one in its two's complement binary representation).
 \end{itemize}
 
+\subsection{Example}
+
+The \textit{Indexing} technique combined with binary rank are best understood with an example, which we showcase in this section.
+
+
+Assume that we have instantiated a {\ttfamily DynamicFusionNodeBinaryRank} and, for brevity, let $k = 8$. Then:
+\begin{align*}
+    k = 8 \implies \lceil \log_2 k \rceil = 3
+\end{align*}
+
+These will remain constant and are stored as static fields:
+\begin{lstlisting}
+private static final int k = 8;
+private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
+\end{lstlisting}
+
+Assume that at this point the above-mentioned instance contains the keys from expression \ref{eq:keysInSet}, thus the mentioned instance maps to $S$.
+\begin{equation} \label{eq:keysInSet}
+    S = \{10, 12, 42, -1337, -42 \}
+\end{equation}
+
+The order in which keys are inserted will influence the order in which they will appear in the instance variable $key$. But, as mentioned in Section~\ref{sec:DynamicFusionNodeBinaryRank}, the instance variable $index$ will index the key indices in $key$ by their rank whereas the bit values of $bKey$ will specify if the corresponding position in $key$ is empty. Thus a possible state for the instance is the following:
+
+\begin{figure}[H]
+\centering
+\input{04_Tables/029_indexKeyBKey.tex}
+\caption{Set $S$ represented as the $index$, $bKey$ and $key$ instance variables in a {\ttfamily DynamicFusionNodeBinaryRank} instance}
+\label{fig:stateOfTheInstance}
+\end{figure}
+
+\subsubsection{Querying}
+
+\paragraph{Select}
+Let $i$ be the rank of the key we wish to query. Then
+\begin{align*}
+\text{select}(i) = key[ index\langle i\rangle_{\lceil \log_2 k \rceil}]
+\end{align*}
+Assume we wish to know the key with rank 2, then:
+\begin{align*}
+    i = 2 \\
+    index\langle 2\rangle_3 = 110_2 = 6 \\
+    \cline{1-2}
+    \text{select}(2) = key[6] = 42
+\end{align*}
+
+\paragraph{Rank}
+As previously mentioned, at this point, the rank operation has been implemented with binary search using select as a subroutine. This works in $O(\log_2 n)$ time because select queries take $O(1)$ time, the select method allows us to access the keys as if they were stored in their respective sorted order and therefore the running time is bound by the binary search algorithm itself.
+
+\subsubsection{Updating}
+
+\paragraph{Insert} \label{sec:binaryRankInsertExample}
+
+Let $x = -1000$ be the key we wish to insert and $S$ the set we wish to insert it in, defined in expression~\ref{eq:keysInSet} and figure~\ref{fig:stateOfTheInstance}. The insertion of $x$ in $S$ on this data structure is comprised of the following:
+\begin{enumerate}
+    \item
+    We check if $x$ is already in the set, returning in such a case.
+    This is not the case, so we proceed.
+    
+    \item
+    Then we check if the set has room for the new key by comparing {\ttfamily size()} with $k$. If it is full, then an exception is thrown.
+    This is not the case, so we proceed.
+    
+    \item
+    We compute $\text{rank}(x)$ and store it in a local variable $i$.
+    \begin{align*}
+        x = -1000 \\
+        \cline{1-2}
+        i := \text{rank}(-1000) = 4
+    \end{align*}
+    
+    \item
+    We find the first empty position in $key$ with a call to {\ttfamily firstEmptySlot()}, storing the result in a local variable $j$.
+    \begin{align*}
+        j := \text{{\ttfamily firstEmptySlot()}} = 2
+    \end{align*}
+    
+    \item
+    We store $x$ in $key$ at position $j$. We can see $key$ after this update on table~\ref{tab:keyAfterInsertion}.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/030_keyAfterInsertion.tex}
+    \caption{Instance variable $key$ after setting $key[2] = -1000$}
+    \label{tab:keyAfterInsertion}
+    \end{table}
+    
+    \item
+    We mark position $j$ as not empty, thus having table~\ref{tab:bKeyAfterInsertion} as the resulting $bKey$. This is done with the call {\ttfamily fillSlot(j)}.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/031_bKeyAfterInsertion.tex}
+    \caption{Instance variable $bKey$ after marking position 2 as not empty}
+    \label{tab:bKeyAfterInsertion}
+    \end{table}
+    
+    \item
+    With $i$ and $j$, we can now update $index$ such that the indices of the keys are once again sorted by the keys' ranks. This is done by calling {\ttfamily updateIndex(i, j)}. The resulting $index$ is shown in table~\ref{tab:indexAfterInsertion}.
+    \begin{table}[H]
+    \centering
+    \input{04_Tables/032_indexAfterInsertion.tex}
+    \caption{Instance variable $index$ after the insertion of a key with rank 4 at position 2 in $key$}
+    \label{tab:indexAfterInsertion}
+    \end{table}
+    
+    \item
+    Lastly, we increment the instance variable $n$.
+\end{enumerate}
+
+\paragraph{Delete}
+
+We will now delete $x = -1000$, having as starting point the state the instance was right after the insertion described in \ref{sec:binaryRankInsertExample}. Deleting $x$ from $S$ on this data structure is comprised of the following:
+\begin{enumerate}
+    \item
+    We check if $x$ is not in the set, returning in such a case.
+    This is not the case, so we proceed.
+    
+    \item
+    We compute $\text{rank}(x)$ and store it in a local variable $i$.
+    \begin{align*}
+        x = -1000 \\
+        \cline{1-2}
+        i := \text{rank}(-1000) = 4
+    \end{align*}
+    
+    \item
+    With a call to {\ttfamily getIndex(i)} we get the position in $key$ where $x$ is stored. We use that to mark that position as empty in $bKey$. This is done with {\ttfamily vacantSlot(getIndex(i))}. After this update, $bKey$ will be the same as in table~\ref{tab:binaryRankKey}.
+    
+    \item
+    We need also to update $index$ by moving all the indices with rank larger than $i$, the rank of $x$, one position to the left. We do this by calling {\ttfamily updateIndex(i)}. This update will make $index$ be as shown in table~\ref{tab:binaryRankIndex}.
+    
+    \item
+    Lastly, we decrement the instance variable $n$.
+\end{enumerate}
+
+
+
+
+
 \newpage
 \section{Rank via matching with "don't cares"} \label{sec:rankWithDontCares}
 
@@ -1299,7 +1438,7 @@ Enabling this operation entails the following:
         
         \item
         In regards to $free$, its rows and columns have the same correspondence as in $branch$.
-        When seeing the keys in a matrix and ordered by their rank, we can see that the value of some of those positions have no influence in the rank of the (compressed) keys.
+        When seeing the keys in a matrix and ordered by their rank, we can see that the value of some of those positions does not influence the rank of the (compressed) keys.
         These positions will be "don't cares".
         We will encode this data the following way: If a particular branching bit of a compressed key is not a "don't care", the bit at the same index in $free$ (in its corresponding row) is 0, otherwise it is one.
     \end{itemize}
@@ -1586,14 +1725,14 @@ As previously mentioned, the particular value of some of the bits at some positi
 \label{tab:compressedKeysWithDontCares}
 \end{table}
 
-In the data structure, this data is stored in the two class variables $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
+In the data structure, this data is stored in the two class variables $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in the tables from figure \ref{fig:branchAndFreeCompressedKeys}.% tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
 
-\begin{table}[H]
+\begin{figure}[H]
 \centering
 \input{04_Tables/007_branchTable.tex}
 \caption{Compressed keys with "don't cares" stored in the resulting words $branch$ and $free$ displayed in $k \times k$ matrices}
-
-\end{table}
+\label{fig:branchAndFreeCompressedKeys}
+\end{figure}
 
 % \begin{table}[H]
 % \centering
@@ -1639,7 +1778,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $\hat x^k \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise ANDing tables \ref{tab:xCompressedCopied} and \ref{tab:freeTable} we have:
+        We compute $\hat x^k \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise $\wedge$ tables \ref{tab:xCompressedCopied} and \ref{tab:freeTable} we have:
         \begin{table}[H]
         \centering
         \input{04_Tables/010_xCompressedANDfree.tex}
@@ -1648,7 +1787,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $branch \vee (\hat x^k \wedge free)$, which is done which bit-wise ORing tables~\ref{tab:branchTable} and \ref{tab:xCompressedANDfree}. This will project the bits of $\hat x^k$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
+        We compute $branch \vee (\hat x^k \wedge free)$, which is done by bit-wise $\vee$ tables~\ref{tab:branchTable} and \ref{tab:xCompressedANDfree}. This will project the bits of $\hat x^k$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
         \begin{table}[H]
         \centering
         \input{04_Tables/011_branchORxCompressedANDfree.tex}
@@ -1748,7 +1887,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         
         \item
         
-        We compute $\hat x^k_m \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise ANDing the tables \ref{tab:xMaskedCompressedCopied} and \ref{tab:freeTable} we have:
+        We compute $\hat x^k_m \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise $\wedge$ the tables \ref{tab:xMaskedCompressedCopied} and \ref{tab:freeTable} we have:
         \begin{table}[H]
         \centering
         \input{04_Tables/013_freeANDxMaskedCompressedCopied.tex}
@@ -1757,7 +1896,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $branch \vee (\hat x^k_m \wedge free)$, which is done which bit-wise ORing tables~\ref{tab:branchTable} and \ref{tab:freeANDxMaskedCompressedCopied}. This will project the bits of $\hat x^k_m$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
+        We compute $branch \vee (\hat x^k_m \wedge free)$, which is done which bit-wise $\vee$ tables~\ref{tab:branchTable} and \ref{tab:freeANDxMaskedCompressedCopied}. This will project the bits of $\hat x^k_m$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
         \begin{table}[H]
         \centering
         \input{04_Tables/014_branchORfreeANDxMCopied.tex}
@@ -1895,7 +2034,7 @@ The following are helper methods introduced in this implementation:
     {\ttfamily matrixMRowRange(final int lo, final int hi)} returns a word which when interpreted as a $k \times k$ matrix will have the bits in the range of rows between $lo$ (inclusive) and $hi$ (inclusive) set. Let $lo = 3$ and $hi = 6$, then {\ttfamily matrixMRowRange(3, 6)} returns:
     \begin{table}[H]
     \centering
-    \input{src/tex/04_Tables/019_MatrixRowRange.tex}
+    \input{04_Tables/019_MatrixRowRange.tex}
     \caption{{\ttfamily matrixMRowRange(3, 6)}}
     \label{tab:MatrixRowRange}
     \end{table}
@@ -1903,33 +2042,33 @@ The following are helper methods introduced in this implementation:
     \item
     {\ttfamily insertAndInitializeColumn(final int h)} introduces a new column in $branch$ and $free$, initializing it to its default bit value ($0$ in $branch$ and $1$ in $free$).
     Let $branch$ and $free$ be the following:
-    \begin{table}[H]
+    \begin{figure}[H]
     \centering
     \input{04_Tables/017_branchAndFreeExample.tex}
     \caption{Two examples of $branch$ and $free$}
-    \label{tab:branchAndFreeExample}
-    \end{table}
-    A call to {\ttfamily insertAndInitializeColumn(2)} will move all columns larger than $2$ one position to the left and set values in the new column them to their respective default. In table~\ref{tab:branchAndFreeAfterColumnInsertion} we can see the new column highlighted.
-    \begin{table}[H]
+    \label{fig:branchAndFreeExample}
+    \end{figure}
+    A call to {\ttfamily insertAndInitializeColumn(2)} will move all columns larger than $2$ one position to the left and set values in the new column them to their respective default. In the tables from figure~\ref{fig:branchAndFreeAfterColumnInsertion} we can see the new column highlighted.
+    \begin{figure}[H]
     \centering
     \input{04_Tables/018_branchAndFreeAfterInsertion.tex}
     \caption{$branch$ and $free$ after insertion of column at position $2$}
-    \label{tab:branchAndFreeAfterColumnInsertion}
-    \end{table}
+    \label{fig:branchAndFreeAfterColumnInsertion}
+    \end{figure}
     
     \item
-    {\ttfamily insertRow(final int rank)} introduces a new row in $branch$ and $free$ at position $rank$. All rows with rank larger than $rank$ will occupy their respective next row. Calling {\ttfamily insertRow(2)} while having $branch$ and $free$ from tables~\ref{tab:branchAndFreeExample} as instance variables will result on the following:
-    \begin{table}[H]
+    {\ttfamily insertRow(final int rank)} introduces a new row in $branch$ and $free$ at position $rank$. All rows with rank larger than $rank$ will occupy their respective next row. Calling {\ttfamily insertRow(2)} while having $branch$ and $free$ as the tables from figure~\ref{fig:branchAndFreeExample} as instance variables will result on the following:
+    \begin{figure}[H]
     \centering
     \input{04_Tables/020_InsertingRow.tex}
     \caption{$branch$ and $free$ after insertion of row at position $2$}
-    \label{tab:branchAndFreeAfterRowInsertion}
-    \end{table}
+    \label{fig:branchAndFreeAfterRowInsertion}
+    \end{figure}
 \end{itemize}
 
 \subsection{Implementation of the interface methods}  \label{sec:dontCaresInsertInterfaceImplementation}
 
-The following interface methods suffered no changes and serve the same purpose as the implementation from \ref{sec:dontCaresRankInterfaceImplementation}:
+The following interface methods suffered no changes and serve the same purpose as the implementation from Section~\ref{sec:dontCaresRankInterfaceImplementation}:
 \begin{itemize}
     \item
     {\ttfamily select(final long rank)}
@@ -2068,7 +2207,7 @@ We will now insert the key $x = 1001\ 0101\ 0001_2$ in a set containing the keys
 \begin{table}[H]
 \centering
 \input{04_Tables/021_keysInTheSetBeforeInsertion.tex}
-\caption{Binary representation of the keys present in the data structure before the insertion. The table also shows their rank (on the first column) and the bit indices (on the first row).}
+\caption{Binary representation of the keys present in the data structure. The table also shows their rank (on the first column) and the bit values at every index (on the first row).}
 \label{tab:keysInTheSetBeforeInsertion}
 \end{table}
 
@@ -2077,14 +2216,14 @@ This set of keys will produce the following compressing key:
     compressingKey = 1100\ 0001\ 0000_2
 \end{align*}
 
-The compressed keys with "don't cares" stored in $branch$ and $free$ are shown in table~\ref{tab:branchAndFreeBeforeInsertion}.
+The compressed keys with "don't cares" stored in $branch$ and $free$ are shown in the tables from figure~\ref{fig:branchAndFreeBeforeInsertion}.
 
-\begin{table}[H]
+\begin{figure}[H]
 \centering
 \input{04_Tables/022_branchAndFreeBeforeInsertion.tex}
-\caption{Resulting $branch$ and $free$ after the compression of keys with "don't cares" from tables~\ref{tab:keysInTheSetBeforeInsertion}.}
-\label{tab:branchAndFreeBeforeInsertion}
-\end{table}
+\caption{Resulting $branch$ and $free$ after the compression of keys with "don't cares" from table~\ref{tab:keysInTheSetBeforeInsertion}}
+\label{fig:branchAndFreeBeforeInsertion}
+\end{figure}
 
 Inserting $x$ in the given set is comprised of the following:
 
@@ -2207,21 +2346,21 @@ Inserting $x$ in the given set is comprised of the following:
         \end{align*}
         
         \item
-        We update $branch$ and $free$ to include the new column $h$. The {\ttfamily insertAndInitializeColumn(h)} method is called thus altering $branch$ and $free$ as we see in tables~\ref{tab:branchAndFreeInsertHcolumn}.
-        \begin{table}[H]
+        We update $branch$ and $free$ to include the new column $h$. The {\ttfamily insertAndInitializeColumn(h)} method is called thus altering $branch$ and $free$ as we see in the tables from figure~\ref{fig:branchAndFreeInsertHcolumn}.
+        \begin{figure}[H]
         \centering
         \input{04_Tables/024_branchAndFreeInsertHcolumn.tex}
         \caption{Insertion of column $h$ in $branch$ and $free$}
-        \label{tab:branchAndFreeInsertHcolumn}
-        \end{table}
+        \label{fig:branchAndFreeInsertHcolumn}
+        \end{figure}
     \end{itemize}
 
     \item
-    We call the function {\ttfamily matrixMRowRange($i_0$, $i_1$)} which returns a mask comprised of the range of rows $\{ i_0, \dots, i_1 \}$. Bit-wise ANDing that mask with $matrixM_h$ computes a mask where only the bits of rows $\{ i_0, \dots, i_1 \}$ and column $h$ are set. These are the bits that of the compressed keys that need to be updated due the insertion of the new key $x$. Thus the mask needed for this effect is the one from table~\ref{tab:matrixMi_0Mi_1h}.
+    We call the function {\ttfamily matrixMRowRange($i_0$, $i_1$)} which returns a mask comprised of the range of rows $\{ i_0, \dots, i_1 \}$. Bit-wise $\wedge$ that mask with $matrixM_h$ computes a mask where only the bits of rows $\{ i_0, \dots, i_1 \}$ and column $h$ are set. These are the bits that of the compressed keys that need to be updated due the insertion of the new key $x$. Thus the mask needed for this effect is the one from table~\ref{tab:matrixMi_0Mi_1h}.
     \begin{table}[H]
     \centering
     \input{04_Tables/025_matrixMi_0Mi_1h.tex}
-    \caption{$matrixM^{i_0:i_1}_h$}
+    \caption{$matrixM^{i_0:i_1}_h$, which resulted from the intersection of the column matrix mask, $matrixM_h$, and the row matrix mask, $matrixM^{i_0:i_1}$}
     \label{tab:matrixMi_0Mi_1h}
     \end{table}
     
@@ -2233,13 +2372,13 @@ Inserting $x$ in the given set is comprised of the following:
         \cline{1-2}
         \text{bit}(j, y) = 1
     \end{align*}
-    We see that the bit value is one, thus this will be the value we will update $branch$ with. The result after this update can be seen in tables~\ref{tab:branchAndFreeAfterMatrixMi_0Mi_1h}.
-    \begin{table}[H]
+    We see that the bit value is one, thus this will be the value we will update $branch$ with. The result after this update can be seen in the tables from figure~\ref{fig:branchAndFreeAfterMatrixMi_0Mi_1h}.
+    \begin{figure}[H]
     \centering
     \input{04_Tables/026_branchAndFreeAfterMatrixMi_0Mi_1h.tex}
-    \caption{Insertion of column h in branch and free.}
-    \label{tab:branchAndFreeAfterMatrixMi_0Mi_1h}
-    \end{table}
+    \caption{$branch$ and $free$ after updating column $h$ of the $i_0:i_1$ compressed keys}
+    \label{fig:branchAndFreeAfterMatrixMi_0Mi_1h}
+    \end{figure}
 \end{enumerate}
 
 \subsubsection{Updating the instance variables with the new compressed key} \label{sec:updateRankRow}
@@ -2248,13 +2387,13 @@ We now have to insert a row for the new key in $branch$ and $free$ and write its
 
 \begin{enumerate}
     \item
-    We call {\ttfamily insertRow(rank)}, making row for $\hat x^?$ in row $rank$ of $branch$ and $free$. Tables~\ref{tab:insertRowRank} show the result of this operation.
-    \begin{table}[H]
+    We call {\ttfamily insertRow(rank)}, making row for $\hat x^?$ in row $rank$ of $branch$ and $free$. The tables from figure~\ref{fig:insertRowRank} show the result of this operation.
+    \begin{figure}[H]
     \centering
     \input{04_Tables/027_insertRowRank.tex}
-    \caption{Insertion of column h in branch and free.}
-    \label{tab:insertRowRank}
-    \end{table}
+    \caption{Insertion of row $rank$ in $branch$ and $free$}
+    \label{fig:insertRowRank}
+    \end{figure}
     
     \item
     Some of the values of $\hat x^?$ will be copied from $\hat y^?$. For this reason we have to update $i$, the rank of $y$, such that the needed values are copied from the right key.
@@ -2290,13 +2429,13 @@ We now have to insert a row for the new key in $branch$ and $free$ and write its
         \end{align*}
     \end{itemize}
 
-    We can see the updates described above in tables~\ref{tab:branchAndFreeAfterUpdatingValuesForRank}.
-    \begin{table}[H]
+    We can see the updates described above in the tables from figure~\ref{fig:branchAndFreeAfterUpdatingValuesForRank}.
+    \begin{figure}[H]
     \centering
     \input{04_Tables/028_branchAndFreeAfterUpdatingValuesForRank.tex}
-    \caption{branch and free after fixing the values in row rank.}
-    \label{tab:branchAndFreeAfterUpdatingValuesForRank}
-    \end{table}
+    \caption{$branch$ and $free$ after the insertion of $\hat x^?$}
+    \label{fig:branchAndFreeAfterUpdatingValuesForRank}
+    \end{figure}
     
 \end{enumerate}
 
@@ -2365,7 +2504,7 @@ A pass in this test consists of:
     Lastly, the rank of $x$, which has been computed before, is compared with its rank computed via the {\ttfamily rankLemma1} function.
 \end{enumerate}
 
-\section{Integer Data Structure tests}
+\section{Integer Data Structure tests} \label{sec:IntegerDataStructureTests}
 
 Each implementation of {\ttfamily RankSelectPredecessorUpdate} has a corresponding test class, which in turn has {\ttfamily Test} appended to its name. For example, the {\ttfamily BinarySearchTrie} test class is called {\ttfamily BinarySearchTrieTest} and it can be found in the {\ttfamily src\textbackslash test\textbackslash java} folder.
 
