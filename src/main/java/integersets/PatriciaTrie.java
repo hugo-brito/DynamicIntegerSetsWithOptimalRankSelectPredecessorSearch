@@ -110,14 +110,6 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
         final PTrieNode<BitsKey> prev) {
 
     if ((curr.bit >= i) || (curr.bit <= prev.bit)) {
-      // if (v.equals(curr.key)) {
-      //   if (prev.left == curr) {
-
-      //   } else {
-
-      //   }
-      // }
-      // do the deletion here!
       final PTrieNode<BitsKey> newNode = new PTrieNode<BitsKey>(v, i);
       newNode.left = v.bit(newNode.bit) == 0 ? newNode : curr;
       newNode.right = v.bit(newNode.bit) == 0 ? curr : newNode;

@@ -141,7 +141,7 @@ public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate 
   }
 
   /**
-   * Sets position {@code j}th taken position in KEY to empty.
+   * Sets position {@code j} in {@code key} to empty by marking it as empty in {@code bKey}.
    * 
    * @param j the position to be made available
    */
