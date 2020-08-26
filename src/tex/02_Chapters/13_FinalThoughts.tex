@@ -1,5 +1,9 @@
 \chapter{Conclusion}
 
+What has been done.
+
+\section{Final Remarks}
+
 my conclusion: a balance between storing more stuff and querying faster, or store close to nothing but longer queries. Query fast but store the least possible
 
 \section{Future Work}
@@ -16,29 +20,40 @@ In this section, we leave some suggestions on how further work on this topic can
     
 \end{enumerate}
 
-\subsection{Implementation}
+\subsection{Implementation} \label{sec:FutureWorkImplementation}
 
-\paragraph*{Delete methods} The implementation featured in Section~\ref{sec:InsertDontCares} implements the {\ttfamily delete} method naively, but all the ingredients needed to implement it while adhering to \cite{patrascu2014dynamic} are already present in the implementation.
+\paragraph*{Delete methods}
+The implementation featured in Section~\ref{sec:InsertDontCares} implements the {\ttfamily delete} method naively, but all the ingredients needed to implement it while adhering to \textit{Inserting a key} section of \cite{patrascu2014dynamic} are already present in the implementation.
 
-\paragraph*{Key compression in constant time} One of the bottlenecks of implementations from Sections~\ref{sec:rankWithDontCares} and \ref{sec:InsertDontCares} is how the compressed keys with "don't cares" are maintained. Specifically, the next step in the implementation is to implement functions that compute the compressed keys in $O(1)$ time, as explained in chapters $[3.2 - 3.3]$ of \cite{patrascu2014dynamic}.
+\paragraph*{Key compression in constant time}
+One of the bottlenecks of implementations from Sections~\ref{sec:rankWithDontCares} and \ref{sec:InsertDontCares} is how the compressed keys with "don't cares" are maintained. Specifically, the next iterative step in the implementation from Section~\ref{sec:InsertDontCares} is to implement functions that compute the compressed keys in $O(1)$ time, as explained in chapters $[3.2 - 3.3]$ of \cite{patrascu2014dynamic}.
 
-\paragraph*{Dynamic Fusion Tree} After enabling all the operations at the node level in $O(1)$ time with the implementation of the previous step, all that remains to complete the implementation is to implement a B-tree using a dynamic fusion node as its node. This is covered in chapter 4 of \cite{patrascu2014dynamic}.
+\paragraph*{Dynamic Fusion Tree}
+After enabling all the operations at the node level in $O(1)$ time with the implementation of the previous step, all that remains to complete the implementation is to implement a B-tree using a dynamic fusion node as its node. This is covered in chapter 4 of \cite{patrascu2014dynamic}.
 
-\paragraph*{Non-recursive implementation} Chapter 4 of \cite{patrascu2014dynamic} mentions that once the dynamic fusion tree is implemented, the rank operation on a tree is given by a recursive function. Recursion in Java can be slow \cite{shirazi2003java}, and for this reason, a non-recursive alternative is preferred.
+\paragraph*{Non-recursive implementation}
+Chapter 4 of \cite{patrascu2014dynamic} mentions that once the dynamic fusion tree is implemented, the rank operation on a tree is given by a recursive function. Recursion in Java can be slow \cite{shirazi2003java}, and for this reason, a non-recursive alternative is preferred.
 
-\paragraph*{Simulate a larger word size} One of the limitations of the present implementation is that on a common real machine, the maximum integer size is 64 bits. An interesting improvement would be to simulate larger word size $w$, which would consequently increase $k$, allowing to store more keys at the node level. This would have to be carefully studied to keep every operation in $O(1)$ time.
 
 \subsection{Benchmarking}
 
-\paragraph*{benchmark the full implementation with the others that I have mentioned previously}
+\paragraph*{msb functions}
+It would be interesting to see how the different msb functions implemented in this project compare to each other in terms of time.
 
+\paragraph*{Dynamic Predecessor Problem Data Structures}
+Once the dynamic fusion tree is fully implemented, the next logical step would be to benchmark it with other data structures that solve, either partially or entirely, the dynamic predecessor problem. These would be the data structures mentioned in Section~\ref{sec:IntegerSets}.
 
 \subsection{Optimization}
 
-\paragraph*{Space} 
-optimize the code. can some of the fields be avoided?
+\paragraph*{Space}
+Space consumption can be improved by, for instance, avoiding and combining some of the fields. When $k = 8$, $bKey$ would only use $8$ of the $64$ allocated bits, and $index$ would use $3 \times 8 = 24$ bits. So, in total, $32$ bits for both words. This is an example of how space can be improved.
 
-optimize the code further, such that it becomes competitive.
+\paragraph*{Simulate a longer word size}
+One of the limitations of the present implementation is that on a common real machine, the maximum integer size is 64 bits. An interesting improvement would be to simulate larger word size $w$, which would consequently increase $k$, allowing to store more keys at the node level. This would have to be carefully studied to keep every operation in $O(1)$ time.
+
+
+\paragraph*{Lookup {\ttfamily M} constant}
+The {\ttfamily Util} class includes a function, {\ttfamily M}, which takes $b$ and $w$ as parameters and returns the word $(0^{b-1}1)^{(w/b)}$. It is a widely used function in this repository, and it has been implemented with a loop. With limited word size, this could easily be implemented as a lookup function, improving the running time up to $O(1)$.
 
 \paragraph*{Profiling}
-to see which parts of the code the cpu spends most time
+This technique allows us to see which sections of the code the CPU uses most of the time, indicating possible bottlenecks in the code. By using it, the implementation can be fine-tuned up to the point where it can be competitive.
