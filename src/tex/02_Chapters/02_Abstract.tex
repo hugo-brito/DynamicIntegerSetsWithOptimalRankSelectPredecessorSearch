@@ -5,7 +5,18 @@
 % \addchap is a command from KOMA-Script
 \addchap{Abstract}
 
-In this thesis I present a partial implementation of the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" data structure authored by Pătrașcu and Thorup in \cite{patrascu2014dynamic}. In their publication, the authors mention that "the most interesting aspect" of their data structure is that "it supports all operations in constant time for sets of size $n = w^{O(1)}$". This claim derives from the fact that the technical details of the data structure are all based on word operations, which in the word-RAM model take constant time. this is a bit \texttt{1}{\ttfamily 1} \texttt{algorithm}{\ttfamily algorithm}
+This thesis investigates the theoretical data structure presented in the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" paper, authored by Pătrașcu and Thorup. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness. The authors claim that their proposal solves the dynamic predecessor problem optimally.
+
+The aforementioned paper presents a data structure denoted \textit{dynamic fusion node}, which improves on the fusion node authored by Fredman and Willard and published in \cite{fredman1993surpassing}.
+Fusion nodes compute rank and select queries in $O(\log_w n)$ time, but updates may entail recomputing the instance variables, making such operation to take polynomial time. It is stated that, for this reason, fusion trees only solve the static predecessor problem \cite{nelsonjelanilec2}. Pătrașcu and Thorup address this by improving on how the keys in the set are compressed, allowing them to be computed and queried in $O(1)$ time.
+
+
+
+
+We bring together the techniques mentioned by the authors in \cite{patrascu2014dynamic} and implement them as they are needed to enable the correct implementation of the 
+
+bittricks
+In their publication, the authors mention that "the most interesting aspect" of their data structure is that "it supports all operations in constant time for sets of size $n = w^{O(1)}$". This claim derives from the fact that the technical details of the data structure are all based on word operations, which in the word-RAM model take constant time. this is a bit \texttt{1}{\ttfamily 1} \texttt{algorithm}{\ttfamily algorithm}
 
 We explore the techniques of the theoretical paper, analyzing 
 
@@ -13,7 +24,7 @@ make a bullet list of the things I've done and then expand from there.
 
 We will see in detail the techniques used by the authors to enable th
 
-\paragraph*{Keywords:} Algorithms, Predecessor Problem, Integer Sets Data Structures, Key Compression, Bit-wise Operations, Most Significant Set Bit, Parallel Comparison, Dynamic Fusion Node.
+\paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bit-wise Operations, Most Significant Set Bit, Parallel Comparison, Dynamic Fusion Node.
 
 from the meeting with holger:
 \begin{itemize}
