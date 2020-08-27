@@ -78,14 +78,14 @@ The data structure presented in \cite{patrascu2014dynamic} implements all of the
 
 \subsection{Models of Computation}\label{sec:modelsofcomputation}
 
-In order to analyze and describe running times, computer scientists use models of computation. Such a model states which operations have an associated cost, and which ones do not.
+In order to analyze and describe running times, computer scientists use models of computation. Each model states which operations have an associated cost, and which ones do not.
 In the models used here, all the given operations either have one unit of cost or none.
 
 Despite their theoretical relevance, when having a data structure and its operations measured against wall clock, one might be surprised with the results.
 This is because theoretical bounds have the potential to hide big constants, which are brought to light when wall clock measurements are performed.
 Nevertheless, we will enumerate some models of computation, as many of the data structures here presented have their running times described in terms of a given model, and therefore, it is of interest to provide this context.
 
-The models are presented in descending order from strongest to the least strong. This means that a less restrictive model, such as the cell-probe model, is more suited to describe the theoretical \emph{lower} bounds of a data structure than the weaker ones \cite{erikdemainelec11}.
+The models are presented in descending order from strongest to the least strong. This means that a less restrictive model, such as the cell-probe model, is more suited to describe the theoretical lower bounds of a data structure than the weaker ones \cite{erikdemainelec11}.
 
 \subsubsection{The Cell-Probe Model}
 In the cell-probe model, memory is divided into cells of size $w$, a parameter of the model.
@@ -110,7 +110,7 @@ Let us take a concrete example:
     \implies &2^4 \geq n \\
     \implies &16 \geq n
 \end{align*}
-We can see that if the word length, $w$, is $4$, then we can at most index $16$ keys. This is sound because in binary representation of integers, when having $4$ bits, we can produce $16$ different combinations of those bits, e.g., $2^4$ combinations. This is exactly what expression~\ref{eq:problemSize} means: having a set word length defines the maximum number of keys we can index with a single word.
+We can see that if $w = 4$, then we can at most index $16$ keys. This is sound because in binary representation of integers, with $4$ bits, we can produce $16$ different combinations of those bits, e.g., $2^4$ combinations. This is exactly what expression~\ref{eq:problemSize} means: having a set word length defines the maximum number of keys we can index with a single word.
 
 This model gets its name because it relates two dichotomies: problem size $n$; and the model of computation with words of size $w$ \cite{erikdemainelec11}. 
 
@@ -125,8 +125,8 @@ Like the trans-dichotomous RAM model, the word RAM also operates with fixed size
 \newpage
 \section{Integer Sets} \label{sec:IntegerSets}
 
-This section highlights some data structures that maintain integer sets and implement the (dynamic) predecessor problem, e.g., integer sets that have methods that answer the queries mentioned in Section~\ref{sec:predecessorProblem}.
-The data structures are somewhat ordered by what they improve on from the previous, or by complexity, because they add a new way of looking at the problem.
+This section highlights some data structures that maintain integer sets and implement the (dynamic) predecessor problem, e.g., integer sets whose methods answer the queries mentioned in Section~\ref{sec:predecessorProblem}.
+The data structures are ordered by what they improve on from the previous, or by complexity, because they add a new way of looking at the problem.
 We will also analyze, on a high level, their running times and how the queries can be implemented.
 Note that we do not need to be concerned about the successor and predecessor queries for most of them, as they can be trivially implemented by using the definitions from Section~\ref{sec:predecessorProblem}.
 
@@ -155,7 +155,7 @@ Updates consist of:
     Once the rightful place of the key in the tree is found, a $O(1)$ number of operations take place in order to maintain the invariant of the tree. 
 \end{enumerate}
 
-Another advantage of this data structure is that, since the elements are sorted internally, select and rank queries can be trivially implemented by storing the size of each sub-tree at every node, which is then used to return the result from those queries.
+Another advantage of this data structure is that, since the elements are sorted internally, select and rank queries can be trivially implemented by storing the size of each sub-tree at every node, which is then used to compute the result from those queries.
 
 \subsection{Binary Search Tries}
 
@@ -166,25 +166,26 @@ In this context, we will use them to store words (as defined in Section~\ref{sec
 The chosen radix is related to the data we want to store in the trie: for instance, when storing strings written with the English alphabet, the radix is 26, whereas in our case, base two integers, the radix is 2. Bitwise tries can also denote tries of radix two.
 
 A binary search trie is a trie for storing integer words, where the keys are kept at leaf nodes. We use the bit values of a key to guide us when searching the following way: starting from the most significant bit of the key,
-\begin{enumerate}
+\begin{itemize}
     \item
     If the bit value is $0$, then we take the left child node.
     \item 
     Otherwise, we take the right one.
-\end{enumerate}
-We then consider the search key's following less significant bit and repeat. A search ends either at a leaf or a null link. A successful search is when the search key and the key at the node were the same. An unsuccessful search is when either we end up on a null link or the search key, and the key at the leaf node are not the same. This last case happens when those keys share a prefix.
+\end{itemize}
 
-We can infer from the search algorithm's description that this data structure uses a considerable amount of space for storing paths consisting of prefixes shared between keys.
+We then consider the following less significant bit of the search key, and repeat. A search ends either at a leaf or a null link. A successful search is when the search key and the key at the node were the same. An unsuccessful search is when either we end up on a null link or the search key, and the key at the leaf node are not the same. This last case happens when those keys share a prefix.
+
+We can infer from the search algorithm's description that this data structure uses a considerable amount of space for storing paths consisting of prefixes shared among keys.
 
 Since this tree is ordered and balanced, and even though it will have on average $44\%$ more nodes than keys, searching and inserting take on average $O(\log_2 n)$ time for random and distinct keys, but the length of the keys bounds the worst case running time, $O(w)$ \cite{sedgewick2002algorithms}. Rank and select queries are implemented with a similar approach as in the red-black tree: every node has the number of leaf nodes stored in its fields, which is used for these queries.
 
 \subsection{Patricia Tries}
 
-Patricia tries, which name is acronym for "practical algorithm to retrieve information coded in alphanumeric", also known as compressed binary tries, improve the space complexity of the binary search tries.
-They embody different ways to encode the same trie abstraction as binary search tries.
+Patricia tries, which name is acronym for "practical algorithm to retrieve information coded in alphanumeric", also known as compressed binary tries, improve the space consumption in comparison with binary search tries.
+They a embody different way to encode the same trie abstraction as binary search tries.
 They achieve this by allowing the internal nodes to store keys and by compressing the paths between nodes.
 Each node will have an associated index of branching bit stored: this allows us to skip the bits that belong to shared prefixes, fast forwarding to the branching bits.
-The result is a trie with exactly as many nodes as there are keys, which also improves the worst running times of updating and query from $O(w)$ to $O(\log_2 n)$.
+The result is a trie with exactly as many nodes as there are keys, which also improves the worst running times of updating and querying from $O(w)$ to $O(\log_2 n)$.
 
 \subsection{van Emde Boas Tree}
 

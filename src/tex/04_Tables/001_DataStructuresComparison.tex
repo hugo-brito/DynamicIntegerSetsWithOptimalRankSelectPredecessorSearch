@@ -1,14 +1,13 @@
 \begin{tabular}{@{}lllll@{}}
 \toprule
-\multirow{2}{*}{Data Structure}                                                                              & \multirow{2}{*}{Remark} & \multicolumn{2}{l}{Running time}                  & \multirow{2}{*}{Space}  \\
-                                                                                                             &                         & Update            & Query                         &                         \\ \midrule
-(Naïve) Array                                                                                                &                         & $O(n)$            & $O(\log_2 n)$                 & $O(n)$                  \\ \midrule
-\begin{tabular}[c]{@{}l@{}}Red-Black BST\\ \cite{sedgewick2011algorithms}\end{tabular}                       &                         & $O(\log_2 n)$      & $O(\log_2 n)$                 & $O(n)$                  \\ \midrule
-\multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Binary Search Trie\\ \cite{sedgewick2002algorithms}\end{tabular}} & Average                 & $O(\log_2 n)$      & $O(\log_2 n)$                 & \multirow{2}{*}{$O(n)$} \\ \cmidrule(lr){2-4}
-                                                                                                             & Worst                   & $O(w)$             &  $O(w)$                       &                         \\ \midrule
-\begin{tabular}[c]{@{}l@{}}Patricia Trie\\ \cite{sedgewick2002algorithms}\end{tabular}                       &                         & $O(\log_2 n)$      & $O(\log_2 n)$                  & $O(n)$                  \\ \midrule
-\begin{tabular}[c]{@{}l@{}}van Emde Boas Tree\\ \cite{nelsonjelanilec1}\end{tabular}                         &                         & $O(\log_2 w)$ & $O(\log_2 w)$             & $O(u)$             \\ \midrule
-\multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Fusion Trees\\ \cite{erikdemainelec11}\end{tabular}}              & Static                  & N/A                & \multirow{2}{*}{$O(\log_w n)$} & \multirow{2}{*}{$O(n)$} \\ \cmidrule(lr){2-3}
-                                                                                                             & Dynamic via Hashing     & $O(\log_w n)$      &                               &                         \\ \midrule
-\begin{tabular}[c]{@{}l@{}}Dynamic Fusion Tree\\ \cite{patrascu2014dynamic}\end{tabular}                     &                         & $O(\log_w n)$ & $O(\log_w n)$ & $O(n)$\\ \bottomrule
+\multirow{2}{*}{Data Structure}                                                                              & \multirow{2}{*}{Remark} & \multicolumn{2}{l}{Running time}   & \multirow{2}{*}{Space}  \\
+                                                                                                             &                         & Update             & Query         &                         \\ \midrule
+(Naïve) Array                                                                                                &                         & $O(n)$             & $O(\log_2 n)$ & $O(n)$                  \\ \midrule
+\begin{tabular}[c]{@{}l@{}}Red-Black BST\\ \cite{sedgewick2011algorithms}\end{tabular}                       &                         & $O(\log_2 n)$      & $O(\log_2 n)$ & $O(n)$                  \\ \midrule
+\multirow{2}{*}{\begin{tabular}[c]{@{}l@{}}Binary Search Trie\\ \cite{sedgewick2002algorithms}\end{tabular}} & Average                 & $O(\log_2 n)$      & $O(\log_2 n)$ & \multirow{2}{*}{$O(n)$} \\ \cmidrule(lr){2-4}
+                                                                                                             & Worst                   & $O(w)$             & $O(w)$        &                         \\ \midrule
+\begin{tabular}[c]{@{}l@{}}Patricia Trie\\ \cite{sedgewick2002algorithms}\end{tabular}                       &                         & $O(\log_2 n)$      & $O(\log_2 n)$ & $O(n)$                  \\ \midrule
+\begin{tabular}[c]{@{}l@{}}van Emde Boas Tree\\ \cite{nelsonjelanilec1}\end{tabular}                         &                         & $O(\log_2 w)$      & $O(\log_2 w)$ & $O(u)$                  \\ \midrule
+\begin{tabular}[c]{@{}l@{}}Fusion Trees\\ \cite{erikdemainelec11}\end{tabular}                               & Static                  & N/A                & $O(\log_w n)$ & $O(n)$                  \\ \midrule
+\begin{tabular}[c]{@{}l@{}}Dynamic Fusion Tree\\ \cite{patrascu2014dynamic}\end{tabular}                     &                         & $O(\log_w n)$      & $O(\log_w n)$ & $O(n)$                  \\ \bottomrule
 \end{tabular}

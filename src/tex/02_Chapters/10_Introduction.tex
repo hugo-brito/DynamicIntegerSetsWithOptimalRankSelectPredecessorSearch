@@ -1,76 +1,65 @@
 %%% File encoding is ISO-8859-1 (also known as Latin-1)
 %%% You can use special characters just like ä,ü and ñ
 
-Predecessor problem queries are everywhere. They can be found in several different applications, which include database management systems (DBMS), internet routing, algorithms for machine learning, big data, statistics, data compression, spellchecking. They can be understood as a simpler version of the nearest neighbor problem \cite{bille2020massive}. And because they are at the basis of many systems, it is of great importance and relevance that the data structures that provide these queries are space and time efficient.
+Predecessor problem queries are everywhere. They can be found in several different applications, which include database management systems (DBMS), internet routing, algorithms for machine learning, big data, statistics, data compression, spellchecking. They can be understood as a simpler version of the nearest neighbor problem \cite{bille2020massive}. And because they are at the basis of many systems, it is of great importance and relevance that the data structures that provide these queries are space and time-efficient.
 
-This thesis investigates the theoretical data structure presented in the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" paper, from 2014 and authored by Pătrașcu and Thorup. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness.
+This thesis investigates the theoretical data structure presented in the «Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search» paper, from 2014 and authored by Pătrașcu and Thorup. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
 
 The authors claim that their proposal solves the dynamic predecessor problem optimally.
-Fusion nodes compute predecessor queries in $O(1)$ time \cite{fredman1993surpassing}, but updates may entail recomputing the instance variables, making such operation to take polynomial time.
+Fusion Nodes compute static predecessor queries in $O(1)$ time \cite{fredman1993surpassing}, but updates may entail recomputing the instance variables, making such operation to take polynomial time.
 It is stated that, for this reason, fusion trees only solve the static predecessor problem \cite{nelsonjelanilec2}.
 Pătrașcu and Thorup address this by improving on how the keys in the set are compressed, allowing them to be computed and queried in $O(1)$ time for sets of size $n = w^{O(1)}$, e.g., the \textit{dynamic fusion node} \cite{patrascu2014dynamic}.
-This is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which in the word-RAM model take $O(1)$ time.
+This is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression, and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which in the word-RAM model take $O(1)$ time.
 
 \section{Context}
 
 The aforementioned paper presents a data structure called \textit{dynamic fusion node}. It is designed to maintain a dynamic set of integers, which improves on the fusion node authored by Fredman and Willard and published in \cite{fredman1993surpassing} while incorporating techniques from other data structures such as Patricia tries.
 
-Like in the fusion tree by Fredman and Willard, the dynamic fusion node is to be used in a B-tree implementation, thus solving the dynamic predecessor problem for sets of arbitrary size. When this goal is reached, Pătrașcu and Thorup claim that the running time for the dynamic rank and select is $O(\log_w n)$, proven by Fredman and Saks to be optimal \cite{fredman1989cell}. This is possible because the all operations at the node level take $O(1)$ time, such that the running time is bounded by the implementation details of the B-tree itself.
+Like in the fusion tree by Fredman and Willard, the dynamic fusion node is to be used in a B-tree implementation, thus solving the dynamic predecessor problem for sets of arbitrary size. When this goal is reached, Pătrașcu and Thorup claim that the running time for the dynamic rank and select is $O(\log_w n)$, proven by Fredman and Saks to be optimal \cite{fredman1989cell}. This is possible because all operations at the node level take $O(1)$ time, such that the running time is bounded by the implementation details of the B-tree itself.
 
-We 
+This project can also be seen as a follow-up on the data structures discussed in the \textit{Integer Data Structure} lectures from the «6.851: Advanced Data Structures» from MIT\footnote{The lectures notes, recordings, and other course materials are available through the link: \url{http://courses.csail.mit.edu/6.851/fall17/lectures/}} and «CS 224: Advanced Algorithms» courses from Harvard University\footnote{The lectures notes, recordings, and other course materials are available through the link: \url{http://people.seas.harvard.edu/~minilek/cs224/fall14/index.html}}, whose scribe notes have also been an important resource for the work we have developed in this project. In particular, Erik Demaine's lecture 12 \cite{erikdemainelec12} and Jelani Nelson's lecture 2 \cite{nelsonjelanilec2} of the aforementioned courses discuss Fusion Trees which, as previously mentioned, is a data structure that establishes many important concepts that the Dynamic Fusion Tree from Pătrașcu and Thorup builds upon. 
+This is relevant because, in their lectures, they present the Fusion Tree as a static set of integers, e.g., it can be efficiently queried but does not support efficient updates, whereas the present implementation is focused on supporting efficient updates as well.
 
-here, mention the following:
+\section{Goals}
 
-Background literature
+This project aims at using the findings of \cite{patrascu2014dynamic} to implement a data structure that solves the dynamic predecessor problem optimally, being limited to the scope defined in Section~\ref{sec:scope}. 
 
-state of the art
+Using the available knowledge about the dynamic predecessor problem and the 
 
-in prose describe how does this thesis fit into the literature
-
-and what are you doing here that is new
-
-Sets and integer sets
-
-even if it's not finished (it won't be in the tree), I can say that this is the goal that I'm working towards to. the project only makes sense in that context
-    
 the overarching goal is that this implementation is finished such that it can be benchmarked with the other implementations that I mention (this is the big picture)
     
-and this thesis almost gets there.
+And this thesis almost gets there.
+Mention that it was implemented in java
+mention that both the code and the report expose the paper in such a way that it can be re-implemented, for instance, in DBMSs.
 
-\section{Problem}
-
-This project aims at using the findings of \cite{patrascu2014dynamic} to implement a data structure that solves optimally the dynamic predecessor problem. T
-
-mention that it was implemented in java
-mention that both the code and the report expose the paper in such way that it can be re-implemented for instance in DBMSs.
+mention that we want to pave the way for other people to finish and benchmark the data structure
 
 \section{Approach} % methodology
 
-We will be guided by the \cite{patrascu2014dynamic} publication, using contributions from other authors when needed. The data structure will be implemented by taking incremental steps which more or less correspond to the Chapters and Sections of our primary reference.
+We will be guided by the \cite{patrascu2014dynamic} publication, using contributions from other authors when needed. The data structure will be implemented by taking incremental steps, which more or less correspond to the Chapters and Sections of our primary reference.
 
-This project encompasses the present document which also reports on the code base developed in the scope of the project which can be 
-mention the repository 
-We will use the Java programming languange and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under a MIT License.
+This project encompasses the present document, which reports on implemented algorithms and data structures which are publicly available in a GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under an MIT License.
+The provided programs have been implemented using the Java programming language.
 
-\section{Scope}
+\section{Scope} \label{sec:scope}
 
 This project's scope is limited to:
-\begin{enumerate}
+\begin{itemize}
     \item
     Implementation of helper functions that implement supporting algorithms for the \textit{dynamic fusion node} data structure.
     
     \item
     Implementation of the algorithms encompassed by the \textit{dynamic fusion node} as presented in \cite{patrascu2014dynamic} but up to Chapter 3.1 (inclusive).
-\end{enumerate}
+\end{itemize}
 
 \section{Report Structure}
 
-The present Chapter provides the context and establishes the scope of the project.
+The present chapter provides the context, the approach taken, and establishes the scope of the project.
 
 Chapter~\ref{sec:backgroundChapter} provides the background needed to understand the problem at hand, as well as some non-trivial techniques used by Pătrașcu and Thorup in their proposal.
-In Section~\ref{sec:IntegerSets} we will also see different ways to solve the predecessor problem, from the naive array up to the fusion tree. The latter, is also an important premise for enabling the data structure of this paper.
+In Section~\ref{sec:IntegerSets}, we will also see different ways to solve the predecessor problem, from the naive array up to the fusion tree. The latter is also an important premise for enabling the data structure of this paper.
 
-Chapter~\ref{sec:implementationsChapter} builds a library of relevant functions used for the dynamic fusion node which is also presented in the following sections of the chapter.
+Chapter~\ref{sec:implementationsChapter} builds a library of relevant functions used for the dynamic fusion node, which is also presented in the following sections of the chapter.
 Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point.
 
 We validate the implemented algorithms and data structures with correctness tests. These appear described in Chapter~\ref{sec:validationChapter}.

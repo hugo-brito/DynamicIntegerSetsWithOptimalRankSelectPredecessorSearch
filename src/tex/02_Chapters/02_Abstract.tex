@@ -3,15 +3,15 @@
 \addchap{Abstract}
 
 This thesis investigates the theoretical data structure presented in the «Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search» paper, authored by Pătrașcu and Thorup.
-The authors claim that their proposal solves the dynamic predecessor problem optimally. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness.
+The authors claim that their proposal solves the dynamic predecessor problem optimally. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
 Their proposal is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thoru), which in the word-RAM model take $O(1)$ time.
 
 Using the \cite{patrascu2014dynamic} as our primary reference, and after framing the topic within its context (Chapters~\ref{sec:introductionChapter}), we explore the essential tools and algorithms used by Pătrașcu and Thorup in their proposal (Chapter~\ref{sec:backgroundChapter}).
 Section~\ref{sec:IntegerSets} shows different ways to solve the predecessor problem.
 
-Section~\ref{sec:summaryOfTechniques} builds and explores a library of relevant functions and algorithms used by the dynamic fusion node. These have also been implemented and mentioned further, of Chpater~\ref{sec:implementationsChapter}.
+Section~\ref{sec:summaryOfTechniques} builds and explores a library of relevant functions and algorithms used by the \textit{Dynamic Fusion Node}. These have also been implemented and mentioned further, of Chapter~\ref{sec:implementationsChapter}.
 
-Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point.
+Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point. This is presented in Chapter~\ref{sec:implementationsChapter}.
 
 We validate the implemented algorithms and data structures with correctness tests. These appear described in Chapter~\ref{sec:validationChapter}.
 
@@ -20,7 +20,7 @@ Up to the point where this project ends, Pătrașcu and Thorup's proposal seems 
 
 The Java programming language is used throughout the project, and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under a MIT License.
 
-\paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bit-wise Operations, Most Significant Set Bit, Parallel Comparison, Dynamic Fusion Node.
+\paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bit-wise Operations, Most Significant Set Bit, Word-level Parallelism, Dynamic Fusion Node.
 
 % from the meeting with holger:
 % \begin{itemize}
