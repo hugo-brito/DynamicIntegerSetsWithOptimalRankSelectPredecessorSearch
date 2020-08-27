@@ -1,36 +1,42 @@
 %%% File encoding is ISO-8859-1 (also known as Latin-1)
 %%% You can use special characters just like ä,ü and ñ
 
+Predecessor problem queries are everywhere. They can be found in several different applications, which include database management systems, internet routing, algorithms for machine learning, big data, statistics, data compression, spellchecking. They can be understood as a simpler version of the nearest neighbor problem \cite{bille2020massive}. And because they are at the basis of many systems, it is of great importance and relevance that the data structures that provide these queries are space and time efficient.
+
+This thesis investigates the theoretical data structure presented in the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" paper, from 2014 and authored by Pătrașcu and Thorup. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness.
+
+The authors claim that their proposal solves the dynamic predecessor problem optimally.
+Fusion nodes compute predecessor queries in $O(1)$ time, but updates may entail recomputing the instance variables, making such operation to take polynomial time.
+It is stated that, for this reason, fusion trees only solve the static predecessor problem \cite{nelsonjelanilec2}.
+Pătrașcu and Thorup address this by improving on how the keys in the set are compressed, allowing them to be computed and queried in $O(1)$ time for sets of size $n = w^{O(1)}$, e.g., the \textit{dynamic fusion node} \cite{patrascu2014dynamic}.
+This is made possible due to the smart use of techniques such as bit-wise tricks, word level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thoru), which in the word-RAM model take $O(1)$ time.
+
+
+
+The aforementioned paper presents a data structure called \textit{dynamic fusion node}, which improves on the fusion node authored by Fredman and Willard and published in \cite{fredman1993surpassing}.
+
+
+
 \section{Context}
 
-Rank and select queries are everywhere. Database management systems use them all the time, and the proliferation of these systems is widespread. 
+
+
+
+
 
 \section{Problem}
 
 Using the findings of \cite{patrascu2014dynamic} to implement a data structure that solves optimally the dynamic predecessor problem.
 
-\section{Approach}
-
-mention that it was implemented in java
-mention that both the code and the report expose the paper in such way that it can be re-implemented for instance in DBMSs.
-
-\section{Report Structure}
-
-\begin{enumerate}
-    \item
-    Topic and context
-    \item
-    focus and scope
-    \item
-    relevance and importance
-    \item
-    questions and objectives
-    \item
-    overview of the structure
-\end{enumerate}
 
 
-mention the repository
+
+
+
+
+
+
+
 
 From the meeting with Holger:
 \begin{enumerate}
@@ -68,7 +74,65 @@ From the meeting with Holger:
 \end{enumerate}
 
 
-Comparison based models/strings and digit based sorting
-
 Sets and integer sets
 
+
+\begin{enumerate}
+    \item
+    Topic and context
+    \item
+    focus and scope
+    \item
+    relevance and importance
+    \item
+    questions and objectives
+    \item
+    overview of the structure
+\end{enumerate}
+
+These functions appear described in Section~\ref{sec:summaryOfTechniques} and \ref{sec:utilFuctionsImplementation}.
+These  described in Section~\ref{sec:summaryOfTechniques}.
+
+\section{problems \& goals}
+
+mention that it was implemented in java
+mention that both the code and the report expose the paper in such way that it can be re-implemented for instance in DBMSs.
+
+\section{Approach} % methodology
+
+We will be guided by the \cite{patrascu2014dynamic} publication, using contributions from other authors when needed. The data structure will be implemented by taking incremental steps which more or less correspond to the Chapters and Sections of our ming the data structure, ex
+
+This project encompasses the present document which also reports on the code base developed in the scope of the project which can be 
+mention the repository
+
+
+
+We will use the Java programming languange and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under a MIT License.
+
+
+\section{Scope}
+
+This project's scope is limited to:
+\begin{enumerate}
+    \item
+    Implementation of helper functions that implement supporting algorithms for the \textit{dynamic fusion node} data structure.
+    
+    \item
+    Implementation of the algorithms encompassed by the \textit{dynamic fusion node} as presented in \cite{patrascu2014dynamic} but up to Chapter 3.1 (inclusive).
+\end{enumerate}
+
+\section{Report Structure}
+
+The present Chapter provides the context and establishes the scope of the project.
+
+Chapter~\ref{sec:backgroundChapter} provides the background needed to understand the problem at hand, as well as some non-trivial techniques used by Pătrașcu and Thorup in their proposal.
+In Section~\ref{sec:IntegerSets} we will also see different ways to solve the predecessor problem, from the naive array up to the fusion tree. The latter, is also an important premise for enabling the data structure of this paper.
+
+Chapter~\ref{sec:implementationsChapter} builds a library of relevant functions used for the dynamic fusion node which is also presented in the following sections of the chapter.
+Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point.
+
+We validate the implemented algorithms and data structures with correctness tests. These appear described in Chapter~\ref{sec:validationChapter}.
+
+Chapter~\ref{sec:conclusionChapter} concludes the project, leaving some remarks and suggestions for future work.
+
+We have also included an appendix, \ref{sec:appendix}, where we mention some additional carried work that could be useful for future work.

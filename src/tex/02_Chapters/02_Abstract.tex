@@ -1,60 +1,58 @@
-%%% File encoding is ISO-8859-1 (also known as Latin-1)
-%%% You can use special characters just like ä,ü and ñ
-
 % Chapter without numbering but with appearance in the Table of Contents
 % \addchap is a command from KOMA-Script
 \addchap{Abstract}
 
-This thesis investigates the theoretical data structure presented in the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" paper, authored by Pătrașcu and Thorup. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness. The authors claim that their proposal solves the dynamic predecessor problem optimally.
+This thesis investigates the theoretical data structure presented in the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" paper, authored by Pătrașcu and Thorup.
+The authors claim that their proposal solves the dynamic predecessor problem optimally. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness.
+Their proposal is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thoru), which in the word-RAM model take $O(1)$ time.
 
-The aforementioned paper presents a data structure denoted \textit{dynamic fusion node}, which improves on the fusion node authored by Fredman and Willard and published in \cite{fredman1993surpassing}.
-Fusion nodes compute rank and select queries in $O(\log_w n)$ time, but updates may entail recomputing the instance variables, making such operation to take polynomial time. It is stated that, for this reason, fusion trees only solve the static predecessor problem \cite{nelsonjelanilec2}. Pătrașcu and Thorup address this by improving on how the keys in the set are compressed, allowing them to be computed and queried in $O(1)$ time.
+Using the \cite{patrascu2014dynamic} as our primary reference, and after framing the topic within its context (Chapters~\ref{sec:introductionChapter}), we explore the essential tools and algorithms used by Pătrașcu and Thorup in their proposal (Chapter~\ref{sec:backgroundChapter}).
+Section~\ref{sec:IntegerSets} shows different ways to solve the predecessor problem.
 
+Section~\ref{sec:summaryOfTechniques} builds and explores a library of relevant functions and algorithms used by the dynamic fusion node. These have also been implemented and mentioned further, of Chpater~\ref{sec:implementationsChapter}.
 
+Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point.
 
+We validate the implemented algorithms and data structures with correctness tests. These appear described in Chapter~\ref{sec:validationChapter}.
 
-We bring together the techniques mentioned by the authors in \cite{patrascu2014dynamic} and implement them as they are needed to enable the correct implementation of the 
+Chapter~\ref{sec:conclusionChapter} concludes the project, leaving some remarks and suggestions for future work.
+Up to the point where this project ends, Pătrașcu and Thorup's proposal seems sound, as we have been able to implement their data structure proposal using only $O(1)$ operations of the word-RAM model. In Section~\ref{sec:futureWork} we highlight the required steps to conclude the implementation.
 
-bittricks
-In their publication, the authors mention that "the most interesting aspect" of their data structure is that "it supports all operations in constant time for sets of size $n = w^{O(1)}$". This claim derives from the fact that the technical details of the data structure are all based on word operations, which in the word-RAM model take constant time. this is a bit \texttt{1}{\ttfamily 1} \texttt{algorithm}{\ttfamily algorithm}
+The Java programming language is used throughout the project, and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under a MIT License.
 
-We explore the techniques of the theoretical paper, analyzing 
-
-make a bullet list of the things I've done and then expand from there.
-
-We will see in detail the techniques used by the authors to enable th
+% 1 paragrah: short conclusion
 
 \paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bit-wise Operations, Most Significant Set Bit, Parallel Comparison, Dynamic Fusion Node.
 
-from the meeting with holger:
-\begin{itemize}
-    \item
-    much shorter version of the introduction
+% from the meeting with holger:
+% \begin{itemize}
+%     \item
+%     much shorter version of the introduction
     
-    \item
-    2 or 3 very sharp paragraphs tailored for an expert in the field. say what 
+%     \item
+%     2 or 3 very sharp paragraphs tailored for an expert in the field. say what 
     
-    \item
-    for people who want to get a very quick overview of what you're doing
+%     \item
+%     for people who want to get a very quick overview of what you're doing
     
-    \item
-    don't have to explain the background there. only on an extremely high level. don't need to say "oh a fusion tree is this"
-\end{itemize}
+%     \item
+%     don't have to explain the background there. only on an extremely high level. don't need to say "oh a fusion tree is this"
+% \end{itemize}
 
 
-% the last thing to write. it entails
-\begin{itemize}
-    \item
-    Research problem and objective\\
-    What practical or theoretical problem does this research respond to\\
-    What research question did you aim to answer\\
-    key verbs: test/investigate/analyze\\
-    \item
-    Methods\\
-    Write in the past tense
-    \item
-    Key results or arguments
-    \item
-    Conclusion\\
-    What is my answer to the question.
-\end{itemize}
+% % the last thing to write. it entails
+% \begin{itemize}
+%     \item
+%     Research problem and objective\\
+%     What practical or theoretical problem does this research respond to\\
+%     What research question did you aim to answer\\
+%     key verbs: test/investigate/analyze\\
+%     \item
+%     Methods\\
+%     Write in the past tense
+%     \item
+%     Key results or arguments
+%     \item
+%     Conclusion\\
+%     What is my answer to the question.
+% \end{itemize}

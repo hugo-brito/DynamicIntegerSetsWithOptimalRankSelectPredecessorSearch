@@ -24,7 +24,7 @@
 % In \figurename~\ref{fig:CowLickingNose}\myMarginnote{Reference to a figure} you see a cow that is licking its nose. The picture was taken by Nicole Barth on 11.08.2014 using a Canon EOS 500D. The original file has a resolution of $4247 \times 2831$ pixels.
 % Note that the image is also referenced.
 
-\chapter{Background}
+\chapter{Background} \label{sec:backgroundChapter}
 
 The \cite{patrascu2014dynamic} paper presents a dynamic data structure for storing integers and claims that its running times are optimal.
 In this chapter, a series of data structures, techniques, and other relevant aspects will be presented, laying the foundation for the implementation of the data structure presented by Pătrașcu and Thorup.
@@ -34,7 +34,7 @@ In this chapter, a series of data structures, techniques, and other relevant asp
 \subsection{Word} \label{sec:word}
 A word consists of a $w$-bit integer. This means that we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$. The bits which a word is comprised of are indexed from the least (left) to the most (right) significant bit, having the least significant bit index $0$, whereas the most significant has index $w-1$.
 
-\subsection{Universe}
+\subsection{Universe} \label{sec:universe}
 The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$, e.g., all combinations of $w$-bit words.
 
 \subsection{The Predecessor Problem} \label{sec:predecessorProblem}
@@ -117,7 +117,7 @@ The data structures are somewhat ordered by what they improve on from the previo
 We will also analyze, on a high level, their running times and how the queries can be implemented.
 Note that we do not need to be concerned about the successor and predecessor queries for most of them, as they can be trivially implemented by using the definitions from Section~\ref{sec:predecessorProblem}.
 
-\subsection{Array}
+\subsection{Array} \label{sec:array}
 
 Perhaps the most naive way to maintain a set of integers is to implement it while having an underlying array. By ensuring that the array is always sorted after updates, we know that select queries are implemented by returning the key at the specified index, while rank queries are implemented by doing a binary search. These queries take $O(1)$ and $O(\log_2 n)$ time, respectively. Updating, e.g., inserting and deleting, would take $O(n)$ time because:
 \begin{enumerate}
@@ -175,7 +175,63 @@ The result is a trie with exactly as many nodes as there are keys, which also im
 
 \subsection{van Emde Boas Tree}
 
-The van Emde Boas tree data structure 
+The van Emde Boas tree (vEB) data structure, despite its excessive space consumption ($O(u)$), introduces a big running time improvement, as all queries take $O(\log_2 w)$.
+If, as discussed in Section~\ref{sec:universe}, $u = 2^w$ is the size of universe of keys we can store in this data structure, then we can also express the running time as being $O(\log_2(\log_2 u))$.
+This means that queries are now sub-logarithmic, a substantial improvement from all the data structures we have seen so far.
+
+This data structure is defined recursively, and its running time given by the recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$.
+A vEB tree stores 
+
+nice and summary slides from DTU: http://www2.compute.dtu.dk/courses/02282/2016/predecessor/predecessor1x1.pdf
+
+The intuition behind this data structure is to superimpose a binary tree structure on a bit vector.
+The bit values in this bit-vector will be $0$ if the key at that index is not in the set, and $1$ otherwise.
+To build the binary tree, we assume that each position of the bit vector is a leaf.
+To compute the parent nodes, we take the bit-wise $\vee$ of each consecutive pair of positions.
+We then do the same for the next level, taking the nodes that we just computed as the children, repeating until we reach the root.
+If the set contains at least one key, then the value at the root will be $1$; otherwise it will be $0$.
+This rule applies also to each of the sub-trees.
+On this preliminary example:
+\begin{itemize}
+    \item
+    To find the minimum, starting at the root, we traverse the tree by taking always the left child, if that node is $1$, otherwise we take the right child.
+    
+    \item
+    To find the maximum, we do the same as in finding the minimum, but giving preference to the right child.
+    
+    \item
+    To find the successor, we would start at the leaf node of our query and go up the tree until we find a node whose right child we have not visited and whose value is $1$. The successor of our query is the minimum of the sub-tree rooted at that node.
+    
+    \item
+    Finding the predecessor will be similar to the successor: we find the maximum of the sub-tree whose root's left child we have not visited and has value $1$, when going up the tree from the query's leaf node.
+    
+    \item
+    Searching is done in $O(1)$ time, as we have direct access to the bit-vector.
+    
+    \item
+    To update, e.g., inserting and deleting, we have to update the bit value in the bit array and the nodes above that position.
+\end{itemize}
+
+All the mentioned operations, except for searching, take $O(\log_2 u)$ time. 
+
+To improve this and achieve the sub-logarithmic running times, we superimpose a tree of degree of varying degree on the bit-vector. The value of root node will be the summary of the whole range. Its children will cover $u^{1/2}$, and its grandchildren $u^{1/4}$. This approach gives us the following recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$.
+
+The van Emde Boas tree is defined recursively, and each node contains the following:
+\begin{itemize}
+    \item
+    Its minimum.
+    
+    \item
+    Its maximum.
+    
+    \item
+    A
+    
+\end{itemize}
+
+This is a recursive data structure, which means that 
+look at the bit values in the bit-vector.
+The values of the nodes of the tree imposed on the bit-vector will be the bit-wise 
 
 \subsection{Fusion Trees}
 
@@ -194,7 +250,7 @@ Table~\ref{tab:dataStructComparison} is a summary of relevant data structures th
 \end{table}
 
 \newpage
-\section{Summary of techniques used in the present implementation}
+\section{Summary of techniques used in the present implementation} \label{sec:summaryOfTechniques}
 
 All of the algorithms presented in this section have been implemented as static functions in the {\ttfamily Util} class.
 
@@ -886,18 +942,43 @@ We will now run the algorithm for each of its branches. If the leading bit of th
     \end{enumerate}
 \end{itemize}
 
-\chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure}
+\chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure} \label{sec:implementationsChapter}
 
-% \subsection{Code base navigation}
+All the implementing classes described and discussed in this chapter can be found in the folder shown in figure~\ref{fig:implementationsFolderTree}.
 
-All the implementing classes described in this section can be found in the {\ttfamily src\textbackslash java\textbackslash integersets} folder. The files names are self-explanatory, e.g., the {\ttfamily BinarySearchTrie.java} file implements the {\ttfamily BinarySearchTrie} whereas {\ttfamily RankSelectPredecessorUpdate.java} implements the {\ttfamily RankSelectPredecessorUpdate} interface.
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 \textbf{integersets}. 
+}
+\caption{Location of the folder containing the implementations}
+\label{fig:implementationsFolderTree}
+\end{figure}
 
 Note that all the functions and implementations consider the integer keys as unsigned integers.
 
-\section{Utility functions}
+\section{Utility functions} \label{sec:utilFuctionsImplementation}
 
-This project features a class, {\ttfamily Util}, which implements static utility functions. Below find listed the functions included in this class, together with a brief explanation. The class also includes 32 and 64-bit versions for the input word, making the method signature different solely on the input word type.
+This project features a class, {\ttfamily Util}, which implements static utility functions. In can be found in the path specified in figure~\ref{fig:utilFunctionsTree}.
 For brevity, the 32-bit version is omitted.
+
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{Util.java}. 
+}
+\caption{Location of the {\ttfamily Util.java} file in the folder structure}
+\label{fig:utilFunctionsTree}
+\end{figure}
+
+Below find listed the functions included in this class, together with a brief explanation. The class also includes 32 and 64-bit versions for the input word, making the method signature different solely on the input word type.
 
 \subsection{Bit operations}
 The algorithms which these functions implement are described in Section~\ref{sec:bit}.
@@ -1117,7 +1198,21 @@ public static long[] distinctSortedLongs(final int n)
 \newpage
 \section{The {\ttfamily RankSelectPredecessorUpdate} interface}
 
-As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem. For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented with the method signatures and default methods:
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{RankSelectPredecessorUpdate.java}. 
+}
+\caption{Location of the {\ttfamily RankSelectPredecessorUpdate.java} file in the folder structure}
+\label{fig:RankSelectPredecessorUpdateTree}
+\end{figure}
+
+As stated in Section~\ref{sec:predecessorProblem}, the data structure presented in \cite{patrascu2014dynamic} solves the dynamic predecessor problem.
+For this reason, an interface denoted {\ttfamily RankSelectPredecessorUpdate} was implemented and it can be found in the path specified in figure~\ref{fig:RankSelectPredecessorUpdateTree}. It features the following the method signatures and default methods:
 \begin{itemize}
     \item
     The $\text{insert}(x)$ operation sets $S=S \cup \{x\}$ and it is to be implemented by a method with the signature:
@@ -1196,17 +1291,48 @@ void reset();
 
 Note that some of the methods return a primitive type, whereas some others return a boxed type. This is because some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such a situation, {\ttfamily null} is returned.
 
+\newpage
 \section{Naive implementation}
-We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}. It holds a $key$ array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
+
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{NaiveDynamicFusionNode.java}. 
+}
+\caption{Location of the {\ttfamily NaiveDynamicFusionNode.java} file in the folder structure}
+\label{fig:NaiveDynamicFusionNodeTree}
+\end{figure}
+
+We start with a naive implementation of name {\ttfamily NaiveDynamicFusionNode}, which follows closely the array approach mentioned in Section~\ref{sec:array}.
+It holds a $key$ array to store the keys, and a counter for the current number of keys in the data structure. The keys can be any 64-bit integer.
 
 The basic idea behind this implementation is to store the keys in $key$, making their respective rank the same as their index in that array. In other words, $key$ is always sorted.
 
 Updates, e.g., insert and delete, take $O(n)$ time. This is because whenever a key is inserted, its rank $i$ is found, and the key at that position as well as all following keys up to $n-1$ are updated. Since any given key index in $key$ is its rank, all the keys with rank larger than the new key have to be moved one position to the right in $key$ to make room for the new key and keeping rank consistent.
 
-A rank query takes $O(\log_2(n))$ because a binary search is performed on $key$. Select is faster: $O(1)$, because we need only to access and return the key at position $i$ in $key$ to fulfill the query.
+A rank query takes $O(\log_2 n)$ because a binary search is performed on $key$. Select is faster: $O(1)$, because we need only to access and return the key at position $i$ in $key$ to fulfill the query.
 
 \newpage
 \section{Dynamic Fusion Node with binary search for Rank} \label{sec:DynamicFusionNodeBinaryRank}
+
+This implementation can be found in the file highlighted in figure~\ref{fig:DynamicFusionNodeBinaryRankTree}.
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{DynamicFusionNodeBinaryRank.java}. 
+}
+\caption{Location of the {\ttfamily DynamicFusionNodeBinaryRank.java} file in the folder structure}
+\label{fig:DynamicFusionNodeBinaryRankTree}
+\end{figure}
+
 We take a step forward by improving the previous idea: this time, two additional words, $index$ and $bKey$, are kept in the fields. The goal is to use the concepts described in the \textit{Indexing} section of \cite{patrascu2014dynamic} to implement this data structure. The running times will be $O(\log_2 n)$ for updating and querying, and this is because the $rank$ operation resorts to binary search to produce the result.
 
 We interpret $bKey$ as an array where the values first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$, and if the $i^{th}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa.
@@ -1477,9 +1603,24 @@ We will now delete $x = -1000$, having as starting point the state the instance 
 \newpage
 \section{Rank via matching with "don't cares"} \label{sec:rankWithDontCares}
 
+
 Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}. By doing so, the data structure now supports queries and updates in $O(1)$ time.
 
 In this incremental step, we keep the most of the implementation details of \ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
+
+The implementation discussed in this section can be found in the file highlighted in figure~\ref{fig:DynamicFusionNodeBinaryRankTree}.
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{DynamicFusionNodeDontCaresRank.java}. 
+}
+\caption{Location of the {\ttfamily DynamicFusionNodeDontCaresRank.java} file in the folder structure}
+\label{fig:DynamicFusionNodeDontCaresRankTree}
+\end{figure}
 
 Enabling this operation entails the following:
 \begin{itemize}
@@ -1791,7 +1932,7 @@ As previously mentioned, the particular value of some of the bits at some positi
 \label{tab:compressedKeysWithDontCares}
 \end{table}
 
-In the data structure, this data is stored in the two class variables $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in the tables from figure \ref{fig:branchAndFreeCompressedKeys}.% tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
+In the data structure, this data is stored in the two class variables $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in the tables from figure~\ref{fig:branchAndFreeCompressedKeys}.% tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
 
 \begin{figure}[H]
 \centering
@@ -1988,7 +2129,22 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
 \newpage
 \section{Inserting while maintaining the compressed keys with "don't cares"} \label{sec:InsertDontCares}
 
-In this section, we will address how to maintain the compressed keys with "don't cares" when inserting a new key, as described in section \textit{Inserting a key} of \cite{patrascu2014dynamic}. We take another incremental on the implementations from Sections~\ref{sec:DynamicFusionNodeBinaryRank} and \ref{sec:rankWithDontCares}, keeping most of their details with the exception of the {\ttfamily insert} method. To this extent, we also add some new helper methods.
+In this section, we will address how to maintain the compressed keys with "don't cares" when inserting a new key, as described in section \textit{Inserting a key} of the \cite{patrascu2014dynamic} paper.
+We take another incremental on the implementations from Sections~\ref{sec:DynamicFusionNodeBinaryRank} and \ref{sec:rankWithDontCares}, keeping most of their details with the exception of the {\ttfamily insert} method.
+To this extent, we also add some new helper methods.
+The resulting implementation can be found in the file specified in figure~\ref{fig:DynamicFusionNodeDontCaresInsertTree}.
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{DynamicFusionNodeDontCaresInsert.java}. 
+}
+\caption{Location of the {\ttfamily DynamicFusionNodeDontCaresInsert.java} file in the folder structure}
+\label{fig:DynamicFusionNodeDontCaresInsertTree}
+\end{figure}
 
 The algorithm for inserting a key $x$ in the set while maintaining $branch$ and $free$ entails:
 \begin{itemize}
@@ -2359,6 +2515,7 @@ Inserting $x$ in the given set is comprised of the following:
         
         \item
         We compute $i_0$ and $i_1$, which are computed by calling $\text{match}(x \wedge \neg((1 \ll j) - 1))$ and $\text{match}(x \vee ((1 \ll j) - 1))$:
+        
         \begin{align*}
             j = 9 \\
             x = 100\underline{1}\ \underline{0101}\ \underline{0001}_2 \\
@@ -2509,11 +2666,38 @@ We now have to insert a row for the new key in $branch$ and $free$ and write its
 
 With $branch$ and $free$ now updated, we proceed with remaining insertion operations, which have been described in Section~\ref{sec:binaryRankInsert}.
 
-\chapter{Correctness tests}
+\chapter{Validation} \label{sec:validationChapter}
+
+mention what and which implementations pass which tests and why this shows that there is a certain degree of certainty that they are correct.
+
+This chapter describes the tests that have been implemented and conducted in order to assert the soundness of the implementations discussed in Chapter~\ref{sec:implementationsChapter}.
+The implementing classes can be found in the folder shown in figure~\ref{fig:testFolderTree}.
+\begin{figure}[H]
+    \dirtree{%
+    .1 /. 
+    .2 src. 
+    .3 test. 
+    .4 \textbf{java}. 
+    }
+    \caption{Location of the testing classes folder}
+    \label{fig:testFolderTree}
+\end{figure}
 
 \section{{\ttfamily Util} class tests}
 
-All the tests concerning the {\ttfamily Util} class can be found in the {\ttfamily UtilTest} class in the {\ttfamily src\textbackslash test\textbackslash java} folder.
+All the tests concerning the {\ttfamily Util} class can be found in the {\ttfamily UtilTest.java} file, whose path is shown in figure~\ref{fig:utilTestTree}.
+
+\begin{figure}[H]
+    \dirtree{%
+    .1 /. 
+    .2 src. 
+    .3 test. 
+    .4 java. 
+    .5 \textbf{UtilTest.java}. 
+    }
+    \caption{Location of the file containing the test for the {\ttfamily Util} class}
+    \label{fig:utilTestTree}
+\end{figure}
 
 \subsection{msb series tests}
 
@@ -2570,17 +2754,36 @@ A pass in this test consists of:
     Lastly, the rank of $x$, which has been computed before, is compared with its rank computed via the {\ttfamily rankLemma1} function.
 \end{enumerate}
 
+\newpage
 \section{Integer Data Structure tests} \label{sec:IntegerDataStructureTests}
 
-Each implementation of {\ttfamily RankSelectPredecessorUpdate} has a corresponding test class, which in turn has {\ttfamily Test} appended to its name. For example, the {\ttfamily BinarySearchTrie} test class is called {\ttfamily BinarySearchTrieTest} and it can be found in the {\ttfamily src\textbackslash test\textbackslash java} folder.
+Each implementing class of the {\ttfamily RankSelectPredecessorUpdate} interface has a corresponding test class. The file names of those classes are the highlighted in figure~\ref{fig:implementingClassesTestFilesTree}.
 
-\subsection{Test parameters}
+\begin{figure}[H]
+    \dirtree{%
+    .1 /. 
+    .2 src. 
+    .3 test. 
+    .4 java. 
+    .5 \textbf{DynamicFusionNodeBinaryRankTest.java}. 
+    .5 \textbf{DynamicFusionNodeDontCaresInsertTest.java}. 
+    .5 \textbf{DynamicFusionNodeDontCaresRankTest.java}. 
+    .5 \textbf{NaiveDynamicFusionNodeTest.java}. 
+    }
+    \caption{Location of the testing class files of the {\ttfamily RankSelectPredecessorUpdate} implementing classes}
+    \label{fig:implementingClassesTestFilesTree}
+\end{figure}
 
-Each test class creates an instance of {\ttfamily RankSelectPredecessorUpdateTest} whose methods take a concrete implementation of {\ttfamily RankSelectPredecessorUpdate} to be tested. The constructor takes the following parameters:
+\subsection{Test helper class}
 
+In order to avoid duplicate code, a helper class, denoted {\ttfamily RankSelectPredecessorUpdateTest}, was implemented. It can be found in the same folder as the remaining test classes, as shown in figure~\ref{fig:implementingClassesTestFilesTree}.
+
+Each of the implementation's testing classes creates an instance of the helper class and uses its methods to test its respective implementation.
+
+The {\ttfamily RankSelectPredecessorUpdateTest} constructor takes the following parameters:
 \begin{itemize}
     \item {\ttfamily long seed}. This seed is used as a parameter for instantiating a pseudo-random generator from the Java standard library --- {\ttfamily java.util.Random}. This instance will be later used to produce data for the test cases, such as seeds for passes (explained below), which in turn will produce keys to be used in the tests.
-    \item {\ttfamily int passes}. Some tests can be executed in more than one pass. A pass in a particular test consists of generating data with its corresponding seed and running the test with that data. When $passes > 1$, then different seeds are generated, which will result in different pseudo-random values, and the test is run {\ttfamily passes} number of times.
+    \item {\ttfamily int passes}. Some tests can be executed in more than one pass. A pass in a particular test consists of generating data with its corresponding seed and running the test with that data. When $passes > 1$, different seeds are generated, resulting in different pseudo-random values, and the test is run {\ttfamily passes} number of times.
     \item {\ttfamily int numKeys}. This parameter defines the size of the data set to be generated. It is particular important for testing for instance {\ttfamily DynamicFusionNode}, which size cannot exceed $k$.
 \end{itemize}
 
@@ -2596,11 +2799,11 @@ It is defined that:
     \item
     Select queries can range between $0$ and $|S|-1$. Should any query fall outside this range, then {\ttfamily null} is returned, meaning, no result.
     \item
-    $Select(0) = min\{y \in S \}$.
+    $\text{select}(0) = \text{min}\{y \in S \}$.
     \item
-    $Select(|S|-1) = max\{y \in S\}$.
+    $\text{select}(|S|-1) = \text{max}\{y \in S\}$.
     \item
-    Rank queries be any $w$-bit integer, and their possible range of results $\big[ 0, |S| \big]$
+    Rank queries can be any $w$-bit integer, and their possible range of results $\in \big[ 0, |S| \big]$
     \item
     Any given predecessor query returns the largest key in the subset of keys that are \textbf{strictly} smaller than the query, otherwise {\ttfamily null}.
     \item
@@ -2691,7 +2894,3 @@ This test aims at ensuring that the following property holds for all the keys in
 \subsection{{\ttfamily rankOfSelectTest()}}
 
 This test aims at ensuring that the following property holds for all the keys in the set: the rank of select a query is the query. It can be executed in passes, and it works by iterating from {\ttfamily 0} to {\ttfamily numKeys}. At each iteration {\ttfamily i}, it is asserted that {\ttfamily i == rank(select(i))}.
-
-\chapter{Validation}
-
-mention what and which implementations pass which tests and why this shows that there is a certain degree of certainty that they are correct.

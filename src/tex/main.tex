@@ -1,5 +1,3 @@
-%%% File encoding is ISO-8859-1 (also known as Latin-1)
-%%% You can use special characters just like �,� and �
 %%% LaTeX template by Manuel Kuehner, 2015
 
 %%% If you use this template then please give credit like this:
@@ -14,16 +12,16 @@
 %
 
 % Documentclass definition
-\input{01_Preamble/documentclass.tex}
+\input{src/tex/01_Preamble/documentclass.tex}
 
 % Loading additional packages from the KOMA-Script family
-\input{01_Preamble/KOMA-Script-Packages.tex}
+\input{src/tex/01_Preamble/KOMA-Script-Packages.tex}
 
 % Page layout definition
-\input{01_Preamble/PageLayout.tex}
+\input{src/tex/01_Preamble/PageLayout.tex}
 
 % Standard packages
-\input{01_Preamble/CommonPackages.tex}
+\input{src/tex/01_Preamble/CommonPackages.tex}
 
 % ####-Important-####
 %
@@ -47,16 +45,16 @@
 % - List of Figures
 % - List of Tables
 % - Headings (like chapter, section, etc.)
-\input{01_Preamble/Floating-AND-TOC-AND-ListOf-AND-Headings.tex}
+\input{src/tex/01_Preamble/Floating-AND-TOC-AND-ListOf-AND-Headings.tex}
 
 % Customization of the header, footer and teh margin note
-\input{01_Preamble/HeaderFooterMarginnote.tex}
+\input{src/tex/01_Preamble/HeaderFooterMarginnote.tex}
 
 % Optimize paragraphs (avoid overfull... warnings)
-\input{01_Preamble/ParagraphOptimization.tex}
+\input{src/tex/01_Preamble/ParagraphOptimization.tex}
 
 % PDF related packages
-\input{01_Preamble/PDF-Related.tex}
+\input{src/tex/01_Preamble/PDF-Related.tex}
 
 % PDF related packages
 % \input{01_Preamble/RandomTextPackage.tex}
@@ -74,7 +72,7 @@
 \begin{document}
 
 % Title page
-\input{02_Chapters/00_TitlePage.tex}
+\input{src/tex/02_Chapters/00_TitlePage.tex}
 % Empty page after title page
 \cleardoublepage
 
@@ -92,38 +90,39 @@
 % \input{02_Chapters/01_Prologue.tex}
 
 % Aknowledgments
-\input{02_Chapters/01_Aknowledgments.tex}
+\input{src/tex/02_Chapters/01_Aknowledgments.tex}
 
 % Abstract
-\input{02_Chapters/02_Abstract.tex}
+\input{src/tex/02_Chapters/02_Abstract.tex}
 
 % Table of Contents and Lost of Figures/Tables
-\input{02_Chapters/04_TOC-AND-ListOf.tex}
+\input{src/tex/02_Chapters/04_TOC-AND-ListOf.tex}
 
 % Introduction
-\chapter{Introduction} % this had to be moved here due to page numbering issues
+\chapter{Introduction} \label{sec:introductionChapter}
+% this had to be moved here due to page numbering issues
 % Activate arabic numbering (e. g. 12)	
 \pagenumbering{arabic}
 % Restart the page counting
 \setcounter{page}{1}
-\input{02_Chapters/10_Introduction.tex}
+\input{src/tex/02_Chapters/10_Introduction.tex}
 
 % Main Parts
-\input{02_Chapters/11_Implementation.tex}
+\input{src/tex/02_Chapters/11_Implementation.tex}
 % \input{02_Chapters/12_Evaluation.tex}
 
 % Final Thoughts
-\input{02_Chapters/13_FinalThoughts.tex}
+\input{src/tex/02_Chapters/13_FinalThoughts.tex}
 
 % References
 \bibliographystyle{apalike}
-\bibliography{05_Bibliography/references.bib}
+\bibliography{src/tex/05_Bibliography/references.bib}
 
 % Start appendix
 \appendix
 
 % Appendix A
-\input{02_Chapters/90_Appendix.tex}
+\input{src/tex/02_Chapters/90_Appendix.tex}
 
 % Appendix B
 % \input{02_Chapters/91_AppendixExampleChapterB.tex}
