@@ -7,6 +7,19 @@ This appendix features some additional data structures that have been either ent
 
 \section{{\ttfamily BitsKey}}
 
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{BitsKey.java}. 
+}
+\caption{Location of the {\ttfamily BitsKey.java} file in the folder structure}
+\label{fig:BitsKeyTree}
+\end{figure}
+
 The {\ttfamily BitsKey} implementation consists of a simple helper class that stores a {\ttfamily long} value and offers some useful functions such as:
 \begin{itemize}
     \item
@@ -19,17 +32,57 @@ The {\ttfamily BitsKey} implementation consists of a simple helper class that st
     {\ttfamily boolean equals(final BitsKey that)} returns a {\ttfamily boolean} value that is {\ttfamily true} if and only if the values of the two instances are the same; and {\ttfamily false} otherwise.
 \end{itemize}
 
-This helper class is used in the implementations below.
+This implementation can be found in the file highlighted in figure~\ref{fig:BitsKeyTree} and it is used as a helper class in following implementations.
 
 \section{Additional Dynamic Predecessor Problem data structures}
 
 \subsection{Binary search trie}
-The {\ttfamily BinarySearchTrie.java} file features a fully functioning implementation of a Binary Search Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}. This implementation implements the project's {\ttfamily RankSelectPredecessorUpdate} interface, which means that it has been expanded to answer dynamic predecessor problem queries. It has also been put through correctness tests as described in Section~\ref{sec:IntegerDataStructureTests}, passing all instances.
+
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{BinarySearchTrie.java}. 
+}
+\caption{Location of the {\ttfamily BinarySearchTrie.java} file in the folder structure}
+\label{fig:BinarySearchTrieTree}
+\end{figure}
+
+The {\ttfamily BinarySearchTrie.java} file, located in the path shown in figure~\ref{fig:BinarySearchTrieTree}, features a fully functioning implementation of a Binary Search Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}. This implementation implements the project's {\ttfamily RankSelectPredecessorUpdate} interface, which means that it has been expanded to answer dynamic predecessor problem queries. It has also been put through correctness tests as described in Section~\ref{sec:IntegerDataStructureTests}, passing all instances.
 
 \subsection{Patricia trie} \label{sec:PatriciaTrieImplementation}
 
-The {\ttfamily PatriciaTrie.java} features an implementation of a Patricia Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}, but it is missing the {\ttfamily rank} and {\ttfamily select} methods. It includes an overridden {\ttfamily member} method. In total, it supports insertion, deletion, and membership queries. For this reason, it does not pass all test instances from Section~\ref{sec:IntegerDataStructureTests}, but with the missing methods implemented, it is a valid data structure to be benchmarked with the other data structures mentioned in this paper.
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{PatriciaTrie.java}. 
+}
+\caption{Location of the {\ttfamily PatriciaTrie.java} file in the folder structure}
+\label{fig:PatriciaTrieTree}
+\end{figure}
+
+The {\ttfamily PatriciaTrie.java} file, located in the path shown in figure~\ref{fig:PatriciaTrieTree}, features an implementation of a Patricia Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}, but it is missing the {\ttfamily rank} and {\ttfamily select} methods. It includes an overridden {\ttfamily member} method. In total, it supports insertion, deletion, and membership queries. For this reason, it does not pass all test instances from Section~\ref{sec:IntegerDataStructureTests}, but with the missing methods implemented, it is a valid data structure to be benchmarked with the other data structures mentioned in this paper.
 
 \subsection{Non-recursive Patricia trie}
 
-Recursion can be slow \cite{shirazi2003java}. For this reason, we adapted a non-recursive implementation of a Patricia Trie from \cite{patriciaSET} to store instances of our custom class {\ttfamily BitsKey} at their nodes instead of {\ttfamily String}s. This implementation is featured in the {\ttfamily NonRecursivePatriciaTrie.java} file, and it lacks the {\ttfamily rank} and {\ttfamily select} methods in order to solve the dynamic predecessor problem. Like the recursive Patricia Trie implementation mentioned in Section~\ref{sec:PatriciaTrieImplementation}, it supports insertion, deletion, and membership queries, but the missing methods make some of the test instances from Section~\ref{sec:IntegerDataStructureTests} fail. Implementing the missing methods makes this data structure another interesting instance to be benchmarked with the other data structures mentioned in this paper.
+\begin{figure}[H]
+\dirtree{% 
+.1 /. 
+.2 src. 
+.3 main. 
+.4 java. 
+.5 integersets. 
+.6 \textbf{NonRecursivePatriciaTrie.java}. 
+}
+\caption{Location of the {\ttfamily NonRecursivePatriciaTrie.java} file in the folder structure}
+\label{fig:NonRecursivePatriciaTrieTree}
+\end{figure}
+
+Recursion can be slow \cite{shirazi2003java}. For this reason, we adapted a non-recursive implementation of a Patricia Trie from \cite{patriciaSET} to store instances of our custom class {\ttfamily BitsKey} at their nodes instead of {\ttfamily String}s. This implementation is featured in the {\ttfamily NonRecursivePatriciaTrie.java} file, located in the path shown in figure~\ref{fig:NonRecursivePatriciaTrieTree}, and it lacks the {\ttfamily rank} and {\ttfamily select} methods in order to fully solve the dynamic predecessor problem. Like the recursive Patricia Trie implementation mentioned in Section~\ref{sec:PatriciaTrieImplementation}, it supports insertion, deletion, and membership queries, but the missing methods make some of the test instances from Section~\ref{sec:IntegerDataStructureTests} fail. Implementing the missing methods makes this data structure another interesting instance to be benchmarked with the other data structures mentioned in this paper.

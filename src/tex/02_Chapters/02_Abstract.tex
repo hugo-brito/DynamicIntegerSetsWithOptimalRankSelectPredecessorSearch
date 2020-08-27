@@ -2,7 +2,7 @@
 % \addchap is a command from KOMA-Script
 \addchap{Abstract}
 
-This thesis investigates the theoretical data structure presented in the "Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search" paper, authored by Pătrașcu and Thorup.
+This thesis investigates the theoretical data structure presented in the «Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search» paper, authored by Pătrașcu and Thorup.
 The authors claim that their proposal solves the dynamic predecessor problem optimally. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, evaluating its soundness.
 Their proposal is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thoru), which in the word-RAM model take $O(1)$ time.
 
@@ -19,8 +19,6 @@ Chapter~\ref{sec:conclusionChapter} concludes the project, leaving some remarks 
 Up to the point where this project ends, Pătrașcu and Thorup's proposal seems sound, as we have been able to implement their data structure proposal using only $O(1)$ operations of the word-RAM model. In Section~\ref{sec:futureWork} we highlight the required steps to conclude the implementation.
 
 The Java programming language is used throughout the project, and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under a MIT License.
-
-% 1 paragrah: short conclusion
 
 \paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bit-wise Operations, Most Significant Set Bit, Parallel Comparison, Dynamic Fusion Node.
 
