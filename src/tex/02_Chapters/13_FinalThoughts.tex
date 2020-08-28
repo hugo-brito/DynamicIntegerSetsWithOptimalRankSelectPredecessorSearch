@@ -1,10 +1,20 @@
 \chapter{Conclusion} \label{sec:conclusionChapter}
 
-What has been done. don't forget to add file structure in the appendix.
+We conclude this report by highlighting the contributions of this project:
+\begin{itemize}
+    \item
+    Within the scope defined in Section~\ref{sec:scope}, we have explained the data structure presented in \cite{patrascu2014dynamic}, together with helper functions and algorithms. This has been complemented with illustrative examples.
+    
+    \item
+    We have implemented and documented the data structure, making it publicly available for future work.
+    
+    \item
+    We have listed other data structures that are of interest within the context of the dynamic predecessor problem, pointing to future work in the form of benchmarks.
+\end{itemize}
 
-\section{Final Remarks}
+\section{Final Remark}
 
-my conclusion: a balance between storing more stuff and querying faster, or store close to nothing but longer queries. Query fast but store the least possible
+When developing and implementing logarithmic and sub-logarithmic data structures and algorithms, there is a fine balance between space and time consumption. For example, van Emde Boas trees is a very fast data structure, but with a big space consumption drawback. Fusion trees improve on space consumption, but updates take excessive time. Dynamic Fusion trees, introduced in this project, seem to find the perfect balance between space and time consumption.
 
 \section{Future Work} \label{sec:futureWork}
 In this section, we leave some suggestions on how further work on this topic can be conducted. We have split these into three main categories:

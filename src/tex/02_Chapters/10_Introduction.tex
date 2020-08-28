@@ -6,7 +6,7 @@ The authors claim that their proposal solves the dynamic predecessor problem opt
 Fusion Nodes compute static predecessor queries in $O(1)$ time \cite{fredman1993surpassing}, but updates may entail recomputing the instance variables, making such operation to take polynomial time.
 It is stated that, for this reason, fusion trees only solve the static predecessor problem \cite{nelsonjelanilec2}.
 Pătrașcu and Thorup address this by improving on how the keys in the set are compressed, allowing them to be computed and queried in $O(1)$ time for sets of size $n = w^{O(1)}$, e.g., the \textit{dynamic fusion node} \cite{patrascu2014dynamic}.
-This is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression, and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which in the word-RAM model take $O(1)$ time.
+This is made possible due to the smart use of techniques such as bitwise tricks, word-level parallelism, key compression, and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which in the word-RAM model take $O(1)$ time.
 
 \section{Context}
 

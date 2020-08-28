@@ -118,8 +118,8 @@ This model gets its name because it relates two dichotomies: problem size $n$; a
 Like the trans-dichotomous RAM model, the word RAM also operates with fixed size $w$-bit words. Additionally, the following operations have an associated cost \cite{nelsonjelanilec1}:
 \begin{itemize}
     \item Integer arithmetic (addition $+$, subtraction $-$, multiplication $\times$, division $\div$ and remainder of division (modulo) $\bmod$);
-    \item Bit-wise operations (negation $\neg$, and $\wedge$, or $\vee$, exclusive or $\oplus$);
-    \item Bit-wise shifting operations (right bit-shift $\gg$, left bit-shift $\ll$).
+    \item Bitwise operations (negation $\neg$, and $\wedge$, or $\vee$, exclusive or $\oplus$);
+    \item Bitwise shifting operations (right bit-shift $\gg$, left bit-shift $\ll$).
 \end{itemize}
 
 \newpage
@@ -155,13 +155,13 @@ Updates consist of:
     Once the rightful place of the key in the tree is found, a $O(1)$ number of operations take place in order to maintain the invariant of the tree. 
 \end{enumerate}
 
-Another advantage of this data structure is that, since the elements are sorted internally, select and rank queries can be trivially implemented by storing the size of each sub-tree at every node, which is then used to compute the result from those queries.
+Another advantage of this data structure is that, since the elements are sorted internally, select and rank queries can be trivially implemented by storing the size of each subtree at every node, which is then used to compute the result from those queries.
 
 \subsection{Binary Search Tries}
 
 The previous two data structures use comparison-based algorithms to order the keys internally, e.g., searching entails comparing the keys' full length.
 Radix algorithms take a different approach by examining portions of the key.
-Tries are radix-based data structures where the path from the root to a particular node is the prefix of the keys stored at the sub-tree rooted at that node.
+Tries are radix-based data structures where the path from the root to a particular node is the prefix of the keys stored at the subtree rooted at that node.
 In this context, we will use them to store words (as defined in Section~\ref{sec:word}), but they can be used to store other types of data, for instance, strings, which can be of fixed or variable length.
 The chosen radix is related to the data we want to store in the trie: for instance, when storing strings written with the English alphabet, the radix is 26, whereas in our case, base two integers, the radix is 2. Bitwise tries can also denote tries of radix two.
 
@@ -187,37 +187,32 @@ They achieve this by allowing the internal nodes to store keys and by compressin
 Each node will have an associated index of branching bit stored: this allows us to skip the bits that belong to shared prefixes, fast forwarding to the branching bits.
 The result is a trie with exactly as many nodes as there are keys, which also improves the worst running times of updating and querying from $O(w)$ to $O(\log_2 n)$.
 
-\subsection{van Emde Boas Tree}
+\subsection{van Emde Boas Trees}
 
 The van Emde Boas tree (vEB) data structure, despite its excessive space consumption ($O(u)$), introduces a big running time improvement, as all queries take $O(\log_2 w)$.
-If, as discussed in Section~\ref{sec:word}, $u = 2^w$ is the size of universe of keys we can store in this data structure, then we can also express the running time as being $O(\log_2(\log_2 u))$.
+If, as discussed in Section~\ref{sec:word}, $u = 2^w$ is the size of the universe of keys we can store in this data structure, then we can also express the running time as being $O(\log_2(\log_2 u))$.
 This means that queries are now sub-logarithmic, a substantial improvement from all the data structures we have seen so far.
-
-This data structure is defined recursively, and its running time given by the recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$.
-A vEB tree stores 
-
-nice and summary slides from DTU: http://www2.compute.dtu.dk/courses/02282/2016/predecessor/predecessor1x1.pdf
 
 The intuition behind this data structure is to superimpose a binary tree structure on a bit vector.
 The bit values in this bit-vector will be $0$ if the key at that index is not in the set, and $1$ otherwise.
 To build the binary tree, we assume that each position of the bit vector is a leaf.
-To compute the parent nodes, we take the bit-wise $\vee$ of each consecutive pair of positions.
+To compute the parent nodes, we take the bitwise $\vee$ of each consecutive pair of positions.
 We then do the same for the next level, taking the nodes that we just computed as the children, repeating until we reach the root.
-If the set contains at least one key, then the value at the root will be $1$; otherwise it will be $0$.
-This rule applies also to each of the sub-trees.
+If the set contains at least one key, then the value at the root will be $1$; otherwise, it will be $0$.
+This rule also applies to each of the subtrees.
 On this preliminary example:
 \begin{itemize}
     \item
-    To find the minimum, starting at the root, we traverse the tree by taking always the left child, if that node is $1$, otherwise we take the right child.
+    To find the minimum, starting at the root, we traverse the tree by always taking the left child if that node is $1$. Otherwise, we take the right child.
     
     \item
     To find the maximum, we do the same as in finding the minimum, but giving preference to the right child.
     
     \item
-    To find the successor, we would start at the leaf node of our query and go up the tree until we find a node whose right child we have not visited and whose value is $1$. The successor of our query is the minimum of the sub-tree rooted at that node.
+    To find the successor, we would start at the leaf node of our query and go up the tree until we find a node whose right child we have not visited and whose value is $1$. The successor of our query is the minimum of the subtree rooted at that node.
     
     \item
-    Finding the predecessor will be similar to the successor: we find the maximum of the sub-tree whose root's left child we have not visited and has value $1$, when going up the tree from the query's leaf node.
+    Finding the predecessor will be similar to the successor: we find the maximum of the subtree whose root's left child we have not visited and had the value $1$ when going up the tree from the query's leaf node.
     
     \item
     Searching is done in $O(1)$ time, as we have direct access to the bit-vector.
@@ -228,24 +223,9 @@ On this preliminary example:
 
 All the mentioned operations, except for searching, take $O(\log_2 u)$ time. 
 
-To improve this and achieve the sub-logarithmic running times, we superimpose a tree of degree of varying degree on the bit-vector. The value of root node will be the summary of the whole range. Its children will cover $u^{1/2}$, and its grandchildren $u^{1/4}$. This approach gives us the following recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$.
+To improve this and achieve the sub-logarithmic running times, we superimpose a tree of varying degrees on the bit-vector. The value of the root node will be the summary of the whole range. Its children will cover $u^{1/2}$, and its grandchildren $u^{1/4}$. If at each level we store the minimum, the maximum, and a summary of the vEB trees below, we know that queries will take $O(\sqrt{w})$ plus a constant number of operations, $O(1)$. Thus we have the following recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$, resulting in a running time for the whole tree of $O(\log_2(\log_2 u))$.
 
-The van Emde Boas tree is defined recursively, and each node contains the following:
-\begin{itemize}
-    \item
-    Its minimum.
-    
-    \item
-    Its maximum.
-    
-    \item
-    A
-    
-\end{itemize}
-
-This is a recursive data structure, which means that 
-look at the bit values in the bit-vector.
-The values of the nodes of the tree imposed on the bit-vector will be the bit-wise 
+As mentioned, van Emde Boas trees have the space complexity drawback: $O(u)$. This is due to the bit-vectors used, which in total have space for all the possible keys in the universe.
 
 \subsection{Fusion Trees}
 
@@ -272,7 +252,7 @@ All of the algorithms presented in this section have been implemented as static 
 
 \subsection{Bit operations} \label{sec:bit}
 
-Let $A$ be a $w$-bit length word. This section features a set of functions that operate on $A$'s bits. Since these operations only use bit-wise shifting and masking, all the algorithms presented in this section take $O(1)$ time.
+Let $A$ be a $w$-bit length word. This section features a set of functions that operate on $A$'s bits. Since these operations only use bitwise shifting and masking, all the algorithms presented in this section take $O(1)$ time.
 
 \subsubsection{Is the bit set}
 
@@ -336,7 +316,7 @@ Example:
 
 \subsection{Masks} \label{sec:masks}
 
-Pătrașcu and Thorup refer constants that we will denote by masks, which are useful for bit-wise operations. In this section, we will see how we can compute them.
+Pătrașcu and Thorup refer constants that we will denote by masks, which are useful for bitwise operations. In this section, we will see how we can compute them.
 
 \begin{itemize}
     \item
@@ -372,12 +352,13 @@ Pătrașcu and Thorup refer constants that we will denote by masks, which are us
         &= \neg0000\ 0000\ 0000\ 1111_2\\
         &= \underbrace{1111\ 1111\ 1111}_{w-j}\ \underbrace{0000}_{j}{}_2
     \end{align*}
+    Note that when $j = w$, then this mask is simply $0$.
 \end{itemize}
 
 \subsection{Fields of words} \label{sec:fieldsOfWords}
 
 We follow the definitions from \cite{patrascu2014dynamic} in regards to viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is comprised of fields, analogously to bit indexing of a word, its least significant field is the rightmost one, denoted $A\langle0\rangle_f$; its most significant field is the leftmost one, denoted $A\langle \lfloor w/f \rfloor \rangle_f$, and so on.
-Note that the functions presented in this section consist of simple bit-wise shifting and masking with the expressions defined in \ref{sec:masks}. Regarding running times, all these algorithms take $O(1)$ time.
+Note that the functions presented in this section consist of simple bitwise shifting and masking with the expressions defined in \ref{sec:masks}. Regarding running times, all these algorithms take $O(1)$ time.
 
 \subsubsection{Field retrieval} \label{sec:fieldRetrieval}
 
@@ -497,7 +478,7 @@ Let $x$ be the query for the most significant set bit:
     We divide $x$ in $\sqrt{w}$ fields of $\sqrt{w}$ bits. The goal is to \textit{summarize} the fields in $x$ such that if a field is not empty, then its summary is $1$, and it is $0$ otherwise.
     
     \item
-    We \textit{compress} the summary such that it fits in a single $\sqrt{w}$-bit field. A bit-wise shift operation is also carried in order to compute a word containing the resulting summary on its least significant field.
+    We \textit{compress} the summary such that it fits in a single $\sqrt{w}$-bit field. A bitwise shift operation is also carried in order to compute a word containing the resulting summary on its least significant field.
     
     \item \label{blt:O1parallel3}
     Then we do \textit{parallel comparison} of the summary word to find the first non-empty field of $x$, because it will be on that field that containg the most significant bit of $x$.
@@ -689,7 +670,7 @@ After learning in which field lies the most significant bit, we now run the same
 
 \begin{enumerate}
     \item
-    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $f_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and bit-wise $\wedge$ the result with a mask for this purpose.
+    We start by extracting the field from our query $x$. Let $i$ be the result returned from \ref{sec:parallel}, e.g. the index of the field. We extract $f_i$ by shifting $(\sqrt{w} - 1 - i)$ fields in $x$ to the right and bitwise $\wedge$ the result with a mask for this purpose.
     \begin{align*}
         x = \underline{0101}\ 0000\ 1000\ 1101_2 &\\
         Mask_3 = (1 \ll \sqrt{w}) - 1 = 0000\ 0000\ 0000\ 1111_2 &\\
@@ -967,7 +948,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
     \end{enumerate}
 \end{itemize}
 
-\chapter{Implementation of theoretically optimal dynamic rank, select, and predecessor data structure} \label{sec:implementationsChapter}
+\chapter{Implementations} \label{sec:implementationsChapter}
 
 All the implementing classes described and discussed in this chapter can be found in the folder shown in figure~\ref{fig:implementationsFolderTree}.
 
@@ -1317,7 +1298,10 @@ void reset();
 Note that some of the methods return a primitive type, whereas some others return a boxed type. This is because some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such a situation, {\ttfamily null} is returned.
 
 \newpage
-\section{Naive implementation}
+\section{Naive implementation} \label{sec:naiveImplementation}
+
+\paragraph*{Goal}
+To implement a naive dynamic predecessor data structure with an array.
 
 \begin{figure}[H]
 \dirtree{% 
@@ -1343,6 +1327,9 @@ A rank query takes $O(\log_2 n)$ because a binary search is performed on $key$. 
 
 \newpage
 \section{Dynamic Fusion Node with binary search for Rank} \label{sec:DynamicFusionNodeBinaryRank}
+
+\paragraph*{Goal}
+To improve the time performance of the implementation presented in Section~\ref{sec:naiveImplementation} by adding instance variables that enable indexing the keys by their rank. By doing so, updates and rank queries now take $O(\log_2 n)$ time. Select takes $O(1)$ time.
 
 This implementation can be found in the file highlighted in figure~\ref{fig:DynamicFusionNodeBinaryRankTree}.
 \begin{figure}[H]
@@ -1427,7 +1414,7 @@ private int n;
     
     \item
     The purpose of the overloaded method {\ttfamily updateIndex} is to maintain the correspondence between the rank of the keys in the set and their position in $key$.
-    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the $\text{getFields}$ methods with the adequate parameters, merge the results with bit-wise $\vee$ and write those back in $index$.
+    The version with {\ttfamily updateIndex(final int i)} signature removes rank $i$ from $index$, whereas the {\ttfamily updateIndex(final int i, final int slot)} inserts in $index$ at position $i$ the index in $key$ (here denoted by $slot$). Both versions make calls to the $\text{getFields}$ methods with the adequate parameters, merge the results with bitwise $\vee$ and write those back in $index$.
     
     \item
     {\ttfamily binaryRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily select(final long rank)} as a subroutine. As the name implies, the algorithm used in this implementation is binary search.
@@ -1629,13 +1616,11 @@ We will now delete $x = -1000$, having as starting point the state the instance 
     Lastly, we decrement the instance variable $n$.
 \end{enumerate}
 
-
-
-
-
 \newpage
 \section{Rank via matching with "don't cares"} \label{sec:rankWithDontCares}
 
+\paragraph*{Goal}
+Having the implementation from Section~\ref{sec:DynamicFusionNodeBinaryRank} as a starting point, the goal is to implement rank queries while via matching with "don't cares". Rank will now take $O(k)$ time and this is due to a subroutine, {\ttfamily match}, which at this stage is computed naively. Select keeps its $O(1)$ time, whereas updates now take $O(k\cdot n)$ because the instance variables introduces in this implementation are maintained naively.
 
 Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}. By doing so, the data structure now supports queries and updates in $O(1)$ time.
 
@@ -2020,7 +2005,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $\hat x^k \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise $\wedge$ tables \ref{tab:xCompressedCopied} and \ref{tab:freeTable} we have:
+        We compute $\hat x^k \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bitwise $\wedge$ tables \ref{tab:xCompressedCopied} and \ref{tab:freeTable} we have:
         \begin{table}[H]
         \centering
         \input{04_Tables/010_xCompressedANDfree.tex}
@@ -2029,7 +2014,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $branch \vee (\hat x^k \wedge free)$, which is done by bit-wise $\vee$ tables~\ref{tab:branchTable} and \ref{tab:xCompressedANDfree}. This operation will use the actual bits of $\hat x^k$ in the "don't cares" positions of all the compressed keys with "don't cares" in the set. Thus we end up with:
+        We compute $branch \vee (\hat x^k \wedge free)$, which is done by bitwise $\vee$ tables~\ref{tab:branchTable} and \ref{tab:xCompressedANDfree}. This operation will use the actual bits of $\hat x^k$ in the "don't cares" positions of all the compressed keys with "don't cares" in the set. Thus we end up with:
         \begin{table}[H]
         \centering
         \input{04_Tables/011_branchORxCompressedANDfree.tex}
@@ -2129,7 +2114,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         
         \item
         
-        We compute $\hat x^k_m \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bit-wise $\wedge$ the tables \ref{tab:xMaskedCompressedCopied} and \ref{tab:freeTable} we have:
+        We compute $\hat x^k_m \wedge free$, which keeps only the "don't cares" bits in $\hat x^k$. By bitwise $\wedge$ the tables \ref{tab:xMaskedCompressedCopied} and \ref{tab:freeTable} we have:
         \begin{table}[H]
         \centering
         \input{04_Tables/013_freeANDxMaskedCompressedCopied.tex}
@@ -2138,7 +2123,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \end{table}
         
         \item
-        We compute $branch \vee (\hat x^k_m \wedge free)$, which is done which bit-wise $\vee$ tables~\ref{tab:branchTable} and \ref{tab:freeANDxMaskedCompressedCopied}. This will project the bits of $\hat x^k_m$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
+        We compute $branch \vee (\hat x^k_m \wedge free)$, which is done which bitwise $\vee$ tables~\ref{tab:branchTable} and \ref{tab:freeANDxMaskedCompressedCopied}. This will project the bits of $\hat x^k_m$ in the "don't cares" positions of all the compressed keys in the set. Thus we end up with:
         \begin{table}[H]
         \centering
         \input{04_Tables/014_branchORfreeANDxMCopied.tex}
@@ -2163,6 +2148,9 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
 
 \newpage
 \section{Inserting while maintaining the compressed keys with "don't cares"} \label{sec:InsertDontCares}
+
+\paragraph*{Goal}
+Having the implementation from Section~\ref{sec:rankWithDontCares} as a starting point, the goal is to improve the insert method such that $branch$ and $free$ are maintained using the algorithm described in \cite{patrascu2014dynamic} for this effect. Rank queries keep their $O(k)$; and select queries keep their $O(1)$ time. Inserting is bound by the running time of one of its subroutines, which takes $O(k)$ time (the running time of this operation is addressed at a later section of \cite{patrascu2014dynamic}). Apart from that, all the insert algorithm steps take $O(1)$ time. Delete is kept unaltered.
 
 In this section, we will address how to maintain the compressed keys with "don't cares" when inserting a new key, as described in section \textit{Inserting a key} of the \cite{patrascu2014dynamic} paper.
 We take another incremental on the implementations from Sections~\ref{sec:DynamicFusionNodeBinaryRank} and \ref{sec:rankWithDontCares}, keeping most of their details with the exception of the {\ttfamily insert} method.
@@ -2616,7 +2604,7 @@ Inserting $x$ in the given set is comprised of the following:
     \end{itemize}
 
     \item
-    We call the function {\ttfamily matrixMRowRange($i_0$, $i_1$)} which returns a mask comprised of the range of rows $\{ i_0, \dots, i_1 \}$. Bit-wise $\wedge$ that mask with $matrixM_h$ computes a mask where only the bits of rows $\{ i_0, \dots, i_1 \}$ and column $h$ are set. These are the bits that of the compressed keys that need to be updated due the insertion of the new key $x$. Thus the mask needed for this effect is the one from table~\ref{tab:matrixMi_0Mi_1h}.
+    We call the function {\ttfamily matrixMRowRange($i_0$, $i_1$)} which returns a mask comprised of the range of rows $\{ i_0, \dots, i_1 \}$. Bitwise $\wedge$ that mask with $matrixM_h$ computes a mask where only the bits of rows $\{ i_0, \dots, i_1 \}$ and column $h$ are set. These are the bits that of the compressed keys that need to be updated due the insertion of the new key $x$. Thus the mask needed for this effect is the one from table~\ref{tab:matrixMi_0Mi_1h}.
     \begin{table}[H]
     \centering
     \input{04_Tables/025_matrixMi_0Mi_1h.tex}
