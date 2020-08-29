@@ -225,7 +225,7 @@ All the mentioned operations, except for searching, take $O(\log_2 u)$ time.
 
 To improve this and achieve the sub-logarithmic running times, we superimpose a tree of varying degrees on the bit-vector. The value of the root node will be the summary of the whole range. Its children will cover $u^{1/2}$, and its grandchildren $u^{1/4}$. If at each level we store the minimum, the maximum, and a summary of the vEB trees below, we know that queries will take $O(\sqrt{w})$ plus a constant number of operations, $O(1)$. Thus we have the following recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$, resulting in a running time for the whole tree of $O(\log_2(\log_2 u))$.
 
-As mentioned, van Emde Boas trees have the space complexity drawback: $O(u)$. This is due to the bit-vectors used, which in total have space for all the possible keys in the universe.
+As mentioned, van Emde Boas trees have the space complexity drawback: $O(u)$. This is due to the bit-vectors used, which in total allocate space for all the possible keys in the universe.
 
 \subsection{Fusion Trees}
 
@@ -2331,7 +2331,7 @@ The following interface methods suffered no changes and serve the same purpose a
     {\ttfamily reset()}
 \end{itemize}
 
-The {\ttfamily insert(final long x)} is now implemented the following way \cite{patrascu2014dynamic}:
+Based on the description of \textit{Inserting a key} of \cite{patrascu2014dynamic}, we implement {\ttfamily insert(final long x)} method the following way:
 \begin{enumerate}
     \item
     A local variable $rank$ is initialized to $0$.
@@ -2693,8 +2693,6 @@ With $branch$ and $free$ now updated, we proceed with remaining insertion operat
 
 \chapter{Validation} \label{sec:validationChapter}
 
-mention what and which implementations pass which tests and why this shows that there is a certain degree of certainty that they are correct.
-
 This chapter describes the tests that have been implemented and conducted in order to assert the soundness of the implementations discussed in Chapter~\ref{sec:implementationsChapter}.
 The implementing classes can be found in the folder shown in figure~\ref{fig:testFolderTree}.
 \begin{figure}[H]
@@ -2707,6 +2705,9 @@ The implementing classes can be found in the folder shown in figure~\ref{fig:tes
     \caption{Location of the testing classes folder}
     \label{fig:testFolderTree}
 \end{figure}
+
+Validation summary tables, which include the results of the test, together with the range or size of the test instances, have been included.
+The symbol \checkmark \ in those tables signifies a passed test with the specified parameters.
 
 \section{{\ttfamily Util} class tests}
 
@@ -2730,32 +2731,68 @@ The {\ttfamily Util} class contains many different implementations of the msb$(x
 
 Taking as an example the test on the {\ttfamily msbConstant()} implementation, for such a test to pass all instances in a given range have to assert that {\ttfamily Long.SIZE - 1 - Long.numberOfLeadingZeros(i)} and {\ttfamily Util.msbConstant(i)} are the same. Tests on the other implementations differ only either on $w$ (which can be either 32-bit {\ttfamily Integer} or 64-bit {\ttfamily Long}) and the function that is called, and each of them is named after the function they are testing, e.g. {\ttfamily msb32Obvious()} tests the 32-bit version the naive msb$(x)$ algorithm.
 
+\subsubsection{Validation results}
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/035_msb32Validation}
+\caption{Validation summary of the {\ttfamily msb32} functions}
+\label{tab:msb32Validation}
+\end{table}
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/036_msb64Validation}
+\caption{Validation summary of the {\ttfamily msb64} functions}
+\label{tab:msb64Validation}
+\end{table}
+
+
+
 \subsection{{\ttfamily splitLong} and {\ttfamily mergeInts}}
 
 The {\ttfamily splitMerge()} method tests the {\ttfamily splitLong} and {\ttfamily mergeInts} methods by evaluating if the following property holds for a determined range of 64-bit keys: {\ttfamily key == mergeInts(splitLong(key))}.
+
+\subsubsection{Validation results}
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/037_splitMergeValidation}
+\caption{Validation summary of the {\ttfamily msb64} functions}
+\label{tab:splitMergeValidation}
+\end{table}
 
 \subsection{Fields of words tests}
 The {\ttfamily getField} and {\ttfamily setField} methods are tested in the {\ttfamily setAndGetField32()} and {\ttfamily setAndGetField64()} methods (the latter differ solely on the size of the word where the fields are to be written to). A pass of the test consists of:
 \begin{enumerate}
     \item
-    Varying $f$ (being $f$ the size of each field) between $1$ and $w - 1$.
+    Varying $b$ (being $b$ the size of each field) between $1$ and $w - 1$.
     
     \item
-    For each value $f$ takes, the number of fields to be stored in $A$, $m$, is computed as a function of $f$. The goal is to fit as many fields as possible in $A$, having $f$ and $w$ as constraints. This is done with the expression $m = w / f$.
+    For each value $b$ takes, the number of fields to be stored in $A$, $m$, is computed as a function of $b$. The goal is to fit as many fields as possible in $A$, having $b$ and $w$ as constraints. This is done with the expression $m = w / b$.
     
     \item
-    Then, $m$ keys of $f$ size are pseudo-randomly generated. Each time a key is generated, $A$ is shifted to the left by $f$ bits, and the key is stored both in an auxiliary array and in $A$ with the {\ttfamily setField} function. 
+    Then, $m$ keys of $b$ size are pseudo-randomly generated. Each time a key is generated, $A$ is shifted to the left by $b$ bits, and the key is stored both in an auxiliary array and in $A$ with the {\ttfamily setField} function. 
     
     \item
     When all $m$ keys have been generated and inserted, the auxiliary array is iterated, and at each iteration $i$, it asserts that the key at index $i$ in the auxiliary array is the same as the one returned by the {\ttfamily getField} function.
 \end{enumerate}
+
+\subsubsection{Validation results}
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/038_setGetFieldValidation}
+\caption{Validation summary of the setter and getter field functions}
+\label{tab:setGetFieldValidation}
+\end{table}
 
 \subsection{Test for Rank Lemma 1}
 The {\ttfamily rankLemma1} function is tested in a method with the same name.
 A pass in this test consists of:
 \begin{enumerate}
     \item
-    Varying $b$ (size in bits of each key). This range is specified in the fields of the {\ttfamily UtilTest} class.
+    Varying $b$ (size in bits of each key). This range is specified in the fields of the {\ttfamily UtilTest} class by the by the variables {\ttfamily int loB} and {\ttfamily int hiB}.
     
     \item
     For each value $b$ takes, the number of keys to be stored in $A$, $m$, is computed by taking the minimum between $2^b$ and $w/b$. This is because the method requires that all keys stored in $A$ must be distinct (and all combinations of keys of size $b$ are given by $2^b$), but also $A$ can only store up to $w/b$ keys.
@@ -2778,6 +2815,15 @@ A pass in this test consists of:
     \item
     Lastly, the rank of $x$, which has been computed before, is compared with its rank computed via the {\ttfamily rankLemma1} function.
 \end{enumerate}
+
+\subsubsection{Validation results}
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/039_Lemma1Validation}
+\caption{Validation summary of the Rank Lemma 1 function}
+\label{tab:rankLemma1Validation}
+\end{table}
 
 \newpage
 \section{Integer Data Structure tests} \label{sec:IntegerDataStructureTests}
@@ -2812,7 +2858,7 @@ The {\ttfamily RankSelectPredecessorUpdateTest} constructor takes the following 
     \item {\ttfamily int numKeys}. This parameter defines the size of the data set to be generated. It is particular important for testing for instance {\ttfamily DynamicFusionNode}, which size cannot exceed $k$.
 \end{itemize}
 
-\subsection{{\ttfamily insertAndMemberSmallTest()}}
+\subsection{{\ttfamily insertAndMemberSmallTest()}} \label{sec:insertAndMemberSmallTest}
 The methods tested in this test are {\ttfamily insert} and {\ttfamily member}. A small set of predetermined keys is inserted in the set, and then {\ttfamily member} is called on the set with each of those keys. 
 
 \subsection{{\ttfamily smallCorrectnessTest()}}
@@ -2840,7 +2886,7 @@ With the given set and the above-mentioned rules, a small test is performed. Tab
 \begin{table}[H]
 \centering
 \input{04_Tables/002_CorrectnessTestSmall.tex}
-\caption[Small correctness tests]{Small correctness tests.}
+\caption{Small correctness tests}
 \label{tab:smallCorrectnessTests}
 \end{table}
 
@@ -2916,6 +2962,29 @@ This test aims at ensuring that the following property holds for all the keys in
 
 This test aims at ensuring that the following property holds for all the keys in the set: if a key is present in the set, knowing its rank and them querying for select of that must return the key. It can be executed in passes, and it works by iterating through the pseudo-randomly-generated keys, and at each iteration, it is asserted that {\ttfamily key == select(rank(key))}.
 
-\subsection{{\ttfamily rankOfSelectTest()}}
+\subsection{{\ttfamily rankOfSelectTest()}} \label{sec:rankOfSelectTest}
 
 This test aims at ensuring that the following property holds for all the keys in the set: the rank of select a query is the query. It can be executed in passes, and it works by iterating from {\ttfamily 0} to {\ttfamily numKeys}. At each iteration {\ttfamily i}, it is asserted that {\ttfamily i == rank(select(i))}.
+
+
+\subsection{Validation results}
+
+This section summarizes the results from the tests described in Sections from \ref{sec:insertAndMemberSmallTest} to \ref{sec:rankOfSelectTest} against the implementations described in Sections from \ref{sec:naiveImplementation} to \ref{sec:InsertDontCares}.
+The results can be seen in table~\ref{tab:validationImplementations}, where the correspondence between implementation and abbreviation is done in table~\ref{tab:abbreviationsTable}.
+In table~\ref{tab:validationImplementations}, the \checkmark symbol signifies a passed test.
+We can see that the highlighted implementations pass all tests, using as many keys as each implementation allows.
+Each test was repeated with a different set of keys \#$passes$ times.
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/034_abbreviationsTable.tex}
+\caption{Correspondence table}
+\label{tab:abbreviationsTable}
+\end{table}
+
+\begin{table}[H]
+\centering
+\input{src/tex/04_Tables/033_DynamicFusionNodeValidation.tex}
+\caption{Validation summary of the Dynamic Fusion Node implementations}
+\label{tab:validationImplementations}
+\end{table}
