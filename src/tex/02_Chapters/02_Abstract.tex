@@ -3,8 +3,10 @@
 \addchap{Abstract}
 
 This thesis investigates the theoretical data structure presented in the «Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search» paper, authored by Pătrașcu and Thorup.
-The authors claim that their proposal solves the dynamic predecessor problem optimally. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
-Their proposal is made possible due to the smart use of techniques such as bit-wise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thoru), which in the word-RAM model take $O(1)$ time.
+The authors claim that their proposal solves the dynamic predecessor problem optimally \cite{patrascu2014dynamic}.
+Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
+The data structure they propose denoted \textit{Dynamic Fusion Node}, is made possible due to the smart use of techniques such as bitwise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which for sets of size $n = w^{O(1)}$ and in the word-RAM model take $O(1)$ time.
+By using the \textit{Dynamic Fusion Node} in the implementation of a $k$-ary tree, thus enabling the sets to be of arbitrary size, the running times are $O(\log_w n)$, proven by Fredman and Saks to be optimal \cite{beame1999optimal}.
 
 Using the \cite{patrascu2014dynamic} as our primary reference, and after framing the topic within its context (Chapters~\ref{sec:introductionChapter}), we explore the essential tools and algorithms used by Pătrașcu and Thorup in their proposal (Chapter~\ref{sec:backgroundChapter}).
 Section~\ref{sec:IntegerSets} shows different ways to solve the predecessor problem.
@@ -16,11 +18,11 @@ Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the
 We validate the implemented algorithms and data structures with correctness tests. These appear described in Chapter~\ref{sec:validationChapter}.
 
 Chapter~\ref{sec:conclusionChapter} concludes the project, leaving some remarks and suggestions for future work.
-Up to the point where this project ends, Pătrașcu and Thorup's proposal seems sound, as we have been able to implement their data structure proposal using only $O(1)$ operations of the word-RAM model. In Section~\ref{sec:futureWork} we highlight the required steps to conclude the implementation.
+Up to the point where this project ends, Pătrașcu and Thorup's proposal seems sound, as we have been able to implement their data structure proposal using only $O(1)$ operations of the word RAM model. In Section~\ref{sec:futureWork} we highlight the required steps to conclude the implementation.
 
-The Java programming language is used throughout the project, and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} under a MIT License.
+The Java programming language is used throughout the project, and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} and subject to an MIT License.
 
-\paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bit-wise Operations, Most Significant Set Bit, Word-level Parallelism, Dynamic Fusion Node.
+\paragraph*{Keywords:} Algorithms, Dynamic Predecessor Problem, Integer Sets, Key Compression, Bitwise Operations, Most Significant Set Bit, Word-level Parallelism, Dynamic Fusion Node.
 
 % from the meeting with holger:
 % \begin{itemize}

@@ -9,7 +9,7 @@ We conclude this report by highlighting the contributions of this project:
     We have implemented and documented the data structure, making it publicly available for future work. These implementations have also been validated for correctness.
     
     \item
-    We have implemented and included in the repository correctness tests, which can be used for further implementations.
+    We have implemented and included correctness tests in the repository. These attest the correctness of the implementations we present, and that were designed such that they can be used to assess the correctness of further implementations.
     
     \item
     We have listed other data structures that are of interest within the context of the dynamic predecessor problem, pointing to future work in the form of benchmarks.
@@ -17,7 +17,7 @@ We conclude this report by highlighting the contributions of this project:
 
 \section{Final Remark}
 
-When developing and implementing logarithmic and sub-logarithmic data structures and algorithms, there is a fine balance between space and time consumption. For example, van Emde Boas trees is a very fast data structure, but with a big space consumption drawback. Fusion trees improve on space consumption, but updates take excessive time. Dynamic Fusion trees, introduced in this project, seem to find the perfect balance between space and time consumption.
+There is a fine balance between space and time consumption when developing and implementing sub-logarithmic data structures and algorithms. For example, van Emde Boas trees is a very fast data structure, but with a big space consumption drawback. Fusion Trees improve on space consumption, but updates take excessive time. Dynamic Fusion Trees, introduced in this project, seem to find the perfect balance between space and time consumption.
 
 \section{Future Work} \label{sec:futureWork}
 In this section, we leave some suggestions on how further work on this topic can be conducted. We have split these into three main categories:
@@ -42,7 +42,7 @@ The implementation featured in Section~\ref{sec:InsertDontCares} implements the 
 One of the bottlenecks of implementations from Sections~\ref{sec:rankWithDontCares} and \ref{sec:InsertDontCares} is how the compressed keys with "don't cares" are maintained. Specifically, the next iterative step in the implementation from Section~\ref{sec:InsertDontCares} is to implement functions that compute the compressed keys in $O(1)$ time, as explained in chapters $[3.2 - 3.3]$ of \cite{patrascu2014dynamic}.
 
 \paragraph*{Dynamic Fusion Tree}
-After enabling all the operations at the node level in $O(1)$ time with the implementation of the previous step, all that remains to complete the implementation is to implement a B-tree using a dynamic fusion node as its node. This is covered in chapter 4 of \cite{patrascu2014dynamic}.
+After enabling all the operations at the node level in $O(1)$ time with the previous step's implementation, all that remains to complete the implementation is to implement a B-tree using a dynamic fusion node as its node. This is covered in chapter 4 of \cite{patrascu2014dynamic}.
 
 \paragraph*{Non-recursive implementation}
 Chapter 4 of \cite{patrascu2014dynamic} mentions that once the dynamic fusion tree is implemented, the rank operation on a tree is given by a recursive function. Recursion in Java can be slow \cite{shirazi2003java}, and for this reason, a non-recursive alternative is preferred.
@@ -62,11 +62,11 @@ Once the dynamic fusion tree is fully implemented, the next logical step would b
 Space consumption can be improved by, for instance, avoiding and combining some of the fields. When $k = 8$, $bKey$ would only use $8$ of the $64$ allocated bits, and $index$ would use $3 \times 8 = 24$ bits. So, in total, $32$ bits for both words. This is an example of how space can be improved.
 
 \paragraph*{Simulate a longer word size}
-One of the limitations of the present implementation is that on a common real machine, the maximum integer size is 64 bits. An interesting improvement would be to simulate larger word size $w$, which would consequently increase $k$, allowing to store more keys at the node level. This would have to be carefully studied to keep every operation in $O(1)$ time.
+One of the limitations of the present implementation is that the maximum integer size is 64 bits on a common modern machine. An interesting improvement would be to simulate larger word size $w$, which would increase $k$, allowing to store more keys at the node level. This would have to be carefully studied to keep every operation in $O(1)$ time.
 
 
 \paragraph*{Lookup {\ttfamily M} constant}
 The {\ttfamily Util} class includes a function, {\ttfamily M}, which takes $b$ and $w$ as parameters and returns the word $(0^{b-1}1)^{(w/b)}$. It is a widely used function in this repository, and it has been implemented with a loop. With limited word size, this could easily be implemented as a lookup function, improving the running time up to $O(1)$.
 
 \paragraph*{Profiling}
-This technique allows us to see which sections of the code the CPU uses most of the time, indicating possible bottlenecks in the code. By using it, the implementation can be fine-tuned up to the point where it can be competitive.
+This technique allows us to see which sections of the code the CPU uses most of the time, indicating possible code bottlenecks. By using it, the implementation can be fine-tuned up to the point where it can be competitive.
