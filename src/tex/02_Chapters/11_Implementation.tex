@@ -26,7 +26,7 @@
 
 \chapter{Background} \label{sec:backgroundChapter}
 
-The \cite{patrascu2014dynamic} paper presents a dynamic data structure for storing integers and claims that its running times are optimal.
+The \cite{patrascu2014dynamic} paper presents a data structure for solving the dynamic predecessor problem, and claims that its running times are optimal.
 In this chapter, a series of data structures, techniques, and other relevant aspects will be presented, laying the foundation for the implementation of the data structure presented by Pătrașcu and Thorup.
 
 \section{Basic Concepts}
@@ -114,7 +114,7 @@ We can see that if $w = 4$, then we can at most index $16$ keys. This is sound b
 
 This model gets its name because it relates two dichotomies: problem size $n$; and the model of computation with words of size $w$ \cite{erikdemainelec11}. 
 
-\subsubsection{Word RAM}
+\subsubsection{Word RAM} \label{sec:wordRAM}
 Like the trans-dichotomous RAM model, the word RAM also operates with fixed size $w$-bit words. Additionally, the following operations have an associated cost \cite{nelsonjelanilec1}:
 \begin{itemize}
     \item Integer arithmetic (addition $+$, subtraction $-$, multiplication $\times$, division $\div$ and remainder of division (modulo) $\bmod$);
@@ -123,7 +123,7 @@ Like the trans-dichotomous RAM model, the word RAM also operates with fixed size
 \end{itemize}
 
 \newpage
-\section{Integer Sets} \label{sec:IntegerSets}
+\section{Predecessor Problem Data Structures} \label{sec:IntegerSets}
 
 This section highlights some data structures that maintain integer sets and implement the (dynamic) predecessor problem, e.g., integer sets whose methods answer the queries mentioned in Section~\ref{sec:predecessorProblem}.
 The data structures are ordered by what they improve on from the previous, or by complexity, because they add a new way of looking at the problem.
@@ -143,7 +143,7 @@ Perhaps the most naive way to maintain a set of integers is to implement it whil
 
 \subsection{Red-Black BST}
 
-Using a self-balancing binary search tree to implement the set, such as a red-black tree, could improve the running times quite substantially.
+Using a self-balancing Binary Search Tree to implement the set, such as a red-black tree, could improve the running times quite substantially.
 This data structure guarantees $O(\log_2 n)$ for all of the dynamic predecessor problem queries.
 When searching, this guarantee is given by the height invariant of the tree, which is always $O(\log_2 n)$ \cite{cormen2009introduction}.
 Updates consist of:
@@ -163,9 +163,9 @@ The previous two data structures use comparison-based algorithms to order the ke
 Radix algorithms take a different approach by examining portions of the key.
 Tries are radix-based data structures where the path from the root to a particular node is the prefix of the keys stored at the subtree rooted at that node.
 In this context, we will use them to store words (as defined in Section~\ref{sec:word}), but they can be used to store other types of data, for instance, strings, which can be of fixed or variable length.
-The chosen radix is related to the data we want to store in the trie: for instance, when storing strings written with the English alphabet, the radix is 26, whereas in our case, base two integers, the radix is 2. Bitwise tries can also denote tries of radix two.
+The chosen radix is related to the data we want to store in the Trie: for instance, when storing strings written with the English alphabet, the radix is 26, whereas in our case, base two integers, the radix is 2. Bitwise Tries can also denote Tries of radix two.
 
-A binary search trie is a trie for storing integer words, where the keys are kept at leaf nodes. We use the bit values of a key to guide us when searching the following way: starting from the most significant bit of the key,
+A Binary Search Trie is a Trie for storing integer words, where the keys are kept at leaf nodes. We use the bit values of a key to guide us when searching the following way: starting from the most significant bit of the key,
 \begin{itemize}
     \item
     If the bit value is $0$, then we take the left child node.
@@ -173,33 +173,39 @@ A binary search trie is a trie for storing integer words, where the keys are kep
     Otherwise, we take the right one.
 \end{itemize}
 
-We then consider the following less significant bit of the search key, and repeat. A search ends either at a leaf or a null link. A successful search is when the search key and the key at the node were the same. An unsuccessful search is when either we end up on a null link or the search key, and the key at the leaf node are not the same. This last case happens when those keys share a prefix.
+We then consider the following less significant bit of the search key, and repeat until the search ends.
+This happens when either we hit a leaf or a null link.
+A successful search is when the search key and the key at the leaf node were the same.
+An unsuccessful search is when either we end up on a null link or the search key, and the key at the leaf node are not the same.
+This last case happens when those keys share a prefix.
 
 We can infer from the search algorithm's description that this data structure uses a considerable amount of space for storing paths consisting of prefixes shared among keys.
 
-Since this tree is ordered and balanced, and even though it will have on average $44\%$ more nodes than keys, searching and inserting take on average $O(\log_2 n)$ time for random and distinct keys, but the length of the keys bounds the worst case running time, $O(w)$ \cite{sedgewick2002algorithms}. Rank and select queries are implemented with a similar approach as in the red-black tree: every node has the number of leaf nodes stored in its fields, which is used for these queries.
+Since this tree is ordered and balanced, and even though it will have on average $44\%$ more nodes than keys, searching and inserting take on average $O(\log_2 n)$ time for random and distinct keys, but the length of the keys bounds the worst case running time, $O(w)$ \cite{sedgewick2002algorithms}.
+Rank and select queries are implemented with a similar approach as in the red-black tree: every node has the number of leaf nodes stored in its fields, which is used for these queries.
 
 \subsection{Patricia Tries}
 
-Patricia tries, which name is acronym for "practical algorithm to retrieve information coded in alphanumeric", also known as compressed binary tries, improve the space consumption in comparison with binary search tries.
-They a embody different way to encode the same trie abstraction as binary search tries.
+Patricia Tries, which name is acronym for "practical algorithm to retrieve information coded in alphanumeric", also known as compressed Binary Tries, improve the space consumption in comparison with Binary Search Tries \cite{sedgewick2002algorithms}.
+They a embody different way to encode the same Trie abstraction as Binary Search Tries.
 They achieve this by allowing the internal nodes to store keys and by compressing the paths between nodes.
 Each node will have an associated index of branching bit stored: this allows us to skip the bits that belong to shared prefixes, fast forwarding to the branching bits.
-The result is a trie with exactly as many nodes as there are keys, which also improves the worst running times of updating and querying from $O(w)$ to $O(\log_2 n)$.
+The result is a Trie with exactly as many nodes as there are keys, which also improves the worst running times of updating and querying from $O(w)$ to $O(\log_2 n)$ when compared to the Binary Search Trie \cite{sedgewick2002algorithms}.
 
 \subsection{van Emde Boas Trees}
 
 The van Emde Boas tree (vEB) data structure, despite its excessive space consumption ($O(u)$), introduces a big running time improvement, as all queries take $O(\log_2 w)$.
 If, as discussed in Section~\ref{sec:word}, $u = 2^w$ is the size of the universe of keys we can store in this data structure, then we can also express the running time as being $O(\log_2(\log_2 u))$.
 This means that queries are now sub-logarithmic, a substantial improvement from all the data structures we have seen so far.
+It uses the fact that the keys themselves can be seen as memory addresses to do so \cite{nelsonjelanilec1}.
 
-The intuition behind this data structure is to superimpose a binary tree structure on a bit vector.
+The intuition behind this data structure is to superimpose a Binary Tree structure on a bit vector.
 The bit values in this bit-vector will be $0$ if the key at that index is not in the set, and $1$ otherwise.
-To build the binary tree, we assume that each position of the bit vector is a leaf.
-To compute the parent nodes, we take the bitwise $\vee$ of each consecutive pair of positions.
+To build the Binary Tree, we assume that each position of the bit vector is a leaf.
+To compute the parent nodes of the leaf nodes, we take the bitwise $\vee$ of each consecutive pair of positions.
 We then do the same for the next level, taking the nodes that we just computed as the children, repeating until we reach the root.
 If the set contains at least one key, then the value at the root will be $1$; otherwise, it will be $0$.
-This rule also applies to each of the subtrees.
+This rule also applies to each of the subtrees \cite{bille2020massive}.
 On this preliminary example:
 \begin{itemize}
     \item
@@ -223,20 +229,82 @@ On this preliminary example:
 
 All the mentioned operations, except for searching, take $O(\log_2 u)$ time. 
 
-To improve this and achieve the sub-logarithmic running times, we superimpose a tree of varying degrees on the bit-vector. The value of the root node will be the summary of the whole range. Its children will cover $u^{1/2}$, and its grandchildren $u^{1/4}$. If at each level we store the minimum, the maximum, and a summary of the vEB trees below, we know that queries will take $O(\sqrt{w})$ plus a constant number of operations, $O(1)$. Thus we have the following recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$, resulting in a running time for the whole tree of $O(\log_2(\log_2 u))$.
+To improve this and achieve the sub-logarithmic running times, we superimpose a tree of varying degrees on the bit-vector.
+The value of the root node will be the summary of the whole range. Its children will cover $u^{1/2}$, and its grandchildren $u^{1/4}$.
+If at each level we store the minimum, the maximum, and a summary of the vEB trees below, we can compute queries in $O(\sqrt{w})$ time plus a constant number of operations, $O(1)$.
+Thus we have the following recurrence relation: $\text{T}(u) = \text{T}(\sqrt{u}) + O(1)$, resulting in a running time for the whole tree of $O(\log_2(\log_2 u))$ \cite{erikdemainelec11}.
 
-As mentioned, van Emde Boas trees have the space complexity drawback: $O(u)$. This is due to the bit-vectors used, which in total allocate space for all the possible keys in the universe.
+As mentioned, van Emde Boas trees have the space complexity drawback: $O(u)$.
+This is due to the bit-vectors used, which in total allocate space for all the possible keys in the universe.
 
 \subsection{Fusion Trees}
 
-The fusion tree data structure is specifically designed to store integers that fit into a single machine word. As a result, on a 32-bit machine, you would use the fusion tree to store integers of up to 32 bits, and on a 64-bit machine, you would use a fusion tree to store integers of up to 64 bits.
-A fusion tree is 
+The Fusion Trees description we summarize here is based on the \cite{nelsonjelanilec2} and \cite{erikdemainelec12} lectures.
 
-\textbf{need to explain very well the difference between fusion trees and dynamic fusion trees here}: remark from holger
+Fusion Trees are understood as $k$-ary trees, e.g., each node stores roughly $k$ keys.
+We define $k = \Theta(w^{1/5})$.
+With this definition, the height of the tree will be $O(\log_w n)$.
+This is also the running time for querying in a Fusion Tree.
+So the problem we have to solve is to ensure that searching within nodes takes only $O(1)$ time.
+This way, the overall data structure's query time will be the same as the bound of the height of the tree.
+
+In the word RAM model, and having set $k = \Theta(w^{1/5})$, each node will require $k \cdot w = w^{6/5}$ bits to store all the keys.
+This means that, without any additional tools and algorithms, we cannot store the bits of every key in a single word so we can process each node in $O(1)$ time.
+
+Using only algorithms based on word RAM operations, listed in Section~\ref{sec:wordRAM}, we can query a Fusion Node with $O(1)$ number of operations.
+The first challenge is to fit $w^{6/5}$ bits in a word, such that we can use this result to query the node.
+
+\subsubsection{Pre-processing Phase}
+
+Since this is a static data structure, we use the pre-processing phase to build the $k$-ary tree with the given set of keys, disregarding its running time.
+Upon its construction, each node will contain $k$ keys.
+
+We note that, for any given node, when looking at the keys' values in binary and building a Bitwise Trie with the keys at that node, we need only to know at most $k - 1$ bit indices to differentiate the keys in that node.
+These are the branching bits in the Bitwise Trie.
+Let $x$ be a key in the Fusion Node, a \textit{sketching} function, $\text{sketch}(x)$ is defined by keeping only the branching bits of $x$, as we have just defined.
+
+We note that the sketches of the keys have the same order as the keys.
+Note also that if the \textit{sketching} needs at most $k - 1$ bits per key in the node, then in total we need $k \cdot (k - 1) = O(w^{2/5})$ bits to store all the bits of the key sketches; thus we can fit that in a single word, which is kept at each node.
+
+Because it is difficult to compute perfect \textit{sketches} (defined in the paragraph above) in $O(1)$ time using only word RAM operations, an \textit{approximate sketch} is used instead.
+The key difference between the \textit{perfect sketches} and \textit{approximate sketches} is the amount of bits used to store the \textit{sketches} of the keys: \textit{approximate sketches} use at most $(k - 1)^4 = O(w^{4/5})$ instead of the  $O(w^{2/5})$ of the \textit{perfect sketches}.
+By using \textit{approximate sketches}, we can define constants and masks to be kept at each node that will help us define a function that will return us the \textit{approximate sketch} of a query in $O(1)$ time.
+This is also the reason for the choice of the value $k = w^{1/5}$.
+
+\subsubsection{Querying} \label{sec:fusionTreeQuerying}
+
+At this stage, we know that we have pre-computed all the \textit{sketches} of the keys at every node.
+
+To query in a Fusion Node, we need to be able to find the rank of a \textit{sketch} within a word containing the \textit{sketches} the keys in that node.
+To do so, we use the Rank Lemma 1 algorithm, thoroughly described in Section~\ref{sec:rankLemma1}.
+
+There is a scenario where we might query a key that does not belong in the node, thus computing the \textit{sketch} of such key might produce a result that does not reflect the order of the keys.
+This happens when the queried key branches at a node whose corresponding bit was not considered in the \textit{sketching} function.
+
+Assume that we wish to query a key $q$ among the set of keys in a Fusion Node, $\{x_0, x_1, \dots, x_i\}$.
+Computing $\text{sketch}(q)$ will give us other two keys in the node, $x_i$ and $x_{i+1}$, where this sketch lies between.
+As mentioned, this does not mean that $x_i < q < x_{i+1}$, but by computing the index of the bit where $q$ branched from those keys, $y$, we can learn where $q$ lies among all the other keys in the node.
+We achieve this by computing a mask, $e$, that:
+\begin{itemize}
+    \item
+    If $q$ branched to the right in $y$, e.g., bit $y$ was $1$ in $q$, then $e = y011\dots1$;
+    
+    \item
+    Otherwise if $q$ branched to the left, then $e = y100\dots1$.
+\end{itemize}
+A claim states that finding where $\text{sketch}(e)$ fits among the \textit{sketches} of the keys at that node is the same as where $q$ fits among the keys in the node, thus solving the problem \cite{nelsonjelanilec2}.
+
+Learning the most significant set bit of a word in $O(1)$ time will also play an important role when querying. An algorithm that achieves this has been thoroughly described in Section~\ref{sec:msbO1}.
+Let $\text{msb}(z)$ denote the function that returns the most significant set bit of a word, $z$. After finding one of the $x_i$'s (described above), we can easily find the branching bit, $y$, the expression:
+\begin{align*}
+    y = \text{msb}(x_i \oplus q)
+\end{align*}
+
+By knowing where query $q$ fits among the keys in the node, the remaining operations are trivially implemented, thus completing the description of Fusion Trees with $O(\log_w n)$ query time.
 
 \subsection{Summary}
 
-Table~\ref{tab:dataStructComparison} is a summary of relevant data structures that incrementally lead to the data structure presented in this project. The running times are given in the word-RAM model.
+Table~\ref{tab:dataStructComparison} is a summary of relevant data structures that incrementally lead to the data structure presented in this project. The running times are given in the word RAM model.
 
 \begin{table}[H]
 \centering
@@ -246,15 +314,15 @@ Table~\ref{tab:dataStructComparison} is a summary of relevant data structures th
 \end{table}
 
 \newpage
-\section{Summary of techniques used in the present implementation} \label{sec:summaryOfTechniques}
+\section{Summary of Techniques used in the Present Implementation} \label{sec:summaryOfTechniques}
 
 All of the algorithms presented in this section have been implemented as static functions in the {\ttfamily Util} class.
 
-\subsection{Bit operations} \label{sec:bit}
+\subsection{Bit Operations} \label{sec:bit}
 
 Let $A$ be a $w$-bit length word. This section features a set of functions that operate on $A$'s bits. Since these operations only use bitwise shifting and masking, all the algorithms presented in this section take $O(1)$ time.
 
-\subsubsection{Is the bit set}
+\subsubsection{Is the Bit Set}
 
 This operation aims at extracting the bit at position $d$ in $A$ or, in other words, getting the value of the bit at position $d$. Let us denote this operation by $\text{bit}(d, A)$. We have:
 \begin{align*}
@@ -274,7 +342,7 @@ Example:
     \text{bit}(8,A) = 1 &
 \end{align*}
 
-\subsubsection{Set bit}
+\subsubsection{Set Bit}
 This operation sets the bit at position $d$ in $A$ to $1$. Let us denote this operation by $\text{setBit}(d, A)$. We have:
 \begin{align*}
     \text{setBit}(d, A) = A \vee (1 \ll d)
@@ -292,8 +360,9 @@ Example:
     \cline{1-2}
     \text{setBit}(4,A) = 0101\ 1101\ 110\underline{1}\ 0111_2&
 \end{align*}
+Note that, if the bit a index $d$ is alredy set, then $A$ is returned unchanged.
 
-\subsubsection{Delete bit}
+\subsubsection{Delete Bit}
 This operation sets the bit at position $d$ in $A$ to $0$. Let us denote this operation by $\text{deleteBit}(d, A)$. We have:
 \begin{align*}
     \text{deleteBit}(d, A) = A \wedge \neg(1 \ll d)
@@ -313,7 +382,9 @@ Example:
     \cline{1-2}
     \text{deleteBit}(6,A) = 0101\ 1101\ 1\underline{0}00\ 0111_2&
 \end{align*}
+Note that, if the bit a index $d$ is alredy $0$, then $A$ is returned unchanged.
 
+\newpage
 \subsection{Masks} \label{sec:masks}
 
 Pătrașcu and Thorup refer constants that we will denote by masks, which are useful for bitwise operations. In this section, we will see how we can compute them.
@@ -355,12 +426,13 @@ Pătrașcu and Thorup refer constants that we will denote by masks, which are us
     Note that when $j = w$, then this mask is simply $0$.
 \end{itemize}
 
-\subsection{Fields of words} \label{sec:fieldsOfWords}
+\newpage
+\subsection{Fields of Words} \label{sec:fieldsOfWords}
 
 We follow the definitions from \cite{patrascu2014dynamic} in regards to viewing words as sets of fields of some length $f \leq w$. Let $A$ be a $w$-bit length word, then if $A$ is comprised of fields, analogously to bit indexing of a word, its least significant field is the rightmost one, denoted $A\langle0\rangle_f$; its most significant field is the leftmost one, denoted $A\langle \lfloor w/f \rfloor \rangle_f$, and so on.
 Note that the functions presented in this section consist of simple bitwise shifting and masking with the expressions defined in \ref{sec:masks}. Regarding running times, all these algorithms take $O(1)$ time.
 
-\subsubsection{Field retrieval} \label{sec:fieldRetrieval}
+\subsubsection{Field Retrieval} \label{sec:fieldRetrieval}
 
 This operation consists of retrieving field $A\langle i\rangle_f$ and it is denoted by $\text{getField}(i, f, A)$. It is defined by:
 \begin{align*}
@@ -414,13 +486,13 @@ Example:
     \text{getFields}(1, 2, 4, A) = 0000\ 0000\ \underline{0101}\ \underline{1101}_2&
 \end{align*}
 
-\subsubsection{Field assignment}
+\subsubsection{Field Assignment}
 
 Conversely, it is also possible to assign a value to a particular field. To do so, a mask $m$ is required, and it is computed as a function of $i$ (the position of the field to be set) and $f$ (the length of the fields in $A$). Thus we have:
 \begin{align*}
     m = ((1 \ll f) - 1) \ll (i \times f)
 \end{align*}
- Setting field $y$ in $A$, denoted by setField$(i, y, f, A)$ is defined by:
+ Setting field $y$ in $A$, denoted by setField$(i, y, f, A)$, is defined by:
 \begin{equation*}
     \text{setField}(i, y, f, A) = \underbrace{(A \wedge \neg m)}_{\text{(a) Reset field}} \vee \ \underbrace{(y \ll (i \times f) \wedge m)}_{\text{(b) Set field}}
 \end{equation*}
@@ -448,7 +520,8 @@ Example:
     \text{setField}(1, y, 4, A) = 0101\ 1101\ \underline{1001}\ 0111_2&
 \end{align*}
 
-\subsection{Most significant set bit} \label{sec:msbAlgorithm}
+\newpage
+\subsection{Most Significant Set Bit} \label{sec:msbAlgorithm}
 
 Learning about the most significant set bit of a word will be an important operation in the implementation. For this reason, we will look at different ways to achieve this result. Since it is to be used as a subroutine in certain operations, it has the potential to become a bottleneck if not implemented carefully. We denote the most significant set bit of $x$ by msb$(x)$.
 
@@ -468,7 +541,7 @@ Otherwise, if the most significant field is $0$, the algorithm looks at the seco
 
 This approach takes $O(1)$ time after the lookup table has been computed but, not only the lookup table takes time to compute, it also uses some space.
 
-\subsubsection{Constant time with parallel comparison} \label{sec:msbO1}
+\subsubsection{Constant Time with Parallel Comparison} \label{sec:msbO1}
 
 This operation here described is based on the materials from the lectures whose scribe notes are \cite{nelsonjelanilec2} and \cite{erikdemainelec12}.
 It comprises 4 main steps.
@@ -690,7 +763,8 @@ After learning in which field lies the most significant bit, we now run the same
     \end{equation*}
 \end{enumerate}
 
-\subsection{Least significant set bit} \label{sec:lsbAlgorithm}
+\newpage
+\subsection{Least Significant Set Bit} \label{sec:lsbAlgorithm}
 
 Let $\text{lsb}(x)$ denote the least significant set bit of $x$. According to Pătrașcu and Thorup, after computing $\text{msb}(x)$ we can in $O(1)$ time compute $\text{lsb}(x)$ with the expression:
 \begin{equation*}
@@ -706,6 +780,7 @@ Example:
     \text{lsb}(x) = \text{msb}((x - 1) \oplus x) = \text{msb}(0000\ 0000\ 0000\ 0\underline{1}00_2&) = 2
 \end{align*}
 
+\newpage
 \subsection{Rank Lemma 1} \label{sec:rankLemma1}
 
 Another important operation in the context of the implementation of the data structure presented in \cite{patrascu2014dynamic} is to compute the rank of a word. For this purpose, some subroutines are required, and the algorithm described in this section is one of them. This algorithm consists of the implementation of Lemma~\ref{lemma1} by Fredman and Willard, cited by Pătrașcu and Thorup. It reads:
@@ -966,7 +1041,7 @@ All the implementing classes described and discussed in this chapter can be foun
 
 Note that all the functions and implementations consider the integer keys as unsigned integers.
 
-\section{Utility functions} \label{sec:utilFuctionsImplementation}
+\section{Utility Functions} \label{sec:utilFuctionsImplementation}
 
 This project features a class, {\ttfamily Util}, which implements static utility functions. In can be found in the path specified in figure~\ref{fig:utilFunctionsTree}.
 For brevity, the 32-bit version is omitted.
@@ -986,7 +1061,7 @@ For brevity, the 32-bit version is omitted.
 
 Below find listed the functions included in this class, together with a brief explanation. The class also includes 32 and 64-bit versions for the input word, making the method signature different solely on the input word type.
 
-\subsection{Bit operations}
+\subsection{Bit Operations}
 The algorithms which these functions implement are described in Section~\ref{sec:bit}.
 The functions included are:
 
@@ -1010,7 +1085,7 @@ public static int deleteBit(final int d, int A)
     \end{lstlisting}
 \end{itemize}
 
-\subsection{Fields of words}
+\subsection{Fields of Words}
 The algorithms which these functions implement are described in Section~\ref{sec:fieldsOfWords}.
 The functions included are:
 
@@ -1046,7 +1121,7 @@ public static int setField(final int i, final int y, final int f, final long A)
     \end{lstlisting}
 \end{itemize}
 
-\subsection{String representation of an integer in binary}
+\subsection{String Representation of an Integer in Binary}
 
 \begin{itemize}
     \item
@@ -1062,7 +1137,7 @@ public static String bin(final long x, final int f)
     \end{lstlisting}
 \end{itemize}
 
-\subsection{Helper functions}
+\subsection{Helper Functions}
 
 \begin{itemize}
     \item
@@ -1078,13 +1153,13 @@ private static int parallelLookup(final int pow)
     \end{lstlisting}
     
     \item
-    The method below is a helper method for the most significant set bit lookup functions, as described in \cite{bittricks}\footnote{The following link redirects you to the function I took inspiration from: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogLookup}} and mentioned below. It populates a lookup table, allowing these functions to return the result quickly. 
+    The method below is a helper method for the most significant set bit lookup functions, as described in \cite{bittricks}\footnote{The following link redirects to the function that inspired this implementation: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogLookup}} and mentioned below. It populates a lookup table, allowing these functions to return the result quickly. 
     \begin{lstlisting}
 private static void generateLookupTable()
     \end{lstlisting}
 \end{itemize}
 
-\subsection{Most and least significant set bit}
+\subsection{Most and Least Significant Set Bit}
 
 The algorithms which these functions implement are described in Sections~\ref{sec:msbAlgorithm} and \ref{sec:lsbAlgorithm}.
 The functions included are:
@@ -1109,13 +1184,13 @@ public static int msbLibrary(final long x)
     \end{lstlisting}
     
     \item
-    The method below implements a naive algorithm for computing the index of the most significant set bit of the target $x$, as described in \cite{bittricks}\footnote{The following link redirects you to the function I took inspiration from: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogObvious}}.
+    The method below implements a naive algorithm for computing the index of the most significant set bit of the target $x$, as described in \cite{bittricks}\footnote{The following link redirects to the function that inspired this implementation: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogObvious}}.
     \begin{lstlisting}
 public static int msbObvious(long x)
     \end{lstlisting}
     
     \item
-    The method below implements a lookup algorithm for computing the index of the most significant set bit of the target $x$, as described in \cite{bittricks}\footnote{The following link redirects the reader to the function I took inspiration from: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogLookup}}. For 64-bit integers, the function first splits the integer in two, calling the 32-bit method on the high half first, and then on the second in the first half is $0$.
+    The method below implements a lookup algorithm for computing the index of the most significant set bit of the target $x$, as described in \cite{bittricks}\footnote{The following link redirects to the function that inspired this implementation: \url{https://graphics.stanford.edu/~seander/bithacks.html\#IntegerLogLookup}}. For 64-bit integers, the function first splits the integer in two, calling the 32-bit method on the high half first, and then on the second in the first half is $0$.
     \begin{lstlisting}
 public static int msbLookupDistributedInput(final long x)
     \end{lstlisting}
@@ -1202,7 +1277,7 @@ public static long[] distinctSortedLongs(final int n)
 \end{itemize}
 
 \newpage
-\section{The {\ttfamily RankSelectPredecessorUpdate} interface}
+\section{The {\ttfamily RankSelectPredecessorUpdate} Interface}
 
 \begin{figure}[H]
 \dirtree{% 
@@ -1298,7 +1373,7 @@ void reset();
 Note that some of the methods return a primitive type, whereas some others return a boxed type. This is because some queries are not mapped to any answer, and the boxed type provides the perfect way to model this kind of scenario: in such a situation, {\ttfamily null} is returned.
 
 \newpage
-\section{Naive implementation} \label{sec:naiveImplementation}
+\section{Naive Implementation} \label{sec:naiveImplementation}
 
 \paragraph*{Goal}
 To implement a naive dynamic predecessor data structure with an array.
@@ -1326,7 +1401,7 @@ Updates, e.g., insert and delete, take $O(n)$ time. This is because whenever a k
 A rank query takes $O(\log_2 n)$ because a binary search is performed on $key$. Select is faster: $O(1)$, because we need only to access and return the key at position $i$ in $key$ to fulfill the query.
 
 \newpage
-\section{Dynamic Fusion Node with binary search for Rank} \label{sec:DynamicFusionNodeBinaryRank}
+\section{Dynamic Fusion Node with Binary Search for Rank} \label{sec:DynamicFusionNodeBinaryRank}
 
 \paragraph*{Goal}
 To improve the time performance of the implementation presented in Section~\ref{sec:naiveImplementation} by adding instance variables that enable indexing the keys by their rank. By doing so, updates and rank queries now take $O(\log_2 n)$ time. Select takes $O(1)$ time.
@@ -1360,7 +1435,7 @@ Note that this is precisely what we have mentioned in Section~\ref{sec:transdich
 We interpret $bKey$ as an array where the values of the first $k$ bits correspond to the positions in $key$. Like any other word, the bits in $bKey$ are indexed from $0$ to $k-1$, and if the $i^{\text{th}}$ bit is set to $1$, then position $i$ in $key$ is free to store a key, and vice-versa. We initialize $bKey$ as $-1$, which represents the case where the set is empty.
 
 If $k = 16$, then $\lceil \log_2(k) \rceil = 4$. Each $\lceil \log_2(k) \rceil$-bit field of $index$ stores the index of the key in $key$ in their sorted order.
-It is important to note that \cite{patrascu2014dynamic} mentions only that $k$ has to be a power of two. The implementation allows for $k$ to take other values just as long as they are at most $16$ and a power of two.
+It is important to note that \cite{patrascu2014dynamic} mentions only that $k$ has to be a power of $2$. The implementation allows for $k$ to take other values just as long as they are at most $16$ and a power of $2$.
 
 \subsection{Fields} \label{sec:binaryRankFields}
 The class holds the following fields:
@@ -1398,7 +1473,7 @@ private int n;
     \end{lstlisting}
 \end{itemize}
 
-\subsection{Helper methods} \label{sec:binaryRankHelperMethods}
+\subsection{Helper Methods} \label{sec:binaryRankHelperMethods}
 \begin{itemize}
     \item
     {\ttfamily firstEmptySlot()} returns the first available spot in $key$ by computing $\text{lsb}(bKey)$. Since only the first $k$ spots are valid results, a check is done to see if this result is within the range, returning $-1$ if not.
@@ -1407,7 +1482,7 @@ private int n;
     {\ttfamily fillSlot(final int j)} sets position $j$ in $bKey$ to not empty. This is done with a call to $\text{deleteBit}(j, bKey)$.
     
     \item
-    {\ttfamily vacantSlot(int j)} sets the $j^{th}$ position of $bKey$ to empty by calling $\text{setBit}(j, bKey)$.
+    {\ttfamily vacantSlot(int j)} sets the $j^{\text{th}}$ position of $bKey$ to empty by calling $\text{setBit}(j, bKey)$.
     
     \item
     {\ttfamily getIndex(final long i)} returns the index in $key$ of the key with rank $i$. This operation is done with a call to $\text{getField}(i, \lceil \log_2 k\rceil, index)$.
@@ -1420,7 +1495,7 @@ private int n;
     {\ttfamily binaryRank(final long x)} returns the rank of $x$ in the set, using {\ttfamily select(final long rank)} as a subroutine. As the name implies, the algorithm used in this implementation is binary search.
 \end{itemize}
 
-\subsection{Implementation of the interface methods} \label{sec:binaryRankInterfaceImplementation}
+\subsection{Implementation of the Interface Methods} \label{sec:binaryRankInterfaceImplementation}
 \begin{itemize}
     \item \label{sec:binaryRankInsert}
     {\ttfamily insert(final long x)}:
@@ -1617,12 +1692,12 @@ We will now delete $x = -1000$, having as starting point the state the instance 
 \end{enumerate}
 
 \newpage
-\section{Rank via matching with "don't cares"} \label{sec:rankWithDontCares}
+\section{Rank via Matching with "Don't Cares"} \label{sec:rankWithDontCares}
 
 \paragraph*{Goal}
 Having the implementation from Section~\ref{sec:DynamicFusionNodeBinaryRank} as a starting point, the goal is to implement rank queries while via matching with "don't cares". Rank will now take $O(k)$ time and this is due to a subroutine, {\ttfamily match}, which at this stage is computed naively. Select keeps its $O(1)$ time, whereas updates now take $O(k\cdot n)$ because the instance variables introduces in this implementation are maintained naively.
 
-Static fusion trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia trie at the node level. This is relevant because, differently to what happens at the fusion tree node from Fredman and Willard, inserting a new key in a Patricia trie corresponds to adding a new branch node \cite{patrascu2014dynamic}. By doing so, the data structure now supports queries and updates in $O(1)$ time.
+Static Fusion Trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia Trie at the node level. This is relevant because, differently to what happens at the Fusion Tree node from Fredman and Willard, inserting a new key in a Patricia Trie corresponds to adding a new branch node \cite{patrascu2014dynamic}. By doing so, the data structure now supports queries and updates in $O(1)$ time.
 
 In this incremental step, we keep the most of the implementation details of \ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
 
@@ -1643,7 +1718,7 @@ The implementation discussed in this section can be found in the file highlighte
 Enabling this operation entails the following:
 \begin{itemize}
     \item
-    Compressing keys (or \textit{sketching}) in the same style as fusion trees, from Fredman and Willard.
+    Compressing keys (or \textit{sketching}) in the same style as Fusion Trees, from Fredman and Willard.
     
     In order to compress keys, we need a compressing key. Let $S = \{x_i, \dots, x_j\}$. A naive way to compute a compressing key is to set the $\text{msb}(x_i \oplus x_j)$ bit by of all combinations of $\{x_i, \dots, x_j\}$ keys in $S$ in a word.
     
@@ -1685,7 +1760,7 @@ The implementation of Section~\ref{sec:DynamicFusionNodeBinaryRank} had the word
     \iff k \leq 8
 \end{align*}
 
-This class shares many implementation details with the Dynamic Fusion Node with binary Rank from Section~\ref{sec:DynamicFusionNodeBinaryRank}. For that reason, in the next few sections, we will see what is kept, added, or altered compared with that implementation while expanding only on the last two. The changes enable the new operations of this class.
+This class shares many implementation details with the \textit{Dynamic Fusion Node} with binary Rank from Section~\ref{sec:DynamicFusionNodeBinaryRank}. For that reason, in the next few sections, we will see what is kept, added, or altered compared with that implementation while expanding only on the last two. The changes enable the new operations of this class.
 
 \subsection{Fields} \label{sec:dontCaresRankFields}
 The following fields were kept unchanged and stand for the same as in \ref{sec:binaryRankFields}:
@@ -1731,7 +1806,7 @@ private long free;
     \end{lstlisting}
 \end{itemize}
 
-\subsection{Helper methods} \label{sec:dontCaresRankHelperMethods}
+\subsection{Helper Methods} \label{sec:dontCaresRankHelperMethods}
 
 The following helper methods suffered no changes and serve the same purpose as in the implementation from \ref{sec:binaryRankHelperMethods}:
 \begin{itemize}
@@ -1822,7 +1897,7 @@ private int match(final long x)
 
 \end{itemize}
 
-\subsection{Implementation of the interface methods} \label{sec:dontCaresRankInterfaceImplementation}
+\subsection{Implementation of the Interface Methods} \label{sec:dontCaresRankInterfaceImplementation}
 
 The following interface methods suffered no changes and serve the same purpose as the implementation from \ref{sec:binaryRankInterfaceImplementation}:
 \begin{itemize}
@@ -1916,7 +1991,7 @@ Our example starts with a set containing the keys from table~\ref{tab:keysInTheS
 \label{tab:keysInTheSetForRank}
 \end{table}
 
-\subsubsection{Key compression} \label{sec:keyCompression}
+\subsubsection{Key Compression} \label{sec:keyCompression}
 
 The keys from table~\ref{tab:keysInTheSetForRank} will produce the following compressing key (with the $52$ most significant bits omitted for brevity):
 \begin{align*}
@@ -1941,7 +2016,7 @@ After compressing our keys with our $compressingKey$, we end up with the result 
 \label{tab:compressedKeys}
 \end{table}
 
-\subsubsection{Compressed keys with "don't cares"} \label{sec:keyCompressionWithDontCares}
+\subsubsection{Compressed Keys with "Don't Cares"} \label{sec:keyCompressionWithDontCares}
 
 As previously mentioned, the particular value of some of the bits at some positions has no influence on the rank of the keys. These positions have been replaced with "$?$" on table~\ref{tab:compressedKeysWithDontCares}. The operation of transforming compressed keys in compressed keys with "don't cares" corresponds to what the {\ttfamily dontCares} method described in \ref{sec:dontCaresRankHelperMethods} does.
 
@@ -2063,7 +2138,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
     \item
     The idea behind the current step is described in the \textit{Desketchifying} chapter of \cite{erikdemainelec12}.
     
-    To find the actual rank of $x$, we need to use the $\text{match}$ function once again. We know now that there is a key, $y$, that matched $x$ but branched away from $x$ in the $6^{th}$ bit.
+    To find the actual rank of $x$, we need to use the $\text{match}$ function once again. We know now that there is a key, $y$, that matched $x$ but branched away from $x$ in the $6^{\text{th}}$ bit.
     We have now two cases:
     \begin{itemize}
         \item
@@ -2147,7 +2222,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
 \end{enumerate}
 
 \newpage
-\section{Inserting while maintaining the compressed keys with "don't cares"} \label{sec:InsertDontCares}
+\section{Inserting while Maintaining the Compressed Keys with "Don't Cares"} \label{sec:InsertDontCares}
 
 \paragraph*{Goal}
 Having the implementation from Section~\ref{sec:rankWithDontCares} as a starting point, the goal is to improve the insert method such that $branch$ and $free$ are maintained using the algorithm described in \cite{patrascu2014dynamic} for this effect. Rank queries keep their $O(k)$; and select queries keep their $O(1)$ time. Inserting is bound by the running time of one of its subroutines, which takes $O(k)$ time (the running time of this operation is addressed at a later section of \cite{patrascu2014dynamic}). Apart from that, all the insert algorithm steps take $O(1)$ time. Delete is kept unaltered.
@@ -2213,7 +2288,7 @@ private long branch;
 private long free;
 \end{lstlisting}
 
-\subsection{Helper methods} \label{sec:dontCaresInsertHelperMethods}
+\subsection{Helper Methods} \label{sec:dontCaresInsertHelperMethods}
 
 The following helper methods, which have already been implemented in \ref{sec:binaryRankHelperMethods} and \ref{sec:dontCaresRankHelperMethods} are kept:
 \begin{itemize}
@@ -2311,7 +2386,7 @@ The following are helper methods introduced in this implementation:
     \end{figure}
 \end{itemize}
 
-\subsection{Implementation of the interface methods}  \label{sec:dontCaresInsertInterfaceImplementation}
+\subsection{Implementation of the Interface Methods}  \label{sec:dontCaresInsertInterfaceImplementation}
 
 The following interface methods suffered no changes and serve the same purpose as the implementation from Section~\ref{sec:dontCaresRankInterfaceImplementation}:
 \begin{itemize}
@@ -2339,7 +2414,7 @@ Based on the description of \textit{Inserting a key} of \cite{patrascu2014dynami
     \item
     If the set is not empty:
     \begin{enumerate}
-        \item
+        \item \label{blt:matchX}
         We compute $\text{match}(x)$ and store it in a local variable $i$.
         
         \item
@@ -2360,7 +2435,7 @@ Based on the description of \textit{Inserting a key} of \cite{patrascu2014dynami
         \item \label{blt:naiveRankJ}
         We compute the rank of $j$ in $compressingKey$ by masking all the bits at indices larger than $j$ and calling the standard library function, {\ttfamily bitCount}, on the masked $compressingKey$. This is stored in a local variable, $h$. At this stage, this operation is done naively, as Pătrașcu and Thorup address this operation in a later section.
         
-        \item
+        \item  \label{blt:matchI_0I_1}
         We compute $i_0$ and $i_1$, given by the calls $\text{match}(x \wedge \neg((1 \ll j) - 1))$ and $\text{match}(x \vee ((1 \ll j) - 1))$. These masks and queries have been explained in \ref{sec:rankDontCaresQuery} and they will correspond to rows in $branch$ and $free$, e.g. the rank of actual keys in the set.
         
         \item
@@ -2445,7 +2520,7 @@ Based on the description of \textit{Inserting a key} of \cite{patrascu2014dynami
     We finish by computing the steps described in \ref{sec:binaryRankInsert}, effectively insert $x$ in the set.
 \end{enumerate}
 
-Apart from step \ref{blt:naiveRankJ}, all the steps taken by this algorithm run in $O(1)$ time.
+The overall running time of this algorithm is bound by the match subroutines (steps~\ref{blt:matchX} and \ref{blt:matchI_0I_1}) and finding the rank of the new branching bit (step~\ref{blt:naiveRankJ}): these take $O(3\cdot k) = O(k)$. Otherwise, all the remaining steps taken by this algorithm run in $O(1)$ time.
 
 \subsection{Example} \label{sec:dontCaresInsertExample}
 
@@ -2482,7 +2557,7 @@ Inserting $x$ in the given set is comprised of the following:
     If the set is not empty (which for the moment it is not), then we have to run the steps from Sections~\ref{sec:updateI0_I1} to \ref{sec:updateRankRow}; otherwise we skip to \ref{sec:dontCaresInsert}. This is because when the set is empty, there is no need for updating the compressed keys with "don't cares".
 \end{itemize}
 
-\subsubsection{Updating the range of keys whose compressed key matches the insertion key} \label{sec:updateI0_I1}
+\subsubsection{Updating the Range of Keys whose Compressed Key matches the Insertion Key} \label{sec:updateI0_I1}
 
 \begin{enumerate}
     \item
@@ -2629,7 +2704,7 @@ Inserting $x$ in the given set is comprised of the following:
     \end{figure}
 \end{enumerate}
 
-\subsubsection{Updating the instance variables with the new compressed key} \label{sec:updateRankRow}
+\subsubsection{Updating the Instance Variables with the new Compressed Key} \label{sec:updateRankRow}
 
 We now have to insert a row for the new key in $branch$ and $free$ and write its corresponding values. This entails the following:
 
@@ -2687,7 +2762,7 @@ We now have to insert a row for the new key in $branch$ and $free$ and write its
     
 \end{enumerate}
 
-\subsubsection{Storing the key} \label{sec:dontCaresInsert}
+\subsubsection{Storing the Key} \label{sec:dontCaresInsert}
 
 With $branch$ and $free$ now updated, we proceed with remaining insertion operations, which have been described in Section~\ref{sec:binaryRankInsert}.
 
@@ -2709,7 +2784,7 @@ The implementing classes can be found in the folder shown in figure~\ref{fig:tes
 Validation summary tables, which include the results of the test, together with the range or size of the test instances, have been included.
 The symbol \checkmark \ in those tables signifies a passed test with the specified parameters.
 
-\section{{\ttfamily Util} class tests}
+\section{{\ttfamily Util} Class Tests}
 
 All the tests concerning the {\ttfamily Util} class can be found in the {\ttfamily UtilTest.java} file, whose path is shown in figure~\ref{fig:utilTestTree}.
 
@@ -2725,13 +2800,13 @@ All the tests concerning the {\ttfamily Util} class can be found in the {\ttfami
     \label{fig:utilTestTree}
 \end{figure}
 
-\subsection{msb series tests}
+\subsection{msb Series Tests}
 
 The {\ttfamily Util} class contains many different implementations of the msb$(x)$ operation. Since Java's standard library offers a {\ttfamily numberOfLeadingZeros} function, we can easily test the different msb$(x)$ implementations. Converting the result from the standard library function is done by subtracting its return value to $w - 1$.
 
 Taking as an example the test on the {\ttfamily msbConstant()} implementation, for such a test to pass all instances in a given range have to assert that {\ttfamily Long.SIZE - 1 - Long.numberOfLeadingZeros(i)} and {\ttfamily Util.msbConstant(i)} are the same. Tests on the other implementations differ only either on $w$ (which can be either 32-bit {\ttfamily Integer} or 64-bit {\ttfamily Long}) and the function that is called, and each of them is named after the function they are testing, e.g. {\ttfamily msb32Obvious()} tests the 32-bit version the naive msb$(x)$ algorithm.
 
-\subsubsection{Validation results}
+\subsubsection{Validation Results}
 
 \begin{table}[H]
 \centering
@@ -2753,16 +2828,16 @@ Taking as an example the test on the {\ttfamily msbConstant()} implementation, f
 
 The {\ttfamily splitMerge()} method tests the {\ttfamily splitLong} and {\ttfamily mergeInts} methods by evaluating if the following property holds for a determined range of 64-bit keys: {\ttfamily key == mergeInts(splitLong(key))}.
 
-\subsubsection{Validation results}
+\subsubsection{Validation Results}
 
 \begin{table}[H]
 \centering
 \input{src/tex/04_Tables/037_splitMergeValidation}
-\caption{Validation summary of the {\ttfamily msb64} functions}
+\caption{Validation summary of the {\ttfamily splitLong} and {\ttfamily mergeInts} functions}
 \label{tab:splitMergeValidation}
 \end{table}
 
-\subsection{Fields of words tests}
+\subsection{Fields of Words Tests}
 The {\ttfamily getField} and {\ttfamily setField} methods are tested in the {\ttfamily setAndGetField32()} and {\ttfamily setAndGetField64()} methods (the latter differ solely on the size of the word where the fields are to be written to). A pass of the test consists of:
 \begin{enumerate}
     \item
@@ -2778,7 +2853,7 @@ The {\ttfamily getField} and {\ttfamily setField} methods are tested in the {\tt
     When all $m$ keys have been generated and inserted, the auxiliary array is iterated, and at each iteration $i$, it asserts that the key at index $i$ in the auxiliary array is the same as the one returned by the {\ttfamily getField} function.
 \end{enumerate}
 
-\subsubsection{Validation results}
+\subsubsection{Validation Results}
 
 \begin{table}[H]
 \centering
@@ -2816,7 +2891,7 @@ A pass in this test consists of:
     Lastly, the rank of $x$, which has been computed before, is compared with its rank computed via the {\ttfamily rankLemma1} function.
 \end{enumerate}
 
-\subsubsection{Validation results}
+\subsubsection{Validation Results}
 
 \begin{table}[H]
 \centering
@@ -2845,7 +2920,7 @@ Each implementing class of the {\ttfamily RankSelectPredecessorUpdate} interface
     \label{fig:implementingClassesTestFilesTree}
 \end{figure}
 
-\subsection{Test helper class}
+\subsection{Testing Helper Class}
 
 In order to avoid duplicate code, a helper class, denoted {\ttfamily RankSelectPredecessorUpdateTest}, was implemented. It can be found in the same folder as the remaining test classes, as shown in figure~\ref{fig:implementingClassesTestFilesTree}.
 
@@ -2967,7 +3042,7 @@ This test aims at ensuring that the following property holds for all the keys in
 This test aims at ensuring that the following property holds for all the keys in the set: the rank of select a query is the query. It can be executed in passes, and it works by iterating from {\ttfamily 0} to {\ttfamily numKeys}. At each iteration {\ttfamily i}, it is asserted that {\ttfamily i == rank(select(i))}.
 
 
-\subsection{Validation results}
+\subsection{Validation Results}
 
 This section summarizes the results from the tests described in Sections from \ref{sec:insertAndMemberSmallTest} to \ref{sec:rankOfSelectTest} against the implementations described in Sections from \ref{sec:naiveImplementation} to \ref{sec:InsertDontCares}.
 The results can be seen in table~\ref{tab:validationImplementations}, where the correspondence between implementation and abbreviation is done in table~\ref{tab:abbreviationsTable}.
@@ -2985,6 +3060,6 @@ Each test was repeated with a different set of keys \#$passes$ times.
 \begin{table}[H]
 \centering
 \input{src/tex/04_Tables/033_DynamicFusionNodeValidation.tex}
-\caption{Validation summary of the Dynamic Fusion Node implementations}
+\caption{Validation summary of the \textit{Dynamic Fusion Node} implementations}
 \label{tab:validationImplementations}
 \end{table}
