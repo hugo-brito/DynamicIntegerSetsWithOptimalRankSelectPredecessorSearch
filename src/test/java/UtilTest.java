@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class UtilTest {
 
-  static int passes = 10_000;
+  static int passes = 100_000_000;
   static long seed = 42;
   static List<Long> seedList;
 
@@ -209,7 +209,7 @@ class UtilTest {
       Random passRand = new Random(seedList.get(p));
       int key = passRand.nextInt();
       for (int i = 0; i < Integer.SIZE; i++) {
-        String bin = Util.bin(key, i).replace("0b", "").replace("_", "");
+        String bin = Util.bin(key, i).toLowerCase().replace("0b", "").replace("_", "");
         assertEquals(key, Integer.parseUnsignedInt(bin, 2));
       }
     }
@@ -221,7 +221,8 @@ class UtilTest {
       Random passRand = new Random(seedList.get(p));
       long key = passRand.nextLong();
       for (int i = 0; i < Long.SIZE; i++) {
-        String bin = Util.bin(key, i).replace("0b", "").replace("_", "").replace("l", "");
+        String bin = Util.bin(key, i).toLowerCase().replace("0b", "").replace("_", "")
+            .replace("l", "");
         assertEquals(key, Long.parseUnsignedLong(bin, 2));
       }
     }

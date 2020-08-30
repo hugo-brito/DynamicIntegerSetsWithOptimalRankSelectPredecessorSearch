@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class DynamicFusionNodeBinaryRankTest {
 
   static final long seed = 42;
-  static final int passes = 10_000;
+  static final int passes = 625_000;
   static final int numKeys = 16;
 
   private DynamicFusionNodeBinaryRank set;
