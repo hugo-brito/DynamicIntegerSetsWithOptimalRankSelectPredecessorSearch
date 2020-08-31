@@ -15,7 +15,7 @@ This thesis investigates the theoretical data structure presented in the «Dynam
 The authors claim that their proposal solves the dynamic predecessor problem optimally [Pătrașcu and Thorup, 2014].
 Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
 The data structure they propose denoted _Dynamic Fusion Node_, is made possible due to the smart use of techniques such as bitwise tricks, word-level parallelism, key compression, and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which for sets of size _n = w<sup>O(1)</sup>_ and in the word-RAM model take _O(1)_ time.
-By using the _Dynamic Fusion Node_ in the implementation of a _k_-ary tree, thus enabling the sets to be of arbitrary size, the running times are _O(_log<sub>_w_</sub> _n)_, proven by Fredman and Saks to be optimal [Fredman and Saks, 1989].
+By using the _Dynamic Fusion Node_ in the implementation of a _k_-ary tree, thus enabling the sets to be of arbitrary size, the running times are _O(_ log<sub>_w_</sub> _n)_, proven by Fredman and Saks to be optimal [Fredman and Saks, 1989].
 
 Using the [Pătrașcu and Thorup, 2014] paper as our primary reference, and after framing the topic within its context, we explore the essential tools and algorithms used by Pătrașcu and Thorup in their proposal.
 We will build, explore, and implement a library of relevant functions and algorithms used by the _Dynamic Fusion Node_.
