@@ -904,7 +904,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             A &= \underline{1110}\ \underline{1100}\ 0110\ 0101_2 \\
             b &= 4 \\
             t_3 &= 2 \\
-            A := \text{getFields}(t_3, b, A) &= 0000\ 0000\ \underline{1110}\ \underline{1100}_2 \\
+            A \coloneqq \text{getFields}(t_3, b, A) &= 0000\ 0000\ \underline{1110}\ \underline{1100}_2 \\
         \end{align*}
         
         \item
@@ -914,7 +914,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             b &= 4 \\
             t_3 &= 2 \\
             \cline{1-2}
-            M := \text{getFields}(t_3, b, M) &= 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
+            M \coloneqq \text{getFields}(t_3, b, M) &= 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
         \end{align*}
         
         \item
@@ -923,9 +923,9 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             x_1 = 1100_2 \\
             M = 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
             \cline{1-2}
-            x_1' := \text{deleteBit}(b - 1, x_1) = 0100_2 \\
+            x_1' \coloneqq \text{deleteBit}(b - 1, x_1) = 0100_2 \\
             \cline{1-2}
-            x_1'' := x_1 \times M = 0000\ 0000\ \underline{0100}\ \underline{0100}_2 \\
+            x_1'' \coloneqq x_1 \times M = 0000\ 0000\ \underline{0100}\ \underline{0100}_2 \\
         \end{align*}
         
         \item
@@ -933,7 +933,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
         \begin{align*}
             M = 0000\ 0000\ 000\underline{1}\ 000\underline{1}_2& \\
             \cline{1-2}
-            M := M \ll (b - 1) = 0000\ 0000\ \underline{1}000\ \underline{1}000_2& \\
+            M \coloneqq M \ll (b - 1) = 0000\ 0000\ \underline{1}000\ \underline{1}000_2& \\
         \end{align*}
         
         \item
@@ -975,7 +975,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             b &= 4 \\
             t_3 &= 2 \\
             \cline{1-2}
-            M := \text{getFields}(0, t_3, b, M) &= 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
+            M \coloneqq \text{getFields}(0, t_3, b, M) &= 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
         \end{align*}
         
         \item
@@ -984,7 +984,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             x_2 = 0111_2 \\
             M = 0000\ 0000\ \underline{0001}\ \underline{0001}_2 \\
             \cline{1-2}
-            x_2' := x_2 \times M = 0000\ 0000\ \underline{0111}\ \underline{0111}_2 \\
+            x_2' \coloneqq x_2 \times M = 0000\ 0000\ \underline{0111}\ \underline{0111}_2 \\
         \end{align*}
         
         \item
@@ -992,7 +992,7 @@ We will now run the algorithm for each of its branches. If the leading bit of th
         \begin{align*}
             M = 0000\ 0000\ 000\underline{1}\ 000\underline{1}_2& \\
             \cline{1-2}
-            M := M \ll (b - 1) = 0000\ 0000\ \underline{1}000\ \underline{1}000_2& \\
+            M \coloneqq M \ll (b - 1) = 0000\ 0000\ \underline{1}000\ \underline{1}000_2& \\
         \end{align*}
         
         \item
@@ -1003,9 +1003,9 @@ We will now run the algorithm for each of its branches. If the leading bit of th
             t_3 = &\ 2 \\ 
             M = &\ 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
             \cline{1-2}
-            A := \text{getFields}(0, t_3, b, A) = &\ 0000\ 0000\ \underline{0110}\ \underline{0101}_2 \\
+            A \coloneqq \text{getFields}(0, t_3, b, A) = &\ 0000\ 0000\ \underline{0110}\ \underline{0101}_2 \\
             \cline{1-2}
-            A := M \vee A = &\ 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
+            A \coloneqq M \vee A = &\ 0000\ 0000\ \underline{1}000\ \underline{1}000_2 \\
             \vee &\ 0000\ 0000\ \underline{0}110\ \underline{0}101_2 \\
             \cline{1-2}
             A = &\ 0000\ 0000\ \underline{1}110\ \underline{1}101_2
@@ -1123,7 +1123,7 @@ public static long getFields(final int i, final int f, final long A)
     \end{lstlisting}
     
     \item
-    The method below sets $A\langle i \rangle_f := y$ and returns $A$ after the change. It is enforced that $f \in [0, w]$ and $i \times f \in [0, w]$. Only the bits in $y\langle 0 \rangle_f$ are considered.
+    The method below sets $A\langle i \rangle_f \coloneqq y$ and returns $A$ after the change. It is enforced that $f \in [0, w]$ and $i \times f \in [0, w]$. Only the bits in $y\langle 0 \rangle_f$ are considered.
     \begin{lstlisting}
 public static int setField(final int i, final int y, final int f, final long A)
     \end{lstlisting}
@@ -1637,13 +1637,13 @@ Let $x = -1000$ be the key we wish to insert and $S$ the set we wish to insert i
     \begin{align*}
         x = -1000 \\
         \cline{1-2}
-        i := \text{rank}(-1000) = 4
+        i \coloneqq \text{rank}(-1000) = 4
     \end{align*}
     
     \item
     We find the first empty position in $key$ with a call to {\ttfamily firstEmptySlot()}, storing the result in a local variable $j$.
     \begin{align*}
-        j := \text{{\ttfamily firstEmptySlot()}} = 2
+        j \coloneqq \text{{\ttfamily firstEmptySlot()}} = 2
     \end{align*}
     
     \item
@@ -1690,7 +1690,7 @@ We will now delete $x = -1000$, having as starting point the state the instance 
     \begin{align*}
         x = -1000 \\
         \cline{1-2}
-        i := \text{rank}(-1000) = 4
+        i \coloneqq \text{rank}(-1000) = 4
     \end{align*}
     
     \item
@@ -1891,7 +1891,7 @@ private long dontCares(long compressedKeys, long free, final int bit, final int 
     \item
     After having $compressedKeys$ and $free$ computed, the {\ttfamily final long compressedKeys} method updates $branch$ with the expression:
     \begin{align*}
-        branch := compressedKeys \wedge \neg free
+        branch \coloneqq compressedKeys \wedge \neg free
     \end{align*}
     This takes $O(1)$ time.
     
@@ -2492,19 +2492,19 @@ Based on the description of \textit{Inserting a key} of \cite{patrascu2014dynami
                 \item
                 The values of the bits in positions between $0$ and $h - 1$ are set to $0$:
                 \begin{align*}
-                    branch\langle rank, 0 \dots h - 1 \rangle_{k \times 1} := 0^h
+                    branch\langle rank, 0 \dots h - 1 \rangle_{k \times 1} \coloneqq 0^h
                 \end{align*}
                 
                 \item
                 We read $x\langle j\rangle_1$ and store it at position $h$:
                 \begin{align*}
-                    branch\langle rank, h\rangle_{k \times 1} := x\langle j \rangle_1
+                    branch\langle rank, h\rangle_{k \times 1} \coloneqq x\langle j \rangle_1
                 \end{align*}
                 
                 \item
                 We copy the bit values in positions between $h+1$ and $k-1$ from the $\hat y^?$ to the same positions:
                 \begin{align*}
-                    branch\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} := branch\langle i, h + 1 \dots k - 1\rangle_{k \times 1}
+                    branch\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} \coloneqq branch\langle i, h + 1 \dots k - 1\rangle_{k \times 1}
                 \end{align*}
                 
             \end{itemize}
@@ -2515,19 +2515,19 @@ Based on the description of \textit{Inserting a key} of \cite{patrascu2014dynami
                 \item
                 The values of the bits in positions between $0$ and $h-1$ are set to $1$:
                 \begin{align*}
-                    free\langle rank, 0 \dots h - 1 \rangle_{k \times 1} := 1^h
+                    free\langle rank, 0 \dots h - 1 \rangle_{k \times 1} \coloneqq 1^h
                 \end{align*}
                 
                 \item
                 We set position $h$ to $0$:
                 \begin{align*}
-                    free\langle rank, h\rangle_{k \times 1} := 0
+                    free\langle rank, h\rangle_{k \times 1} \coloneqq 0
                 \end{align*}
                 
                 \item
                 We copy the bit values in positions between $h+1$ and $k-1$ from the $\hat y^?$ to the same positions:
                 \begin{align*}
-                    free\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} := free\langle i, h + 1 \dots k - 1\rangle_{k \times 1}
+                    free\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} \coloneqq free\langle i, h + 1 \dots k - 1\rangle_{k \times 1}
                 \end{align*}
             \end{itemize}
         \end{itemize}
@@ -2585,7 +2585,7 @@ Inserting $x$ in the given set is comprised of the following:
         \begin{align*}
             x = 1001\ 0101\ 0001_2\\
             \cline{1-2}
-            i := \text{match}(x) = 3
+            i \coloneqq \text{match}(x) = 3
         \end{align*}
         
         \item
@@ -2593,7 +2593,7 @@ Inserting $x$ in the given set is comprised of the following:
         \begin{align*}
             i = 3\\
             \cline{1-2}
-            y := \text{select}(i) = 1010\ 1101\ 0110_2
+            y \coloneqq \text{select}(i) = 1010\ 1101\ 0110_2
         \end{align*}
 
         \item
@@ -2617,7 +2617,7 @@ Inserting $x$ in the given set is comprised of the following:
             \cline{1-2}
             x \oplus y = 00\underline{1}1\ 1000\ 0111_2\\
             \cline{1-2}
-            j := \text{msb}(x \oplus y) = 9
+            j \coloneqq \text{msb}(x \oplus y) = 9
         \end{align*}
         
         \item
@@ -2627,7 +2627,7 @@ Inserting $x$ in the given set is comprised of the following:
             compressingKey = 110\underline{0}\ \underline{0001}\ \underline{0000}_2 \\
             mask = (1 \ll j) - 1 = 0001\ 1111\ 1111_2\\
             \cline{1-2}
-            h := \text{{\ttfamily bitCount}}(compressingKey \wedge mask) = 1
+            h \coloneqq \text{{\ttfamily bitCount}}(compressingKey \wedge mask) = 1
         \end{align*}
         
         \item
@@ -2639,11 +2639,11 @@ Inserting $x$ in the given set is comprised of the following:
             \cline{1-2}
             \neg((1 \ll j) - 1) = 1110\ 0000\ 0000_2 \\
             x \wedge \neg((1 \ll j) - 1) = 100\underline{0}\ \underline{0000}\ \underline{0000}_2\\
-            i_0 :=\text{match}(x \wedge \neg((1 \ll j) - 1)) = 2\\
+            i_0 \coloneqq\text{match}(x \wedge \neg((1 \ll j) - 1)) = 2\\
             \cline{1-2}
             (1 \ll j) - 1 = 0001\ 1111\ 1111_2 \\
             x \vee ((1 \ll j) - 1) = 100\underline{1}\ \underline{1111}\ \underline{1111}_2\\
-            i_1 := \text{match}(x \vee ((1 \ll j) - 1)) = 3\\
+            i_1 \coloneqq \text{match}(x \vee ((1 \ll j) - 1)) = 3\\
         \end{align*}
         
         \item
@@ -2653,7 +2653,7 @@ Inserting $x$ in the given set is comprised of the following:
             i_1 = 3 \\
             \cline{1-2}
             comp = -1 \implies \text{rank}(x) = i_0 \\
-            rank := 2
+            rank \coloneqq 2
         \end{align*}
     \end{enumerate}
     
@@ -2682,7 +2682,7 @@ Inserting $x$ in the given set is comprised of the following:
             j = 9 \\
             compressingKey = 11\underline{0}0\ 0001\ 0000_2\\
             \cline{1-2}
-             compressingKey := \text{setBit}(j, compressingKey) = 11\underline{1}0\ 0001\ 0000_2
+             compressingKey \coloneqq \text{setBit}(j, compressingKey) = 11\underline{1}0\ 0001\ 0000_2
         \end{align*}
         
         \item
@@ -2742,7 +2742,7 @@ We now have to insert a row for the new key in $branch$ and $free$ and write its
         x = 1001\ 0101\ 0001_2 \\
         y = 1010\ 1101\ 0110_2 \\
         \cline{1-2}
-        x < y \implies i:= 4
+        x < y \implies i\coloneqq 4
     \end{align*}
     
     \item
@@ -2751,21 +2751,21 @@ We now have to insert a row for the new key in $branch$ and $free$ and write its
         \item
         Row $rank$ of $branch$ will be:
         \begin{align*}
-            \textbf{(a)}\quad branch\langle rank, 0 \dots h - 1 \rangle_{k \times 1} &:= 0^h\\
-            \textbf{(b)}\quad branch\langle rank, h\rangle_{k \times 1} &:= x\langle j \rangle_1\\
-            \textbf{(c)}\quad branch\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} &:= branch\langle i, h + 1 \dots k - 1\rangle_{k \times 1}\\
+            \textbf{(a)}\quad branch\langle rank, 0 \dots h - 1 \rangle_{k \times 1} &\coloneqq 0^h\\
+            \textbf{(b)}\quad branch\langle rank, h\rangle_{k \times 1} &\coloneqq x\langle j \rangle_1\\
+            \textbf{(c)}\quad branch\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} &\coloneqq branch\langle i, h + 1 \dots k - 1\rangle_{k \times 1}\\
             \cline{1-2}
-            branch\langle rank \rangle_k &:=\underbrace{000010}_{\textbf{(c)}} \underbrace{0}_{\textbf{(b)}} \underbrace{0}_{\textbf{(a)}}
+            branch\langle rank \rangle_k &\coloneqq\underbrace{000010}_{\textbf{(c)}} \underbrace{0}_{\textbf{(b)}} \underbrace{0}_{\textbf{(a)}}
         \end{align*}
         
         \item
         Row $rank$ of $free$ will be:
         \begin{align*}
-            \textbf{(a)}\quad free\langle rank, 0 \dots h - 1 \rangle_{k \times 1} &:= 1^h \\
-            \textbf{(b)}\quad free\langle rank, h\rangle_{k \times 1} &:= 0 \\
-            \textbf{(c)}\quad free\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} &:= free\langle i, h + 1 \dots k - 1\rangle_{k \times 1} \\
+            \textbf{(a)}\quad free\langle rank, 0 \dots h - 1 \rangle_{k \times 1} &\coloneqq 1^h \\
+            \textbf{(b)}\quad free\langle rank, h\rangle_{k \times 1} &\coloneqq 0 \\
+            \textbf{(c)}\quad free\langle rank, h + 1 \dots k - 1\rangle_{k \times 1} &\coloneqq free\langle i, h + 1 \dots k - 1\rangle_{k \times 1} \\
             \cline{1-2}
-            free\langle rank \rangle_k &:=\underbrace{111101}_{\textbf{(c)}} \underbrace{0}_{\textbf{(b)}} \underbrace{1}_{\textbf{(a)}}
+            free\langle rank \rangle_k &\coloneqq\underbrace{111101}_{\textbf{(c)}} \underbrace{0}_{\textbf{(b)}} \underbrace{1}_{\textbf{(a)}}
         \end{align*}
     \end{itemize}
 

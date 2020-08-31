@@ -34,9 +34,9 @@ The {\ttfamily BitsKey} implementation consists of a simple helper class that st
 
 This implementation can be found in the file highlighted in figure~\ref{fig:BitsKeyTree}, and it is used as a helper class in the following implementations.
 
-\section{Additional Dynamic Predecessor Problem data structures}
+\section{Additional Dynamic Predecessor Problem Data Structures}
 
-\subsection{Binary search trie}
+\subsection{Binary Search Trie}
 
 \begin{figure}[H]
 \dirtree{% 
@@ -70,7 +70,7 @@ The {\ttfamily BinarySearchTrie.java} file, located in the path shown in figure~
 
 The {\ttfamily PatriciaTrie.java} file, located in the path shown in figure~\ref{fig:PatriciaTrieTree}, features an implementation of a Patricia Trie as presented by Sedgewick in \cite{sedgewick2002algorithms}, but it is missing the {\ttfamily rank} and {\ttfamily select} methods. It includes an overridden {\ttfamily member} method. In total, it supports insertion, deletion, and membership queries. For this reason, it does not pass all test instances from Section~\ref{sec:IntegerDataStructureTests}, but with the missing methods implemented, it is a valid data structure to be benchmarked with the other data structures mentioned in this paper.
 
-\subsection{Non-recursive Patricia trie}
+\subsection{Non-recursive Patricia Trie}
 
 \begin{figure}[H]
 \dirtree{% 
