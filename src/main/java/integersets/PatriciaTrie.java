@@ -1,5 +1,9 @@
 package integersets;
 
+/**
+ * Implementation of the {@code PatriciaTrie} data structure, as described in Section A.2.2 of the
+ * report.
+ */
 public class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   static class PTrieNode<E> extends Node<E> {
@@ -24,9 +28,12 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
     }
   }
 
-  private PTrieNode<BitsKey> root;
+  private final PTrieNode<BitsKey> root;
   private long count;
 
+  /**
+   * Constructs an empty {@code NonRecursivePatriciaTrie}.
+   */
   public PatriciaTrie() {
     root = new PTrieNode<BitsKey>(null, -1);
     root.left = root;
@@ -47,8 +54,8 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
 
   @Override
   public void insert(final long x) {
-    BitsKey v = new BitsKey(x);
-    BitsKey w = search(root.left, v, -1);
+    final BitsKey v = new BitsKey(x);
+    final BitsKey w = search(root.left, v, -1);
     if (v.equals(w)) {
       return;
     }
@@ -156,25 +163,4 @@ public class PatriciaTrie implements RankSelectPredecessorUpdate {
     return 0L;
   }
 
-  /** Debugging.
-   * 
-   * @param args --
-   */
-  public static void main(final String[] args) {
-    PatriciaTrie t = new PatriciaTrie();
-    System.out.println(t.member(1));
-    t.insert(1);
-    System.out.println(t.member(1));
-    t.insert(2);
-    System.out.println(t.member(2));
-    t.insert(732493);
-    System.out.println(t.member(732493));
-    // t.insert(-1);
-    // t.insert(10);
-    // t.insert(20);
-    System.out.println(t.member(6046118547395480652L));
-    t.insert(6046118547395480652L);
-    System.out.println(t.member(6046118547395480652L));
-    System.out.println(new BitsKey(6046118547395480652L).bin());
-  }
 }

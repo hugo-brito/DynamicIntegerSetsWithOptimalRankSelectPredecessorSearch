@@ -5,20 +5,26 @@ import java.util.Random;
 import java.util.TreeSet;
 
 /**
- * Utility class, containing many helful functions.
+ * Utility class, containing the helper functions described in Section 3.1 of the report.
  */
 
 public abstract class Util {
 
+  /**
+   * This abstract class cannot be instantiated.
+   */
+  public Util(){}
+
   /* BIT OPERATIONS */
 
   /**
-   * Given a 32-bit word, {@code A}, returns the value (0 or 1) of the {@code d}-th bit. The bit are
-   * indexed w-1...0.
+   * Given a {@code 32}-bit word, {@code A}, returns the value ({@code 0} or {@code 1}) of the
+   * {@code d}-th bit.
    * 
-   * @param d the bit index
-   * @param A the long value to have the digit extracted from
-   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   * @param d The bit index.
+   * @param A The int value to have the digit extracted from.
+   * @return {@code 0} or {@code 1} depending on if it is {@code 0} or {@code 1} at the specified
+   *      index {@code d}.
    */
   public static int bit(final int d, final int A) {
     if (d < 0 || d >= Integer.SIZE) {
@@ -28,12 +34,13 @@ public abstract class Util {
   }
 
   /**
-   * Given a 64-bit word, {@code A}, returns the value (0 or 1) of the {@code d}-th bit. The bit are
-   * indexed w-1...0.
-   * 
-   * @param d the bit index
-   * @param A the long value to have the digit extracted from
-   * @return 0 or 1 depending on if it's 0 or 1 at the specified index d.
+   * Given a {@code 64}-bit word, {@code A}, returns the value ({@code 0} or {@code 1}) of the
+   * {@code d}-th bit.
+   *
+   * @param d The bit index.
+   * @param A The int value to have the digit extracted from.
+   * @return {@code 0} or {@code 1} depending on if it is {@code 0} or {@code 1} at the specified
+   *      index {@code d}.
    */
   public static int bit(final int d, final long A) {
     if (d < 0 || d >= Long.SIZE) {
@@ -44,76 +51,70 @@ public abstract class Util {
   }
 
   /**
-   * Sets bit at position {@code d} to 1 and returns the key {@code A}.
+   * Sets bit at position {@code d} to {@code 1} and returns the key, {@code A}.
    * 
-   * @param A the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
+   * @param A The key to have the bit altered.
+   * @param d The index of the bit to be set to {@code 1}.
+   * @return The key with the bit altered.
    */
   public static int setBit(final int d, int A) {
-    if (d >= 0 || d < Integer.SIZE) {
+    if (d >= 0 && d < Integer.SIZE) {
       A |=  1 << d;
     }
     return A;
   }
 
   /**
-   * Sets bit at position {@code d} to 1 and returns the key {@code A}.
-   * 
-   * @param A the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
+   * Sets bit at position {@code d} to {@code 1} and returns the key, {@code A}.
+   *
+   * @param A The key to have the bit altered.
+   * @param d The index of the bit to be set to {@code 1}.
+   * @return The key with the bit altered.
    */
   public static long setBit(final int d, long A) {
-    if (d >= 0 || d < Long.SIZE) {
+    if (d >= 0 && d < Long.SIZE) {
       A |= 1L << d;
     }
     return A;
   }
 
   /**
-   * Sets bit at position {@code d} to 0 and returns the key {@code A}.
-   * 
-   * @param A the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
+   * Sets bit at position {@code d} to {@code 0} and returns the key, {@code A}.
+   *
+   * @param A The key to have the bit altered.
+   * @param d The index of the bit to be set to {@code 0}.
+   * @return The key with the bit altered.
    */
   public static int deleteBit(final int d, int A) {
-    if (d >= 0 || d < Integer.SIZE) {
+    if (d >= 0 && d < Integer.SIZE) {
       A &= ~(1 << d);
     }
     return A;
   }
 
   /**
-   * Sets bit at position {@code d} to 0 and returns the key {@code A}.
-   * 
-   * @param A the key to have the bit altered
-   * @param d the index of the bit to be set to 1
-   * @return the key with the bit altered
+   * Sets bit at position {@code d} to {@code 0} and returns the key, {@code A}.
+   *
+   * @param A The key to have the bit altered.
+   * @param d The index of the bit to be set to {@code 0}.
+   * @return The key with the bit altered.
    */
   public static long deleteBit(final int d, long A) {
-    if (d >= 0 || d < Long.SIZE) {
+    if (d >= 0 && d < Long.SIZE) {
       A &= ~(1L << d);
     }
     return A;
   }
 
   /* FIELDS OF WORDS */
-  
-  /* Often we view words as divided into fields of some length f. We then use x(i)_f to denote the
-   * ith field, starting from the right with x(0)_f the right most field. Thus x represents the
-   * integer E^(w−1)_(i=0) 2^i x(i)1.
-   * Note that fields can easily be masked out using regular instructions, e.g
-   */
 
   /**
    * Field retrieval function. This function returns field {@code i} in the word {@code A},
    * whose fields have length {@code f}.
-   * @param A The word containing fields
-   * @param i The position of the field
-   * @param f The length of the fields in {@code A}
-   * @return The field at the specified position in the {@code A} word
+   * @param A The word containing fields.
+   * @param i The position of the field.
+   * @param f The length of the fields in {@code A}.
+   * @return The field at the specified position in the {@code A} word.
    */
   public static int getField(final int i, final int f, final int A) {
     if (f < 0 || f >= Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
@@ -125,10 +126,10 @@ public abstract class Util {
   /**
    * Field retrieval function. This function returns field {@code i} in the word {@code A},
    * whose fields have length {@code f}.
-   * @param A The word containing fields
-   * @param i The position of the field
-   * @param f The length of the fields in {@code A}
-   * @return The field at the specified position in the {@code A} word
+   * @param A The word containing fields.
+   * @param i The position of the field.
+   * @param f The length of the fields in {@code A}.
+   * @return The field at the specified position in the {@code A} word.
    */
   public static long getField(final int i, final int f, final long A) {
     if (f < 0 || f >= Long.SIZE || i < 0 || i * f > Long.SIZE) {
@@ -139,15 +140,16 @@ public abstract class Util {
 
   /**
    * Two-dimensional field retrieval. When viewing words as matrices, the authors use the notation
-   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
-   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
-   * should never be larger than {@code f}.
-   * @param A The word containing fields
-   * @param i The position of the field in {@code A}
-   * @param j The position of the subfield in {@code i}
-   * @param g The lenght of the subfield {@code j}
-   * @param f The length of fields in {@code A}
-   * @return The specified subfield
+   * {@code x}&#9001;{@code i,j}&#9002;<sub>{@code g}&times;{@code f}</sub>, meaning, field
+   * {@code j} of field {@code i}, with lengths {@code g} and {@code f}, respectively. This
+   * corresponds to {@code x}&#9001;{@code i}&times;{@code j}+{@code f}&#9002;<sub>{@code f}</sub>.
+   *
+   * @param A The word containing fields.
+   * @param i The position of the field in {@code A}.
+   * @param j The position of the subfield in {@code i}.
+   * @param g The length of the subfield {@code j}.
+   * @param f The length of fields in {@code A}.
+   * @return The specified subfield.
    */
   public static int getField2d(final int i, final int j, final int g, final int f, final int A) {
     if (f < 0 || f >= Integer.SIZE || i < 0 || i * g + j > Integer.SIZE || g > f) {
@@ -158,15 +160,16 @@ public abstract class Util {
 
   /**
    * Two-dimensional field retrieval. When viewing words as matrices, the authors use the notation
-   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
-   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
-   * should never be larger than {@code f}.
-   * @param A The word containing fields
-   * @param i The position of the field in {@code A}
-   * @param j The position of the subfield in {@code i}
-   * @param g The lenght of the subfield {@code j}
-   * @param f The length of fields in {@code A}
-   * @return The specified subfield
+   * {@code x}&#9001;{@code i,j}&#9002;<sub>{@code g}&times;{@code f}</sub>, meaning, field
+   * {@code j} of field {@code i}, with lengths {@code g} and {@code f}, respectively. This
+   * corresponds to {@code x}&#9001;{@code i}&times;{@code j}+{@code f}&#9002;<sub>{@code f}</sub>.
+   *
+   * @param A The word containing fields.
+   * @param i The position of the field in {@code A}.
+   * @param j The position of the subfield in {@code i}.
+   * @param g The length of the subfield {@code j}.
+   * @param f The length of fields in {@code A}.
+   * @return The specified subfield.
    */
   public static long getField2d(final int i, final int j, final int g, final int f, final long A) {
     if (f < 0 || f > Long.SIZE || i < 0 || i * g + j > Long.SIZE || g > f) {
@@ -178,11 +181,11 @@ public abstract class Util {
   /**
    * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
    * {@code A}, whose fields have length {@code f}.
-   * @param A The word containing fields
-   * @param i The smallest field (inclusive), the right most field to be included
-   * @param j The largest field (exclusive), the left most field
-   * @param f The length of the fields in {@code A}
-   * @return A word containing the specified field range shifted to the least significant positions
+   * @param A The word containing fields.
+   * @param i The smallest field (inclusive), the right most field to be included.
+   * @param j The largest field (exclusive), the left most field.
+   * @param f The length of the fields in {@code A}.
+   * @return A word containing the specified field range shifted to the least significant positions.
    */
   public static int getFields(final int i, final int j, final int f, final int A) {
     if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE || j < 0
@@ -198,11 +201,11 @@ public abstract class Util {
   /**
    * Field retrieval function. This function returns fields from {@code i} to {@code j} in the word
    * {@code A}, whose fields have length {@code f}.
-   * @param A The word containing fields
-   * @param i The smallest field (inclusive), the right most field to be included
-   * @param j The largest field (exclusive), the left most fieldd
-   * @param f The length of the fields in {@code A}
-   * @return A word containing the specified field range shifted to the least significant positions
+   * @param A The word containing fields.
+   * @param i The smallest field (inclusive), the right most field to be included.
+   * @param j The largest field (exclusive), the left most field.
+   * @param f The length of the fields in {@code A}.
+   * @return A word containing the specified field range shifted to the least significant positions.
    */
   public static long getFields(final int i, final int j, final int f, final long A) {
     if (f < 0 || f > Long.SIZE || i < 0 || i * f > Long.SIZE || j < 0
@@ -218,10 +221,10 @@ public abstract class Util {
   /**
    * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
    * in the word {@code A}, whose fields have length {@code f}.
-   * @param A The word containing fields
-   * @param i The position of the first field to return
-   * @param f The length of the fields in {@code A}
-   * @return A word containing the remaining fields after the operation
+   * @param A The word containing fields.
+   * @param i The position of the first field to return.
+   * @param f The length of the fields in {@code A}.
+   * @return A word containing the remaining fields after the operation.
    */
   public static int getFields(final int i, final int f, final int A) {
     if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
@@ -233,10 +236,10 @@ public abstract class Util {
   /**
    * Field retrieval function. This function returns all fields larger than {@code i} (inclusive)
    * in the word {@code A}, whose fields have length {@code f}.
-   * @param A The word containing fields
-   * @param i The position of the first field to return
-   * @param f The length of the fields in {@code A}
-   * @return A word containing the remaining fields after the operation
+   * @param A The word containing fields.
+   * @param i The position of the first field to return.
+   * @param f The length of the fields in {@code A}.
+   * @return A word containing the remaining fields after the operation.
    */
   public static long getFields(final int i, final int f, final long A) {
     if (f < 0 || f > Long.SIZE || i < 0 || i * f > Long.SIZE) {
@@ -250,11 +253,12 @@ public abstract class Util {
    * field at position {@code i} with {@code y}. Only the {@code f} lower bits of {@code y} are
    * considered when setting the field in {@code A}. In other words, the bits between {@code f} and
    * w in {@code y} are disregarded and do not influence the result of this operation.
-   * @param A The word containing fields
-   * @param i The position of the first field to return
-   * @param y The field to be assigned in {@code A}
-   * @param f The length of the fields in {@code A}
-   * @return returns the word {@code A} after the operation
+   *
+   * @param A The word containing fields.
+   * @param i The position of the first field to return.
+   * @param y The field to be assigned in {@code A}.
+   * @param f The length of the fields in {@code A}.
+   * @return returns the word {@code A} after the operation.
    */
   public static int setField(final int i, final int y, final int f, final int A) {
     if (f < 0 || f > Integer.SIZE || i < 0 || i * f > Integer.SIZE) {
@@ -269,11 +273,12 @@ public abstract class Util {
    * field at position {@code i} with {@code y}. Only the {@code f} lower bits of {@code y} are
    * considered when setting the field in {@code A}. In other words, the bits between {@code f} and
    * w in {@code y} are disregarded and do not influence the result of this operation.
-   * @param A The word containing fields
-   * @param i The position of the first field to return
-   * @param y The field to be assigned in {@code A}
-   * @param f The length of the fields in {@code A}
-   * @return returns the word {@code A} after the operation
+   *
+   * @param A The word containing fields.
+   * @param i The position of the first field to return.
+   * @param y The field to be assigned in {@code A}.
+   * @param f The length of the fields in {@code A}.
+   * @return returns the word {@code A} after the operation.
    */
   public static long setField(final int i, final long y, final int f, final long A) {
     if (f < 0 || f > Long.SIZE || i < 0 || i * f > Long.SIZE) {
@@ -285,18 +290,19 @@ public abstract class Util {
 
   /**
    * Two-dimensional field assignment. When viewing words as matrices, the authors use the notation
-   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
-   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
-   * should never be larger than {@code f}.
+   * {@code x}&#9001;{@code i,j}&#9002;<sub>{@code g}&times;{@code f}</sub>, meaning, field
+   * {@code j} of field {@code i}, with lengths {@code g} and {@code f}, respectively. This
+   * corresponds to {@code x}&#9001;{@code i}&times;{@code j}+{@code f}&#9002;<sub>{@code f}</sub>.
+   * <br>
    * This method sets {@code y} to field {@code j}, which is a field in {@code i}, which is a field
    * in {@code A}; and returns {@code A} after the operation.
-   * @param A The word containing fields
-   * @param i The position of the field in {@code A}
-   * @param y The field to be assigned in {@code j}
-   * @param j The position of the subfield in {@code i}
-   * @param g The lenght of the subfield {@code j}
-   * @param f The length of fields in {@code A}
-   * @return returns the word {@code A} after the operation
+   * @param A The word containing fields.
+   * @param i The position of the field in {@code A}.
+   * @param y The field to be assigned in {@code j}.
+   * @param j The position of the subfield in {@code i}.
+   * @param g The length of the subfield {@code j}.
+   * @param f The length of fields in {@code A}.
+   * @return returns the word {@code A} after the operation.
    */
   public static int setField2d(final int i, final int j, final int y, final int g, final int f,
         final int A){
@@ -309,18 +315,19 @@ public abstract class Util {
 
   /**
    * Two-dimensional field assignment. When viewing words as matrices, the authors use the notation
-   * x&lt;i,j&gt_{g*f}, meaning, field {@code j} of field {@code i}, with lengths {@code g} and
-   * {@code f} respectively. This corresponds to x&lt;i*g + j&gt_f. For obvious reasons, {@code g}
-   * should never be larger than {@code f}.
+   * {@code x}&#9001;{@code i,j}&#9002;<sub>{@code g}&times;{@code f}</sub>, meaning, field
+   * {@code j} of field {@code i}, with lengths {@code g} and {@code f}, respectively. This
+   * corresponds to {@code x}&#9001;{@code i}&times;{@code j}+{@code f}&#9002;<sub>{@code f}</sub>.
+   * <br>
    * This method sets {@code y} to field {@code j}, which is a field in {@code i}, which is a field
    * in {@code A}; and returns {@code A} after the operation.
-   * @param A The word containing fields
-   * @param i The position of the field in {@code A}
-   * @param y The field to be assigned in {@code j}
-   * @param j The position of the subfield in {@code i}
-   * @param g The lenght of the subfield {@code j}
-   * @param f The length of fields in {@code A}
-   * @return returns the word {@code A} after the operation
+   * @param A The word containing fields.
+   * @param i The position of the field in {@code A}.
+   * @param y The field to be assigned in {@code j}.
+   * @param j The position of the subfield in {@code i}.
+   * @param g The length of the subfield {@code j}.
+   * @param f The length of fields in {@code A}.
+   * @return returns the word {@code A} after the operation.
    */
   public static long setField2d(final int i, final int j, final long y, final int g, final int f,
         final long A){
@@ -331,189 +338,13 @@ public abstract class Util {
     return setField(i * f + j, y, g, A);
   }
 
-  /**
-   * Given one 64-bit integer x, returns 2 32-bit integers in a 2-entry array. The
-   * least significant bits of x will be at position 0 of the array, whereas the
-   * least significant bits will be at position 1.
-   * 
-   * @param x the long to be split
-   * @return the array containing 2 32-bit integers.
-   */
-  public static int[] splitLong(final long x) {
-    final int[] res = new int[2];
-    res[0] = (int) (x << Integer.SIZE >>> Integer.SIZE);
-    res[1] = (int) (x >>> Integer.SIZE);
-    return res;
-  }
-
-  /**
-   * Given 2 32-bit integers in an array, returns 1 64-bit integer (long) using
-   * the bits from those integers. Entry 0 of the 32-bit int array will be the
-   * least significant bits of resulting long.
-   * 
-   * @param x The 32-bit integers
-   * @return The resulting long
-   */
-  public static long mergeInts(final int[] x) {
-    final long res = x[1];
-    return (res << Integer.SIZE) | Integer.toUnsignedLong(x[0]);
-  }
-
-  /**
-   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
-   * leading zeros and suffixed by {@code l}.
-   * 
-   * @param x the target
-   * @return a String representation of {@code x} in binary
-   */
-  public static String bin(final int x) {
-    return bin(x, 0);
-  }
-
-  /**
-   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
-   * leading zeros, spaced by {@code _} every {@code f} bits counting from the least significant
-   * bit.
-   * 
-   * @param x the target
-   * @param f the field length in bits
-   * @return a String representation of {@code x} in binary
-   */
-  public static String bin(final int x, final int f) {
-    final StringBuilder res = new StringBuilder("0b");
-    if (f <= 0 || f >= Integer.SIZE) {
-      for (int i = Integer.SIZE - 1; i > -1; i--) {
-        res.append(bit(i, x));
-      }
-    } else {
-      final int r = Integer.SIZE % f == 0 ? f : Integer.SIZE % f;
-      for (int i = Integer.SIZE - 1; i > Integer.SIZE - 1 - r; i--) {
-        res.append(bit(i, x));
-      }
-      for (int i = Integer.SIZE - 1 - r; i > -1; i -= f) {
-        res.append("_");
-        for (int j = i; j > i - f; j--) {
-          res.append(bit(j, x));
-        }
-      }
-    }
-    return res.toString();
-  }
-
-  /**
-   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
-   * leading zeros and suffixed by {@code l}.
-   * 
-   * @param x the target
-   * @return a String representation of {@code x} in binary
-   */
-  public static String bin(final long x) {
-    return bin(x, 0);
-  }
-
-  /**
-   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
-   * leading zeros, spaced by {@code _} every {@code f} bits counting from the least significant
-   * bit and suffixed by {@code l}.
-   * 
-   * @param x the target
-   * @param f the field length in bits
-   * @return a String representation of {@code x} in binary
-   */
-  public static String bin(final long x, final int f) {
-    final StringBuilder res = new StringBuilder("0b");
-    if (f <= 0 || f >= Integer.SIZE) {
-      for (int i = Long.SIZE - 1; i > -1; i--) {
-        res.append(bit(i, x));
-      }
-    } else {
-      final int r = Long.SIZE % f == 0 ? f : Long.SIZE % f;
-      for (int i = Long.SIZE - 1; i > Long.SIZE - 1 - r; i--) {
-        res.append(bit(i, x));
-      }
-      for (int i = Long.SIZE - 1 - r; i > -1; i -= f) {
-        res.append("_");
-        for (int j = i; j > i - f; j--) {
-          res.append(bit(j, x));
-        }
-      }
-    }
-    return res.append("l").toString();
-  }
-  
-  /**
-   * Returns a String representation of the interpretation of the matrix stored in the word
-   * {@code A}, with #{@code rows} rows and #{@code columns} columns.
-   * @param rows The number of rows
-   * @param columns The number of columns
-   * @param A The word containing the matrix
-   * @return The String representation of the matrix
-   */
-  public static String matrixToString(final int rows, final int columns, final long A) {
-    final StringBuilder sb = new StringBuilder("  ");
-    for (int c = columns - 1; c >= 0; c--) {
-      sb.append(" ").append(c);
-    }
-    sb.append("\n");
-    for (int r = rows - 1; r >= 0; r--) {
-      sb.append(r).append(" ");
-      final long row = Util.getField(r, columns, A);
-      for (int c = columns - 1; c >= 0; c--) {
-        sb.append(" ").append(Util.bit(c, row));
-      }
-      sb.append("\n");
-    }
-    return sb.toString();
-  }
-
-  /**
-   * Returns a String representation of the interpretation of the matrix stored in the word
-   * {@code A}, with #{@code rows} rows and #{@code columns} columns. The rows and columns
-   * will be seperated by commas, making this useful to be parsed as CSV values.
-   * @param rows The number of rows
-   * @param columns The number of columns
-   * @param A The word containing the matrix
-   * @return The String representation of the matrix
-   */
-  public static String matrixToCSVString(final int rows, final int columns, final long A) {
-    final StringBuilder sb = new StringBuilder(" ");
-    for (int c = columns - 1; c >= 0; c--) {
-      sb.append(",").append(c);
-    }
-    sb.append("\n");
-    for (int r = rows - 1; r >= 0; r--) {
-      sb.append(r);
-      final long row = Util.getField(r, columns, A);
-      for (int c = columns - 1; c >= 0; c--) {
-        sb.append(",").append(Util.bit(c, row));
-      }
-      sb.append("\n");
-    }
-    return sb.toString();
-  }
-
-  public static void print(final Object o) {
-    System.out.print(o);
-  }
-
-  public static void println(final Object o) {
-    System.out.println(o);
-  }
-
-  /*
-   * Finding the most and least significant bits in constant time. We have an operation msb(x) that
-   * for an integer x computes the index of its most significant set bit. Fredman and Willard
-   * showed how to implement this in constant time using multiplication, but msb can also be
-   * implemented very efficiently by assigning x to a floating point number and extract the
-   * exponent. A theoretical advantage to using the conversion to floating point numbers is that we
-   * avoid the universal constants depending on w used in [FW93].
-   */
+  /* MSB OPERATIONS */
 
   /**
    * Returns the index of the most significant bit of the target {@code x}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msb(final int x) {
     return msbConstant(x);
@@ -522,19 +353,20 @@ public abstract class Util {
   /**
    * Returns the index of the most significant bit of the target {@code x}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msb(final long x) {
     return msbConstant(x);
   }
 
   /**
-   * Using msb, we can also easily find the least significant bit of x as lsb(x) =
-   * msb((x − 1) ⊕ x).
+   * Least significant set bit of {@code x}.
+   * Using msb, we can also easily find the least significant bit of {@code x} as {@code lsb(x) =
+   * msb((x - 1) }&oplus;{@code  x)}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the least significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the least significant set bit of {@code x}.
    */
   public static int lsb(final int x) {
     if (x == 0) {
@@ -544,11 +376,12 @@ public abstract class Util {
   }
 
   /**
-   * Using msb, we can also easily find the least significant bit of x as lsb(x) =
-   * msb((x − 1) ⊕ x).
+   * Least significant set bit of {@code x}.
+   * Using msb, we can also easily find the least significant bit of {@code x} as {@code lsb(x) =
+   * msb((x - 1) }&oplus;{@code  x)}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the least significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the least significant set bit of {@code x}.
    */
   public static int lsb(final long x) {
     if (x == 0) {
@@ -558,10 +391,10 @@ public abstract class Util {
   }
 
   /**
-   * Uses the standard library function to calculate msb(x).
+   * Uses the standard library function to calculate {@code msb(x)}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbLibrary(final int x) {
     if (x == 0) {
@@ -571,10 +404,10 @@ public abstract class Util {
   }
 
   /**
-   * Uses the standard library function to calculate msb(x).
+   * Uses the standard library function to calculate {@code msb(x)}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbLibrary(final long x) {
     if (x == 0) {
@@ -584,11 +417,10 @@ public abstract class Util {
   }
 
   /**
-   * Naive way to calculate msb(x) as described in:
-   * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious
+   * Naive way to calculate {@code msb(x)} as described in <a href="https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious">https://graphics.stanford.edu/~seander/bithacks</a>.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbObvious(int x) {
     int r = -1; // r will be lg(v)
@@ -601,11 +433,10 @@ public abstract class Util {
   }
 
   /**
-   * Naive way to calculate msb(x) as described in:
-   * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious
+   * Naive way to calculate {@code msb(x)} as described in <a href="https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious">https://graphics.stanford.edu/~seander/bithacks</a>.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbObvious(long x) {
     int r = -1; // r will be lg(v)
@@ -620,8 +451,7 @@ public abstract class Util {
   static int[] LogTable256;
 
   /**
-   * Populates a lookup table for fast queries of msb.
-   * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
+   * Populates a lookup table for fast queries of msb. Inspired by the implementation from <a href="https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup">https://graphics.stanford.edu/~seander/bithacks</a>.
    */
   private static void generateLookupTable() {
     if (LogTable256 == null) {
@@ -636,11 +466,10 @@ public abstract class Util {
 
   /**
    * Uses the lookup table to return the most significant bit in {@code x} as
-   * described in
-   * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
+   * described in <a href="https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup">https://graphics.stanford.edu/~seander/bithacks.html</a>.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbLookupDistributedOutput(final int x) {
     if (x == 0) {
@@ -662,11 +491,11 @@ public abstract class Util {
   }
 
   /**
-   * Splits the long {@code x} and then uses msbLookupDistributedOutput to return
-   * the most significant bit.
+   * Splits the long {@code x} and then uses the {@code msbLookupDistributedOutput} function to
+   * return the most significant set bit of the query.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbLookupDistributedOutput(final long x) {
     if (x == 0) {
@@ -685,11 +514,10 @@ public abstract class Util {
 
   /**
    * Uses the lookup table to return the most significant bit in {@code x} as
-   * described in
-   * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup
+   * described in <a href="https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup">https://graphics.stanford.edu/~seander/bithacks</a>.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbLookupDistributedInput(final int x) {
     if (x == 0) {
@@ -715,11 +543,11 @@ public abstract class Util {
   }
 
   /**
-   * Splits the long {@code x} and then uses msbLookupDistributedInput to return
+   * Splits the long {@code x} and then uses {@code msbLookupDistributedInput} to return
    * the most significant bit.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbLookupDistributedInput(final long x) {
     if (x == 0) {
@@ -736,11 +564,93 @@ public abstract class Util {
     return Integer.SIZE + high;
   }
 
+  /* MSB LOOKUP HELPER FUNCTIONS */
+
   /**
-   * Helper function for the {@code rankLemma1} method. Returns the index of the
-   * transition from 0 to 1 in {@code field}, e.g., which powers of two are
-   * smaller than the input {@code field}.
+   * Given one 64-bit integer x, returns {@code 2} {@code 32}-bit integers in a 2-entry array. The
+   * least significant bits of x will be at position 0 of the array, whereas the
+   * least significant bits will be at position 1.
+   *
+   * @param x the long to be split
+   * @return the array containing {@code 2} {@code 32}-bit integers.
+   */
+  public static int[] splitLong(final long x) {
+    final int[] res = new int[2];
+    res[0] = (int) (x << Integer.SIZE >>> Integer.SIZE);
+    res[1] = (int) (x >>> Integer.SIZE);
+    return res;
+  }
+
+  /**
+   * Given {@code 2} {@code 32}-bit integers in an array, returns {@code 1} {@code 64}-bit integer
+   * (long) using the bits from those integers. Entry {@code 0} of the {@code 32}-bit int array
+   * will be the least significant bits of resulting long.
+   *
+   * @param x The {@code 32}-bit integers
+   * @return The resulting long
+   */
+  public static long mergeInts(final int[] x) {
+    final long res = x[1];
+    return (res << Integer.SIZE) | Integer.toUnsignedLong(x[0]);
+  }
+
+
+  /**
+   * Most significant bit in constant time. This implementation follows the Jelani Nelson and Erik
+   * Demaine's lecture notes.
    * 
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
+   */
+  public static int msbConstant(final int x) {
+    if (x == 0) {
+      return -1; // because 0 has no 1 bits
+    }
+    if (x < 0) {
+      return Integer.SIZE - 1;
+    }
+
+    return msbConstant(Integer.toUnsignedLong(x));
+  }
+
+  /**
+   * Most significant bit in constant time. This implementation follows the Jelani Nelson and Erik
+   * Demaine's lecture notes.
+   * 
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
+   */
+  public static int msbConstant(long x) {
+    if (x == 0) {
+      return -1; // because 0 has no 1 bits
+    }
+    if (x < 0) {
+      return Long.SIZE - 1;
+    }
+
+    final int w = Long.SIZE;
+    final int blockSize = 8;
+    final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
+    final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
+
+    final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C)
+        >>> (w - blockSize);
+
+    final int cluster = parallelComparison(summary);
+
+    x = (x >>> (cluster * blockSize)) & 0b11111111L;
+
+    final int d = parallelComparison(x);
+
+    return cluster * blockSize + d;
+  }
+
+  /* MSB O(1) HELPER FUNCTIONS */
+
+  /**
+   * Helper function for the {@code rankLemma1} method. Returns the index of the transition from
+   * 0 to 1 in {@code field}, e.g., which powers of two are smaller than the input {@code field}.
+   *
    * @param field the field to evaluate
    * @return the index of the transition from 0 to 1 in {@code field}
    */
@@ -795,61 +705,11 @@ public abstract class Util {
   }
 
   /**
-   * Most significant bit in constant time. This implementation follows the Jelani
-   * Nelson and Erik Demaine's lecture notes.
-   * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
-   */
-  public static int msbConstant(final int x) {
-    if (x == 0) {
-      return -1; // because 0 has no 1 bits
-    }
-    if (x < 0) {
-      return Integer.SIZE - 1;
-    }
-
-    return msbConstant(Integer.toUnsignedLong(x));
-  }
-
-  /**
-   * Most significant bit in constant time. This implementation follows the Jelani
-   * Nelson and Erik Demaine's lecture notes.
-   * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
-   */
-  public static int msbConstant(long x) {
-    if (x == 0) {
-      return -1; // because 0 has no 1 bits
-    }
-    if (x < 0) {
-      return Long.SIZE - 1;
-    }
-
-    final int w = Long.SIZE;
-    final int blockSize = 8;
-    final long F = 0b10000000_10000000_10000000_10000000_10000000_10000000_10000000_10000000L;
-    final long C = 0b00000001_00000010_00000100_00001000_00010000_00100000_01000000_10000000L;
-
-    final long summary = ((((x & F) | ((~(F - (x ^ (x & F)))) & F)) >>> (blockSize - 1)) * C)
-        >>> (w - blockSize);
-
-    final int cluster = parallelComparison(summary);
-
-    x = (x >>> (cluster * blockSize)) & 0b11111111L;
-
-    final int d = parallelComparison(x);
-
-    return cluster * blockSize + d;
-  }
-
-  /**
-   * Most significant bit in constant time. Commented version of
+   * Verbose version of the most significant bit in constant time. Commented version of
    * {@code msbConstant(x)}.
    * 
-   * @param x the key to be evaluated
-   * @return the index of the most significant bit of {@code x}
+   * @param x The key to be evaluated.
+   * @return The index of the most significant set bit of {@code x}.
    */
   public static int msbConstantVerbose(long x) {
     if (x == 0) {
@@ -1025,35 +885,20 @@ public abstract class Util {
     return cluster * blockSize + d;
   }
 
-  /**
-   * The helper method below produces a word comprised of {@code w / b} fields of
-   * {@code b} bits in length, having each field its least significant bit set to
-   * {@code 1}. E.g., the resulting word will have the bits at index zero and
-   * every {@code b}-th index set to {@code 1}.
-   * 
-   * @param b the block size
-   * @param w the word size
-   * @return the resulting word
-   */
-  public static long M(final int b, final int w) {
-    long M = 1L;
-    for (int i = 1; i < (w / b); i++) {
-      M |= 1L << (i * b);
-    }
-    return M;
-  }
+  /* RANK LEMMA 1 */
 
   /**
-   * Implementation of Rank Lemma 1. Lemma 1: Let mb <= w. If we are given a b-bit
-   * number {@code x} and a word {@code A} with {@code m} {@code b}-bit numbers
-   * stored in sorted order, then in constant time we can find the rank of
-   * {@code x} in {@code A}, denoted rank(x, A). In order for this method to
-   * return plausible results the fields in A must be sorted.
-   * 
-   * @param x the query of b size
-   * @param A the A word
-   * @param m the number of keys in A
-   * @param b the length of each key in A
+   * Implementation of Rank Lemma 1. Lemma 1: Let mb &le; w. If we are given a {@code b}-bit number
+   * {@code x} and a word {@code A} with {@code m} {@code b}-bit numbers stored in sorted order,
+   * then in constant time we can find the rank of {@code x} in {@code A}, denoted
+   * {@code rank(x, A)}. In order for this method to return sound results the fields in {@code A}
+   * must be sorted.
+   *
+   * @param x The query of {@code b} length.
+   * @param A The word containing the keys to be used in the comparison.
+   * @param m The number of keys in {@code A}.
+   * @param b The length of each key in {@code A} in bits.
+   * @return The rank of {@code x} among the keys in {@code A}.
    */
   public static int rankLemma1(long x, long A, final int m, final int b) {
     long M = M(b, m * b);
@@ -1106,16 +951,17 @@ public abstract class Util {
   }
 
   /**
-   * Implementation of Rank Lemma 1, verbose version. Lemma 1: Let mb <= w. If we
-   * are given a b-bit number {@code x} and a word {@code A} with {@code m}
-   * {@code b}-bit numbers stored in sorted order, then in constant time we can
-   * find the rank of {@code x} in {@code A}, denoted rank(x, A). In order for
-   * this method to return plausible results the fields in A must be sorted.
+   * Implementation of Rank Lemma 1, verbose version. Lemma 1: Let mb &le; w. If we are given a
+   * {@code b}-bit number {@code x} and a word {@code A} with {@code m} {@code b}-bit numbers
+   * stored in sorted order, then in constant time we can find the rank of {@code x} in {@code A},
+   * denoted {@code rank(x, A)}. In order for this method to return sound results the fields in
+   * {@code A} must be sorted.
    * 
-   * @param x the query of b size
-   * @param A the A word
-   * @param m the number of keys in A
-   * @param b the length of each key in A
+   * @param x The query of {@code b} length.
+   * @param A The word containing the keys to be used in the comparison.
+   * @param m The number of keys in {@code A}.
+   * @param b The length of each key in {@code A} in bits.
+   * @return The rank of {@code x} among the keys in {@code A}.
    */
   public static int rankLemma1Verbose(long x, long A, final int m, final int b) {
     // final int A = 0b1110_1101_1010_1001; // compressed keys in descending sorted
@@ -1257,18 +1103,168 @@ public abstract class Util {
       println("   rank(x,A) = " + numClustersLeadingBitIs0);
       return numClustersLeadingBitIs0;
     }
+  }
 
+  /* ADDITIONAL HELPER FUNCTIONS */
 
+  /**
+   * The helper method below produces a word comprised of {@code w/b} fields of {@code b} bits in
+   * length, having each field its least significant bit set to {@code 1}. E.g., the resulting word
+   * will have the bits at index zero and every {@code b}-th index set to {@code 1}.
+   *
+   * @param b The field size in bits.
+   * @param w The word size in bits.
+   * @return The resulting word.
+   */
+  public static long M(final int b, final int w) {
+    long M = 1L;
+    for (int i = 1; i < (w / b); i++) {
+      M |= 1L << (i * b);
+    }
+    return M;
+  }
+
+  /**
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros and suffixed by {@code l}.
+   *
+   * @param x The target.
+   * @return The string representation of {@code x} in binary.
+   */
+  public static String bin(final int x) {
+    return bin(x, 0);
+  }
+
+  /**
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros, spaced by {@code _} every {@code f} bits counting from the least significant
+   * bit.
+   *
+   * @param x The target.
+   * @param f The field length in bits.
+   * @return The string representation of {@code x} in binary.
+   */
+  public static String bin(final int x, final int f) {
+    final StringBuilder res = new StringBuilder("0b");
+    if (f <= 0 || f >= Integer.SIZE) {
+      for (int i = Integer.SIZE - 1; i > -1; i--) {
+        res.append(bit(i, x));
+      }
+    } else {
+      final int r = Integer.SIZE % f == 0 ? f : Integer.SIZE % f;
+      for (int i = Integer.SIZE - 1; i > Integer.SIZE - 1 - r; i--) {
+        res.append(bit(i, x));
+      }
+      for (int i = Integer.SIZE - 1 - r; i > -1; i -= f) {
+        res.append("_");
+        for (int j = i; j > i - f; j--) {
+          res.append(bit(j, x));
+        }
+      }
+    }
+    return res.toString();
+  }
+
+  /**
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros and suffixed by {@code l}.
+   *
+   * @param x The target.
+   * @return The string representation of {@code x} in binary.
+   */
+  public static String bin(final long x) {
+    return bin(x, 0);
+  }
+
+  /**
+   * Returns a String representation of {@code x} in binary prefixed by {@code 0b}, including
+   * leading zeros, spaced by {@code _} every {@code f} bits counting from the least significant
+   * bit and suffixed by {@code l}.
+   *
+   * @param x The target.
+   * @param f The field length in bits.
+   * @return The string representation of {@code x} in binary.
+   */
+  public static String bin(final long x, final int f) {
+    final StringBuilder res = new StringBuilder("0b");
+    if (f <= 0 || f >= Integer.SIZE) {
+      for (int i = Long.SIZE - 1; i > -1; i--) {
+        res.append(bit(i, x));
+      }
+    } else {
+      final int r = Long.SIZE % f == 0 ? f : Long.SIZE % f;
+      for (int i = Long.SIZE - 1; i > Long.SIZE - 1 - r; i--) {
+        res.append(bit(i, x));
+      }
+      for (int i = Long.SIZE - 1 - r; i > -1; i -= f) {
+        res.append("_");
+        for (int j = i; j > i - f; j--) {
+          res.append(bit(j, x));
+        }
+      }
+    }
+    return res.append("l").toString();
+  }
+
+  /**
+   * Returns a String representation of the interpretation of the matrix stored in the word
+   * {@code A}, with #{@code rows} rows and #{@code columns} columns.
+   * @param rows The number of rows.
+   * @param columns The number of columns.
+   * @param A The word containing the matrix.
+   * @return The string representation of the matrix.
+   */
+  public static String matrixToString(final int rows, final int columns, final long A) {
+    final StringBuilder sb = new StringBuilder("  ");
+    for (int c = columns - 1; c >= 0; c--) {
+      sb.append(" ").append(c);
+    }
+    sb.append("\n");
+    for (int r = rows - 1; r >= 0; r--) {
+      sb.append(r).append(" ");
+      final long row = Util.getField(r, columns, A);
+      for (int c = columns - 1; c >= 0; c--) {
+        sb.append(" ").append(Util.bit(c, row));
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Returns a String representation of the interpretation of the matrix stored in the word
+   * {@code A}, with #{@code rows} rows and #{@code columns} columns. The rows and columns
+   * will be separated by commas, making this useful to be parsed as CSV values.
+   * @param rows The number of rows.
+   * @param columns The number of columns.
+   * @param A The word containing the matrix.
+   * @return The String representation of the matrix.
+   */
+  public static String matrixToCSVString(final int rows, final int columns, final long A) {
+    final StringBuilder sb = new StringBuilder(" ");
+    for (int c = columns - 1; c >= 0; c--) {
+      sb.append(",").append(c);
+    }
+    sb.append("\n");
+    for (int r = rows - 1; r >= 0; r--) {
+      sb.append(r);
+      final long row = Util.getField(r, columns, A);
+      for (int c = columns - 1; c >= 0; c--) {
+        sb.append(",").append(Util.bit(c, row));
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
   }
 
   /**
    * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code seed}
-   * and unsignedly sorted and between 0 and {@code bound}.
+   * and unsignedly sorted and between {@code 0} and {@code bound}.
    * 
-   * @param n the number of {@code long} keys to produce
-   * @param bound the upper bound of the keys (exclusive)
-   * @param seed the seed to be used in the pseudo-random generator
-   * @return the array containing the keys generated with the specified parameters
+   * @param n The number of {@code long} keys to produce.
+   * @param bound The upper bound of the keys (exclusive).
+   * @param seed The seed to be used in the pseudo-random generator.
+   * @return The array containing the keys generated with the specified parameters.
    */
   public static long[] distinctBoundedSortedLongs(final int n, final long bound, final long seed) {
     if (Long.compareUnsigned(bound, n) < 0) {
@@ -1297,11 +1293,11 @@ public abstract class Util {
 
   /**
    * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code 42}
-   * and unsignedly sorted and between 0 and {@code bound}.
+   * and unsignedly sorted and between {@code 0} and {@code bound}.
    * 
-   * @param n the number of {@code long} keys to produce
-   * @param bound the upper bound of the keys (exclusive)
-   * @return the array containing the keys generated with the specified parameters
+   * @param n The number of {@code long} keys to produce.
+   * @param bound The upper bound of the keys (exclusive).
+   * @return The array containing the keys generated with the specified parameters.
    */
   public static long[] distinctBoundedSortedLongs(final int n, final long bound) {
     return distinctBoundedSortedLongs(n, bound, 42);
@@ -1311,33 +1307,39 @@ public abstract class Util {
    * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code seed}
    * and unsignedly sorted.
    * 
-   * @param n the number of {@code long} keys to produce
-   * @param seed the seed to be used in the pseudo-random generator
-   * @return the array containing the keys generated with the specified parameters
+   * @param n The number of {@code long} keys to produce.
+   * @param seed the seed to be used in the pseudo-random generator.
+   * @return The array containing the keys generated with the specified parameters.
    */
   public static long[] distinctSortedLongs(final int n, final long seed) {
     return distinctBoundedSortedLongs(n, -1, seed);
   }
 
   /**
-   * Returns an array containing {@code n} distinct {@code long}s produced with seed 42
+   * Returns an array containing {@code n} distinct {@code long}s produced with seed {@code 42}
    * and unsignedly sorted.
    * 
-   * @param n the number of {@code long} keys to produce
-   * @return the array containing the keys generated with the specified parameters
+   * @param n The number of {@code long} keys to produce.
+   * @return The array containing the keys generated with the specified parameters.
    */
   public static long[] distinctSortedLongs(final int n) {
     return distinctSortedLongs(n, 42);
   }
 
   /**
-   * Debugging.
-   * 
-   * @param args --
+   * Shortcut function to print to the terminal.
+   * @param o The object to be printed.
    */
-  public static void main(final String[] args) {
-    final int b = 4;
-    final int m = b * 2;
-    println(bin(M(b, m), b));
+  public static void print(final Object o) {
+    System.out.print(o);
   }
+
+  /**
+   * Shortcut function to print to the terminal.
+   * @param o The object to be printed.
+   */
+  public static void println(final Object o) {
+    System.out.println(o);
+  }
+
 }

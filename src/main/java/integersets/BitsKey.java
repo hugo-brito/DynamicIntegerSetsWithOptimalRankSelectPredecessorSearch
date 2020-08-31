@@ -1,11 +1,25 @@
 package integersets;
 
+/**
+ * Implementation of the helper {@code BitsKey} data structure, as described in Section A.1 of the
+ * report. It conveniently stores keys at the nodes in the Tries included in the package.
+ */
 public class BitsKey implements Comparable<BitsKey> {
-  /** BitsKey class created to conveniently store keys at the nodes in the Binary Search Trie.
+
+  /**
+   * Word size.
    */
   public static final int w = Long.SIZE;
+
+  /**
+   * The value held by the instance.
+   */
   public final long val;
 
+  /**
+   * Constructs a new {@code BitsKey}, holding the provided {@code val}.
+   * @param val The value to be held by the instance.
+   */
   public BitsKey(final long val) {
     this.val = val;
   }
@@ -19,7 +33,6 @@ public class BitsKey implements Comparable<BitsKey> {
    */
   public int bit(final int d) {
     return Util.bit(d, val);
-    // return (int) (val >>> (Long.SIZE - 1 - d)) & 1;
   }
 
   /** Naive way of calculating compareTo.
@@ -43,6 +56,14 @@ public class BitsKey implements Comparable<BitsKey> {
     return -1;
   }
 
+  /** Returns an integer value resulting from the comparison of two {@code BitsKey} instances.
+   * <br>If {@code this} is smaller than {@code that}, it will return {@code -1}.
+   * <br>If {@code this} is equal to {@code that}, it will return {@code 0}.
+   * <br>If {@code this} is larger than {@code that}, it will return {@code 1}.
+   *
+   * @param that The other key.
+   * @return The result of the comparison.
+   */
   @Override
   public int compareTo(final BitsKey that) {
     // To find if an unsigned long is larger than another:
@@ -63,10 +84,10 @@ public class BitsKey implements Comparable<BitsKey> {
 
   }
 
-  /** Returns true iff this key and that key hold the same val.
+  /** Returns {@code true} iff {@code this} key and {@code that} key hold the same {@code val}.
    * 
-   * @param that the other key
-   * @return boolean value, true when they are equal. False otherwise.
+   * @param that The other key.
+   * @return {@code true} when they are equal; {@code false} otherwise.
    */
   public boolean equals(final BitsKey that) {
     if (that == null) {
@@ -76,16 +97,19 @@ public class BitsKey implements Comparable<BitsKey> {
   }
 
   /**
-   * Helper function. Returns a binary representation of the long x in a String
-   * containing leading zeroes. It uses the helper function bit to do so and the
-   * StringBuilder for fast concatenation.
+   * Returns a binary representation of the long {@code val} in a string containing leading zeroes.
    * 
-   * @return
+   * @return The string representation of the value held by the instance in binary.
    */
   public String bin() {
     return Util.bin(val);
   }
 
+  /**
+   * Returns a string representation of the instance.
+   *
+   * @return The string representation of the instance.
+   */
   public String toString() {
     return "[Bin = " + bin() + ", Val = " + val + "]";
   }

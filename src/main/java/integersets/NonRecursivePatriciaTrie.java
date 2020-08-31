@@ -4,6 +4,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Implementation of the {@code NonRecursivePatriciaTrie} data structure, as described in Section
+ * A.2.3 of the report.
+ */
 public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, Iterable<BitsKey> {
 
   static class PTrieNode<E> extends Node<E> {
@@ -32,8 +36,7 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
   private int count;
 
   /**
-   * Initializes an empty PATRICIA-based set.
-   * The constructor creates a head (sentinel) node that contains a zero-length string.
+   * Constructs an empty {@code NonRecursivePatriciaTrie}.
    */
   public NonRecursivePatriciaTrie() {
     reset();
@@ -49,7 +52,7 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
 
   @Override
   public void insert(final long x) {
-    BitsKey insertionKey = new BitsKey(x);
+    final BitsKey insertionKey = new BitsKey(x);
 
     if (isEmpty()) {
       root = new PTrieNode<BitsKey>(new BitsKey(x), 0);
@@ -273,27 +276,5 @@ public class NonRecursivePatriciaTrie implements RankSelectPredecessorUpdate, It
       s.deleteCharAt(s.length() - 1);
     }
     return s.toString();
-  }
-
-  /** Debugging.
-   * 
-   * @param args --
-   */
-  public static void main(String[] args) {
-    NonRecursivePatriciaTrie t = new NonRecursivePatriciaTrie();
-    System.out.println(t.member(1));
-    t.insert(1);
-    System.out.println(t.member(1));
-    t.insert(2);
-    System.out.println(t.member(2));
-    t.insert(732493);
-    System.out.println(t.member(732493));
-    // t.insert(-1);
-    // t.insert(10);
-    // t.insert(20);
-    System.out.println(t.member(6046118547395480652L));
-    t.insert(6046118547395480652L);
-    System.out.println(t.member(6046118547395480652L));
-    System.out.println(new BitsKey(6046118547395480652L).bin());
   }
 }

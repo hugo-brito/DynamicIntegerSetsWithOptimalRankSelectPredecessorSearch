@@ -1,29 +1,27 @@
 package integersets;
 
 /**
- * Naive version of Dynamic Fusion Node.
- * The core differences lie in the fact that, instead of using O(1) time for insert and delete, it
- * takes O(n) because key[] is rearranged to accomodate the new key.
+ * Implementation of the {@code NaiveDynamicFusionNode} data structure, as described in Section 3.3
+ * of the report.
  */
 public class NaiveDynamicFusionNode implements RankSelectPredecessorUpdate {
 
-  private final int k = 16;
-  private final long[] key = new long[k];
+  private final int k;
+  private final long[] key;
   private int n;
 
-  public NaiveDynamicFusionNode() {
-    n = 0;
-  }
-
-  /** Sets S = S union {x}.
-   * @param x the integer to insert
+  /**
+   * Constructs an empty {@code NaiveDynamicFusionNode} with capacity for {@code k} elements.
+   * @param k the capacity limit of the set
    */
-  public void insert(final long x) {
-    naiveInsert(x);
+  public NaiveDynamicFusionNode(int k) {
+    this.k = k;
+    this.key = new long[k];
+    reset();
   }
 
-  private void naiveInsert(final long x) {
-
+  @Override
+  public void insert(final long x) {
     if (n > 0 && member(x)) {
       return;
     }
@@ -45,11 +43,6 @@ public class NaiveDynamicFusionNode implements RankSelectPredecessorUpdate {
 
   @Override
   public void delete(final long x) {
-    naiveDelete(x);
-  }
-
-  private void naiveDelete(final long x) {
-
     if (!member(x)) {
       return;
     }
@@ -70,10 +63,6 @@ public class NaiveDynamicFusionNode implements RankSelectPredecessorUpdate {
 
   @Override
   public Long select(final long rank) {
-    return naiveSelect(rank);
-  }
-
-  private Long naiveSelect(final long rank) {
     if (rank < 0 || rank >= size()) {
       return null;
     }
@@ -93,7 +82,7 @@ public class NaiveDynamicFusionNode implements RankSelectPredecessorUpdate {
 
   /** Helper method than provides the rank of a key {@code x} resorting to binary search.
    * For this reason, it takes O(lg N) time.
-   * 
+   *
    * @param x the key to be used to compute the rank
    * @return the rank of {@code x} in S
    */
@@ -102,7 +91,7 @@ public class NaiveDynamicFusionNode implements RankSelectPredecessorUpdate {
       return 0;
     }
 
-    int lo = 0; // indices of the KEY array.
+    int lo = 0;
     int hi = n - 1;
 
     while (lo <= hi) {

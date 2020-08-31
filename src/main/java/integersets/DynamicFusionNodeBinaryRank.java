@@ -1,59 +1,20 @@
 package integersets;
 
-/** For this version of indexing, which comes described in page 5 of the paper,
-  * we have selected w = 64, e. g. with word is made up of 64 bits. The reason
-  * for us to pick this size of word length is that we can conveniently use
-  * Java's \>\> \<\< | & ^ operations in constant time.
-  * 
-  * <p>The problem with this size for the word length is that they can only
-  * guarantee the fast running times when the capacity of the set is of w^(1/4)
-  * which is very small. Let w = be 64, then w^(1/4) = 2,8..... This is a set
-  * of very small size. So we drift away from this limit to a focus on the part
-  * where they say "We assume that our set S is stored in an unordered array KEY
-  * of k words plus a single word INDEX such that KEY[INDEX_i ceilLgK] is the
-  * key of rank i in S.". So what happens is that we max out the capacity for
-  * storing keys in INDEX given the premise that INDEX shall not exceed 64 bits
-  * in size. We calculate k such that k*ceil(log k) = 64, and we know that
-  * k = 16.</p>
-  * 
-  * <p>To help us storing the integers in the set, we use:
-  * - 1 array of words KEYS, which in this particular case is a long[]
-  * - An additional "array" which we called KEY with k bits, where each "cell"
-  * takes ceil(lg k) bits. The paper tells us that all of this information needs
-  * to fit in one word, e. g. 64 bits. So, doing the math we have 64 = k * ceil(log k)
-  * k = 16 (https://www.wolframalpha.com/input/?i=k+ceil%28log_2%28k%29%29+%3D+64)
-  * This means that our set will have capaticity for 16 elements.</p>
-  * 
-  * <p>An important note is that each "slot" in INDEX will have ceil(lg k) size and
-  * k slots in total. This means that with this specific word size, we will have
-  * 16 slots of 4 bits each.</p>
-  */
-
+/**
+ * Implementation of the {@code DynamicFusionNodeBinaryRank} data structure, as described in Section
+ * 3.3 of the report.
+ */
 public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate {
-  
-  /**
-  * We will ourselves use k = w^(1/4) The exact value makes no theoretical
-  * difference: We choose k = 16, such that we can fill a whole word to index all
-  * the keys in KEY.
-  */
-  private static final int k = 16; // capacity
 
-  /* We will store our key set S in an unsorted array KEY with room for k w-bit integers */
-  private final long[] key = new long[k];
-
-  /* We will also maintain an array INDEX of ceil(lg k)-bit indices */
-  private long index = 0;
+  private static final int k = 16;
   private static final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
-
+  private final long[] key = new long[k];
+  private long index;
   private int bKey;
-  // a bit map containing the empty spots in KEY
-  // we only consider the first k bits
-
   private int n;
-  // the current number of elements in S
 
   /**
-   * Constructs an empty DynamicFusionNode.
+   * Constructs an empty {@code DynamicFusionNodeBinaryRank} with capacity for 16 elements.
    */
   public DynamicFusionNodeBinaryRank() {
     reset();
@@ -106,7 +67,6 @@ public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate 
   @Override
   public long size() {
     return n;
-    // return (Integer.bitCount(~bKey >>> (Integer.SIZE - k)));
   }
 
   @Override
@@ -147,7 +107,6 @@ public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate 
    */
   private void vacantSlot(int j) {
     if (j >= 0 && j < k) {
-      // j += Util.lsb(~(bKey >>> j));
       bKey = Util.setBit(j, bKey);
     } else {
       throw new IndexOutOfBoundsException("j must be between 0 and k (" + k + ")!");
@@ -240,22 +199,5 @@ public class DynamicFusionNodeBinaryRank implements RankSelectPredecessorUpdate 
       }
     }
     return lo;
-  }
-
-  /**
-   * Debugging.
-   * 
-   * @param args --
-   */
-  public static void main(final String[] args) {
-    int k = 16;
-    final int ceilLgK = (int) Math.ceil(Math.log10(k) / Math.log10(2));
-    // Util.print(ceilLgK);
-    DynamicFusionNodeBinaryRank node = new DynamicFusionNodeBinaryRank();
-    node.insert(10);
-    node.insert(12);
-    node.insert(42);
-    node.insert(54);
-    node.delete(42);
   }
 }

@@ -1,5 +1,9 @@
 package integersets;
 
+/**
+ * Implementation of the {@code BinarySearchTrie} data structure, as described in Section A.2.1 of
+ * the report.
+ */
 public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   static class BSTrieNode<E> extends Node<E> {
@@ -26,6 +30,9 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
 
   private BSTrieNode<BitsKey> root;
 
+  /**
+   * Constructs an empty {@code BinarySearchTrie}.
+   */
   public BinarySearchTrie() {
     reset();
   }
@@ -290,12 +297,5 @@ public class BinarySearchTrie implements RankSelectPredecessorUpdate {
     }
 
     return countLeafNodes(curr.left) + countLeafNodes(curr.right);
-  }
-
-  /**
-   * Debuging.
-   * @param args --
-   */
-  public static void main(final String[] args) {    
   }
 }

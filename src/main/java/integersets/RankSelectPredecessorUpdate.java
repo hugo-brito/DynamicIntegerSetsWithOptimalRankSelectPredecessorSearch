@@ -1,20 +1,26 @@
 package integersets;
 
+/**
+ * Implementation of the {@code RankSelectPredecessorUpdate} interface, as described in Section
+ * 3.1 of the report.
+ */
 public interface RankSelectPredecessorUpdate {
 
-  /** Sets S = S union {x}.
-   * @param x the integer to insert
+  /** Inserts {@code x} in the set if it is not a member (and there is room for it).
+   * <br>Sets S = S &cup; {{@code x}}.
+   * @param x The query.
    */
   void insert(long x);
 
-  /** Sets S = S / {x}.
-   * @param x the integer to delete
+  /** If {@code x} is member of the set, it is removed.
+   * <br>Sets S = S \ {{@code x}}.
+   * @param x The query.
    */
   void delete(long x);
 
-  /** Returns to true iff the integer is in the set.
-   * @param x the integer to be used in the evaluation
-   * @return true if the integer is in the set, false otherwise
+  /** Returns {@code true} iff the {@code x} is in the set.
+   * @param x The query.
+   * @return {@code true} if the integer is in the set, and {@code false} otherwise.
    */
   default boolean member(final long x) {
     if (isEmpty()) {
@@ -24,49 +30,53 @@ public interface RankSelectPredecessorUpdate {
     return res != null && res == x;
   }
 
-  /** Returns the largest key in the subset of keys that are strictly smaller than x.
-   * pred(x) = max{y in S | y < x}
-   * It follows the rule predecessor(x) = select(rank(x)-1)
-   * @param x the integer queried
-   * @return the largest integer that is in the set but that is still smaller than the
-  integer queried.
+  /** Returns the largest key in the subset of keys that are strictly smaller than {@code x}.
+   * <br>predecessor({@code x}) = max{{@code y} in S &#124; {@code y} &lt; {@code x}}
+   * <br>It follows the rule predecessor({@code x}) = select(rank({@code x})-1)
+   * @param x The query.
+   * @return The largest key in the set that is smaller than the query.
    */
-  default Long predecessor(long x) {
+  default Long predecessor(final long x) {
     return select(rank(x) - 1);
   }
 
-  /** Returns the smallest key in the subset of keys that are larger or equal to x.
-   * succ(x) = min{y in S | y >= x}
-   * It follows the rule successor(x) = select(rank(x))
-   * @param x the key
-   * @return x if it is in the set, or the smallest integer that is in the set that is larger than x
+  /**
+   * Returns the smallest key in the subset of keys that are larger or equal to
+   * {@code x}. <br>
+   * succ({@code x}) = min{{@code y} &isin; S &#124; {@code y} &le; {@code x}}
+   * <br>
+   * It follows the rule successor({@code x}) = select(rank({@code x}))
+   * 
+   * @param x The query.
+   * @return {@code x} if it is in the set. Otherwise returns the smallest key in
+   *         the set that is larger than {@code x}.
    */
-  default Long successor(long x) {
+  default Long successor(final long x) {
     return select(rank(x));
   }
 
-  /** Returns the number of keys in the set that are strictly smaller than x.
-   * rank(x) = #{y in S | y < x}
-   * @param x the position in the set to be queried
-   * @return the number of integers in the set up to position x
+  /** Returns the number of keys in the set that are strictly smaller than {@code x}.
+   * <br>rank({@code x}) = &#35;{{@code y} &isin; S &#124; {@code y} &lt; {@code x}}
+   * @param x The query.
+   * @return The number of keys in the whose rank is smaller than the rank of {@code x}.
    */
   long rank(long x);
 
-  /** Assuming the natural ordering of keys, returns the key in position i.
-   * @param rank the position
-   * @return the key at position i
+  /** Assuming the natural ordering of keys, returns the key with rank {@code rank}.
+   * @param rank The query.
+   * @return The key in the set whose rank is {@code rank}.
    */
   Long select(long rank);
 
-  /** Returns the number of keys present in the set.
+  /** Returns the current cardinality of the set.
    * 
-   * @return the number of keys present in the set
+   * @return The number of keys in the set.
    */
   long size();
 
-  /** Returns true if the set if empty.
+  /** Returns {@code true} if the set is empty.
    * 
-   * @return {@code true} if the set is empty, and {@code false} otherwise
+   * @return {@code true} if the set is empty, and {@code false} otherwise.
    */
   default boolean isEmpty() {
     return size() == 0;
