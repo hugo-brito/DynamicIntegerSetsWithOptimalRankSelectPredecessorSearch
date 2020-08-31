@@ -1,4 +1,4 @@
-Predecessor problem queries are everywhere. They can be found in several different applications, including database management systems (DBMS), internet routing, algorithms for machine learning, big data, statistics, data compression, and spellchecking. They can be understood as a simpler version of the nearest neighbor problem \cite{bille2020massive}. Moreover, because they are at the basis of many systems, it is of great importance and relevance that the data structures that provide these queries are space and time-efficient.
+Predecessor problem queries are everywhere. They can be found in several different applications, including database management systems (DBMS), internet routing, machine learning algorithms, big data, statistics, data compression, and spellchecking. They can be understood as a simpler version of the nearest neighbor problem \cite{bille2020massive}. Moreover, because they are at the basis of many systems, it is of great importance and relevance that the data structures that provide these queries are space and time-efficient.
 
 This thesis investigates the theoretical data structure presented in the «Dynamic Integer Sets with Optimal Rank, Select, and Predecessor Search» paper, from 2014 and authored by Pătrașcu and Thorup. Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
 
@@ -16,7 +16,7 @@ Like in the Fusion Tree by Fredman and Willard, the \textit{Dynamic Fusion Node}
 
 This project can also be seen as a follow-up on the data structures discussed in the \textit{Integer Data Structure} lectures from the «6.851: Advanced Data Structures»\footnote{The lectures notes, recordings, and other course materials are available through the link: \url{http://courses.csail.mit.edu/6.851/fall17/lectures/}} and «CS 224: Advanced Algorithms»\footnote{The lectures notes, recordings, and other course materials are available through the link: \url{http://people.seas.harvard.edu/~minilek/cs224/fall14/index.html}} courses from Harvard University and MIT, respectively.
 These courses' scribe notes have also been an important resource for the work we have developed in this project.
-In particular, Demaine's lecture $12$ \cite{erikdemainelec12} and Nelson's lecture $2$ \cite{nelsonjelanilec2} of the aforementioned courses discuss the Fusion Trees which, as previously mentioned, are data structures that establish many important concepts that the \textit{Dynamic Fusion Tree} from Pătrașcu and Thorup builds upon. 
+In particular, Demaine's lecture $12$ \cite{erikdemainelec12} and Nelson's lecture $2$ \cite{nelsonjelanilec2} of the aforementioned courses discuss the Fusion Trees, which, as previously mentioned, are data structures that establish many important concepts that the \textit{Dynamic Fusion Tree} from Pătrașcu and Thorup builds upon. 
 This is relevant because, in their lectures, they present the Fusion Tree as a static predecessor problem data structure, e.g., it can be efficiently queried but does not support efficient updates, whereas the present implementation is focused on supporting efficient updates as well.
 
 \section{Goals}
@@ -70,16 +70,3 @@ We validate the implemented algorithms and data structures with correctness test
 Chapter~\ref{sec:conclusionChapter} concludes the project, leaving some remarks and suggestions for future work.
 
 We have also included an appendix, \ref{sec:appendix}, where we mention some additional carried work that could be useful for future work.
-
-% \begin{enumerate}
-%     \item
-%     Topic and context
-%     \item
-%     focus and scope
-%     \item
-%     relevance and importance
-%     \item
-%     questions and objectives
-%     \item
-%     overview of the structure
-% \end{enumerate}

@@ -9,20 +9,34 @@ We conclude this report by highlighting the contributions of this project:
     We have implemented and documented the data structure, making it publicly available for future work.
     
     \item
-    We have implemented and included correctness tests in the repository. These attest the correctness of the implementations we present, and that were designed such that they can be used to assess the correctness of further implementations.
+    We have implemented and included correctness tests in the repository. These attest to the correctness of the implementations we present and that were designed such that they can be used to assess the correctness of further implementations.
     
     \item
     We have listed other data structures that are of interest within the context of the dynamic predecessor problem, pointing to future work in the form of benchmarks.
 \end{itemize}
 
-\section{Final Remark}
+\section{Final Remarks}
 
-There is a fine balance between space and time consumption when developing and implementing sub-logarithmic data structures and algorithms. For example, van Emde Boas trees is a very fast data structure, but with a big space consumption drawback. Fusion Trees improve on space consumption, but updates take excessive time. Dynamic Fusion Trees, introduced in this project, seem to find the perfect balance between space and time consumption.
-
-TURN THIS INTO A CONCLUSION
-\textbf{Despite their theoretical relevance, when having a data structure and its operations measured against wall clock, one might be surprised with the results.
-This is because theoretical bounds have the potential to hide big constants, which are brought to light when wall clock measurements are performed.
-Nevertheless, we will enumerate some models of computation, as many of the data structures here presented have their running times described in terms of a given model, and therefore, it is of interest to provide this context.}
+\begin{itemize}
+    \item
+    There is a fine balance between space and time consumption when developing and implementing sub-logarithmic data structures and algorithms. For example, van Emde Boas trees is a very fast data structure, but with a big space consumption drawback. Fusion Trees improve on space consumption, but updates take excessive time. Dynamic Fusion Trees, introduced in this project, seem to find the perfect balance between space and time consumption.
+    
+    \item
+    As mentioned in Section~\ref{sec:modelsofcomputation}, theoretical bounds have the potential to hide big constants.
+    
+    This project has been about implementing algorithms that use a constant number of operations to compute the result, assuming that these are an improvement in comparison with logarithmic algorithms (such as binary search).
+    We want to highlight that despite the fact that it is plausible to implement the \textit{Dynamic Fusion Node} using only $O(1)$ operations of the word RAM model, the hidden constant might not be negligible.
+    
+    For instance, the {\ttfamily DynamicFusionNodeBinaryRank} implementation from Section~\ref{sec:DynamicFusionNodeBinaryRank} computes $\text{rank}(x)$ with binary search.
+    In this particular implementation, and because we set $w = 64$, allowing us to store at most $k = 16$ keys, we know that the worst-case running time of a $\text{rank}(x)$ query will be when the node is full, e.g., $n = k = 16$.
+    Computing $\log_2 16 = 4$.
+    We conclude that, when this implementation is full, it will take at most $4$ iterations for rank to compute the answer.
+    
+    The {\ttfamily DynamicFusionNodeDontCaresRank} implementation from Section~\ref{sec:rankWithDontCares} uses $O(1)$ operations to compute a $\text{rank}(x)$ query. The constant number of operations used by this method is larger than the $4$ iterations taken by the binary search rank algorithm from Section~\ref{sec:DynamicFusionNodeBinaryRank}.
+    The {\ttfamily match} subroutine alone, used by the rank with "don't cares" algorithm, uses $5$ word RAM operations, and the whole rank algorithm needs to run this subroutine at least once; and if the key is not in the set, it needs to run it once again. That is already $10$ operations, not counting with some other necessary subroutines such as the select query and finding the branching bit, $j$.
+    
+    Our conclusion is that $w = 64$ is potentially a very small word size to take advantage of the running time of these algorithms.
+\end{itemize}
 
 \section{Future Work} \label{sec:futureWork}
 In this section, we leave some suggestions on how further work on this topic can be conducted. We have split these into three main categories:

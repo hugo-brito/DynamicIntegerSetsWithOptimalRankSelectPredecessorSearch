@@ -26,7 +26,7 @@
 
 \chapter{Background} \label{sec:backgroundChapter}
 
-The \cite{patrascu2014dynamic} paper presents a data structure for solving the dynamic predecessor problem, and claims that its running times are optimal.
+The \cite{patrascu2014dynamic} paper presents a data structure for solving the dynamic predecessor problem and claims that its running times are optimal.
 In this chapter, a series of data structures, techniques, and other relevant aspects will be presented, laying the foundation for the implementation of the data structure presented by Pătrașcu and Thorup.
 
 \section{Basic Concepts}
@@ -36,7 +36,7 @@ A word consists of a $w$-bit integer.
 The bits which a word is comprised of are indexed from the least (right) to the most (left) significant bit, having the least significant bit index $0$, whereas the most significant has index $w-1$.
 The universe of all possible keys, denoted by $\mathcal U$, has size $u = 2^{w}$ thus we are bound to an universe $\mathcal U = \{0, 1, ..., 2^{w}-1\}$, e.g., all combinations of $w$-bit words.
 
-Since we will be implementing algorithms and data structures on a modern computer, we set $w = 64$. We might use different values of $w$ for illustration purposes, but the implemented programs will be working with the value defined here, unless stated otherwise.
+Since we will be implementing algorithms and data structures on a modern computer, we set $w = 64$. We might use different values of $w$ for illustration purposes, but the implemented programs will be working with the value defined here unless stated otherwise.
 
 \subsection{The Predecessor Problem} \label{sec:predecessorProblem}
 Data structures that maintain a set $S$ of (integer) keys and enable the following operations are said to solve the static predecessor problem \cite{beame1999optimal}:
@@ -76,9 +76,9 @@ The data structure presented in \cite{patrascu2014dynamic} implements all of the
     $\text{successor}(x) = \text{select}(\text{rank}(x))$
 \end{itemize}
 
-\subsection{Models of Computation}\label{sec:modelsofcomputation}
+\subsection{Models of Computation} \label{sec:modelsofcomputation}
 
-In order to analyze and describe running times, computer scientists use models of computation. Each model states which operations have an associated cost, and which ones do not.
+In order to analyze and describe running times, computer scientists use models of computation. Each model states which operations have an associated cost and which ones do not.
 In the models used here, all the given operations either have one unit of cost or none.
 
 Despite their theoretical relevance, when having a data structure and its operations measured against wall clock, one might be surprised with the results.
@@ -89,7 +89,7 @@ The models are presented in descending order from strongest to the least strong.
 
 \subsubsection{The Cell-Probe Model}
 In the cell-probe model, memory is divided into cells of size $w$, a parameter of the model.
-The only operations that come with an associated cost are reading or writing to memory, which are basically the memory accesses.
+The only operations that come with an associated cost are reading or writing to memory, which are the memory accesses.
 Due to its simplicity, as stated in \ref{sec:modelsofcomputation}, it is widely used to prove lower bounds \cite{erikdemainelec11}.
 
 \subsubsection{Trans-dichotomous RAM} \label{sec:transdichotomousRAM}
@@ -126,8 +126,8 @@ Like the trans-dichotomous RAM model, the word RAM also operates with fixed size
 \section{Predecessor Problem Data Structures} \label{sec:IntegerSets}
 
 This section highlights some data structures that maintain integer sets and implement the (dynamic) predecessor problem, e.g., integer sets whose methods answer the queries mentioned in Section~\ref{sec:predecessorProblem}.
-The data structures are ordered by what they improve on from the previous, or by complexity, because they add a new way of looking at the problem.
-We will also analyze, on a high level, their running times and how the queries can be implemented.
+The data structures are ordered by what they improve on from the previous, or by complexity because they add a new way of looking at the problem.
+We will also analyze, on a high level, their running times, and how the queries can be implemented.
 Note that we do not need to be concerned about the successor and predecessor queries for most of them, as they can be trivially implemented by using the definitions from Section~\ref{sec:predecessorProblem}.
 
 \subsection{Array} \label{sec:array}
@@ -173,7 +173,7 @@ A Binary Search Trie is a Trie for storing integer words, where the keys are kep
     Otherwise, we take the right one.
 \end{itemize}
 
-We then consider the following less significant bit of the search key, and repeat until the search ends.
+We then consider the following less significant bit of the search key and repeat until the search ends.
 This happens when either we hit a leaf or a null link.
 A successful search is when the search key and the key at the leaf node were the same.
 An unsuccessful search is when either we end up on a null link or the search key, and the key at the leaf node are not the same.
@@ -181,15 +181,15 @@ This last case happens when those keys share a prefix.
 
 We can infer from the search algorithm's description that this data structure uses a considerable amount of space for storing paths consisting of prefixes shared among keys.
 
-Since this tree is ordered and balanced, and even though it will have on average $44\%$ more nodes than keys, searching and inserting take on average $O(\log_2 n)$ time for random and distinct keys, but the length of the keys bounds the worst case running time, $O(w)$ \cite{sedgewick2002algorithms}.
+Since this tree is ordered and balanced, and even though it will have on average $44\%$ more nodes than keys, searching and inserting take on average $O(\log_2 n)$ time for random and distinct keys, but the length of the keys bounds the worst-case running time, $O(w)$ \cite{sedgewick2002algorithms}.
 Rank and select queries are implemented with a similar approach as in the red-black tree: every node has the number of leaf nodes stored in its fields, which is used for these queries.
 
 \subsection{Patricia Tries}
 
-Patricia Tries, which name is acronym for "practical algorithm to retrieve information coded in alphanumeric", also known as compressed Binary Tries, improve the space consumption in comparison with Binary Search Tries \cite{sedgewick2002algorithms}.
-They a embody different way to encode the same Trie abstraction as Binary Search Tries.
+Patricia Tries, which name is an acronym for "practical algorithm to retrieve information coded in alphanumeric", also known as compressed Binary Tries, improve the space consumption in comparison with Binary Search Tries \cite{sedgewick2002algorithms}.
+They embody a different way to encode the same Trie abstraction as Binary Search Tries.
 They achieve this by allowing the internal nodes to store keys and by compressing the paths between nodes.
-Each node will have an associated branching bit stored, allowing us to skip the bits that belong to shared prefixes, fast forwarding to the branching bits.
+Each node will have an associated branching bit stored, allowing us to skip the bits that belong to shared prefixes, fast-forwarding to the branching bits.
 The result is a Trie with exactly as many nodes as there are keys, which also improves the worst running times of updating and querying from $O(w)$ to $O(\log_2 n)$ \cite{sedgewick2002algorithms}.
 
 \subsection{van Emde Boas Trees}
@@ -246,7 +246,7 @@ We define $k = \Theta(w^{1/5})$.
 With this definition, the height of the tree will be $O(\log_w n)$.
 This is also the running time for querying in a Fusion Tree.
 So the problem we have to solve is to ensure that searching within nodes takes only $O(1)$ time.
-This way, the overall data structure's query time will be the same as the bound of the height of the tree.
+This way, the overall data structure's query time will be the same as the bound of the tree's height.
 
 In the word RAM model, and having set $k = \Theta(w^{1/5})$, each node will require $k \cdot w = w^{6/5}$ bits to store all the keys.
 This means that, without any additional tools and algorithms, we cannot process each node in $O(1)$ time.
@@ -266,7 +266,7 @@ These are the branching bits in the Bitwise Trie built with those keys.
 Let $x$ be a key in the Fusion Node, a \textit{sketching} function, $\text{sketch}(x)$ is defined by keeping only the branching bits of $x$, as we have just defined.
 
 We note that the sketches of the keys have the same order as the keys.
-Note also that if the \textit{sketching} needs at most $k - 1$ bits per key in the node, then in total we need $k \cdot (k - 1) = O(w^{2/5})$ bits to store all the bits of the key sketches; thus we can fit that in a single word, which is kept at each node.
+Note also that if the \textit{sketching} needs at most $k - 1$ bits per key in the node, then in total, we need $k \cdot (k - 1) = O(w^{2/5})$ bits to store all the bits of the key sketches; thus we can fit that in a single word, which is kept at each node.
 
 Because it is difficult to compute perfect \textit{sketches} (defined in the paragraph above) in $O(1)$ time using only word RAM operations, an \textit{approximate sketch} is used instead.
 The key difference between the \textit{perfect sketches} and \textit{approximate sketches} is the amount of bits used to store the \textit{sketches} of the keys: \textit{approximate sketches} use at most $(k - 1)^4 = O(w^{4/5})$ instead of the  $O(w^{2/5})$ bits of the \textit{perfect sketches}.
@@ -529,7 +529,7 @@ Learning about the most significant set bit of a word will be an important opera
 
 \subsubsection{Naive}
 
-The simplest way to achieve the intended outcome is to loop through the word until the first non-zero bit is found, returning the word lenght minus the number of iterations that it took to find that bit.
+The simplest way to achieve the intended outcome is to loop through the word until the first non-zero bit is found, returning the word length minus the number of iterations that it took to find that bit.
 
 This approach takes $O(w)$ time.
 
@@ -548,7 +548,7 @@ This approach takes $O(1)$ time after the lookup table has been computed but, no
 \subsubsection{Constant Time with Parallel Comparison} \label{sec:msbO1}
 
 This operation here described is based on the materials from the lectures whose scribe notes are \cite{nelsonjelanilec2} and \cite{erikdemainelec12}.
-It comprises 4 main steps.
+It comprises four main steps.
 Let $x$ be the query for the most significant set bit:
 \begin{enumerate}
     \item
@@ -558,7 +558,7 @@ Let $x$ be the query for the most significant set bit:
     We \textit{compress} the summary such that it fits in a single $\sqrt{w}$-bit field. A bitwise shift operation is also carried in order to compute a word containing the resulting summary on its least significant field.
     
     \item \label{blt:O1parallel3}
-    Then we do \textit{parallel comparison} of the summary word to find the first non-empty field of $x$, because it will be on that field that containg the most significant bit of $x$.
+    Then we do \textit{parallel comparison} of the summary word to find the first non-empty field of $x$ because it will be that field that contains the most significant bit of $x$.
     
     \item
     We use the same technique as in step~\ref{blt:O1parallel3}, but now on the first non-empty field of $x$. We end with simple arithmetic to return the most significant set bit. 
@@ -809,7 +809,7 @@ An algorithm that implements $\text{rank}(x,A)$ works as the following:
         We compute a word consisting of as many concatenated copies of $x$ as there are fields left in $A$.
         
         \item
-        We do parallel comparison\footnote{See Section~\ref{sec:parallel} to learn more about parallel comparison.} between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining fields of $A$ to $1$ and computing the difference between those words.
+        We do parallel comparison\footnote{See Section~\ref{sec:parallel} to learn more about \textit{parallel comparison}.} between (the shifted/masked) $A$ and (copies of) $x$ by setting the leading bit of each of the remaining fields of $A$ to $1$ and computing the difference between those words.
         
         \item
         The result of rank$(x,A)$ is given by the number of fields whose leading bit is now $0$ because if the leading bit (that has been set to $1$ in the previous step) is borrowed in the subtraction, then $x$ is larger than the key stored at that field.
@@ -1067,7 +1067,7 @@ This project features a class, {\ttfamily Util}, which implements static utility
 \end{figure}
 
 Below find listed the functions included in this class, together with a brief explanation.
-The implemented functions feature 32-bit versions which, for brevity, were omitted. These differ solely on the input word type.
+The implemented functions feature 32-bit versions, which, for brevity, were omitted. These differ solely on the input word type.
 
 \subsection{Bit Operations}
 The algorithms which these functions implement are described in Section~\ref{sec:bit}.
@@ -1432,7 +1432,7 @@ We take a step forward by improving the previous idea: this time, two additional
 
 An important parameter introduced in this implementation is $k$. It defines the capacity limit of the set. We wish to maximize this parameter, but we will see below that the word size, $w$, will be this parameter's constraining factor in this implementation.
 
-This time, $key$ is no longer sorted, but we still have access to the keys in their sorted order by using a simple device: we interpret $index$ as an array of $k$ fields of $\lceil \log_2 k \rceil$ bits in length. It indexes the keys in $key$ by their rank the following way: Let $i$ be the rank of a key in the the set, then $index\langle i\rangle_{\lceil \log_2 k \rceil}$ will have the index in $key$ of the key with rank $i$.
+This time, $key$ is no longer sorted, but we still have access to the keys in their sorted order by using a simple device: we interpret $index$ as an array of $k$ fields of $\lceil \log_2 k \rceil$ bits in length. It indexes the keys in $key$ by their rank the following way: Let $i$ be the rank of a key in the set, then $index\langle i\rangle_{\lceil \log_2 k \rceil}$ will have the index in $key$ of the key with rank $i$.
 In order to maximize the use of the number of bits in $index$, and knowing that our program is working with 64-bit, as stated in Section~\ref{sec:word}, we maximize $k$ by solving the following inequation:
 \begin{equation} \label{eq:problemSizeBinaryRank}
     \begin{aligned}
@@ -1570,7 +1570,7 @@ private int n;
 
 \subsection{Example}
 
-The \textit{Indexing} technique combined with binary rank are best understood with an example, which we showcase in this section.
+The \textit{Indexing} technique combined with binary rank is best understood with an example, which we showcase in this section.
 
 
 Assume that we have instantiated a {\ttfamily DynamicFusionNodeBinaryRank} and, for brevity, let $k = 8$. Then:
@@ -1616,7 +1616,7 @@ Assume we wish to know the key with rank 2, then:
 \end{align*}
 
 \paragraph{Rank}
-As previously mentioned, at this point, the rank operation has been implemented with binary search using select as a subroutine. This works in $O(\log_2 n)$ time because select queries take $O(1)$ time, the select method allows us to access the keys as if they were stored in their respective sorted order and therefore the running time is bound by the binary search algorithm itself.
+As previously mentioned, at this point, the rank operation has been implemented with binary search using select as a subroutine. This works in $O(\log_2 n)$ time because select queries take $O(1)$ time, the select method allows us to access the keys as if they were stored in their respective sorted order and therefore, the running time is bound by the binary search algorithm itself.
 
 \subsubsection{Updating}
 
@@ -1697,7 +1697,7 @@ We will now delete $x = -1000$, having as starting point the state the instance 
     With a call to {\ttfamily getIndex(i)} we get the position in $key$ where $x$ is stored. We use that to mark that position as empty in $bKey$. This is done with {\ttfamily vacantSlot(getIndex(i))}. After this update, $bKey$ will be the same as in table~\ref{tab:binaryRankKey}.
     
     \item
-    We need also to update $index$ by moving all the indices with rank larger than $i$, the rank of $x$, $1$ position to the left. We do this by calling {\ttfamily updateIndex(i)}. This update will make $index$ be as shown in table~\ref{tab:binaryRankIndex}.
+    We also need to update $index$ by moving all the indices with rank larger than $i$, the rank of $x$, $1$ position to the left. We do this by calling {\ttfamily updateIndex(i)}. This update will make $index$ be as shown in table~\ref{tab:binaryRankIndex}.
     
     \item
     Lastly, we decrement the instance variable $n$.
@@ -1707,11 +1707,11 @@ We will now delete $x = -1000$, having as starting point the state the instance 
 \section{Rank via Matching with "Don't Cares"} \label{sec:rankWithDontCares}
 
 \paragraph*{Goal}
-Having the implementation from Section~\ref{sec:DynamicFusionNodeBinaryRank} as a starting point, the goal is to implement rank queries while via matching with "don't cares". Rank will now take $O(k)$ time and this is due to a subroutine, {\ttfamily match}, which at this stage is computed naively. Select queries keep their $O(1)$ time, whereas updates now take $O(k\cdot n)$ because the instance variables introduces in this implementation are maintained naively.
+Having the implementation from Section~\ref{sec:DynamicFusionNodeBinaryRank} as a starting point, the goal is to implement rank queries via matching with "don't cares". Rank will now take $O(k)$ time, and this is due to a subroutine, {\ttfamily match}, which at this stage is computed naively. Select queries keep their $O(1)$ time, whereas updates now take $O(k\cdot n)$ because the instance variables introduced in this implementation are maintained naively.
 
 Static Fusion Trees have less than optimal update time because adding a new key entails recomputing sketches. Pătrașcu and Thorup address this by introducing "don't cares", which provides a simulation of a Patricia Trie at the node level. This is relevant because, differently to what happens at the Fusion Tree node from Fredman and Willard, inserting a new key in a Patricia Trie corresponds to adding a new branch node \cite{patrascu2014dynamic}.
 
-In this incremental step, we keep the most of the implementation details of \ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
+In this incremental step, we keep the most of the implementation details of Section~\ref{sec:DynamicFusionNodeBinaryRank}, plus we store the compressed keys with "don't cares" to enable the rank operation as described in the \textit{Matching with don't cares} section of \cite{patrascu2014dynamic}.
 
 The implementation discussed in this section can be found in the file highlighted in figure~\ref{fig:DynamicFusionNodeBinaryRankTree}.
 \begin{figure}[H]
@@ -1758,7 +1758,7 @@ Enabling rank via matching with "don't cares" entails the following:
     \item
     A subroutine $\text{match}(x)$ that uses all of the above and rank via Rank Lemma 1 (defined in Section~\ref{sec:rankLemma1} and implemented in Section~\ref{sec:rankLemma1Implementation}).
     
-    Let $\hat x^k$ be the compressed version of $x$ copied $k$ times and stored in a word. After compressing $x$ and multiplying $\hat x$ with the mask $M$ (which has been computed via the {\ttfamily Util} helper function and stored as a class variable) we to achieve the intended result. Note that we have already used multiplication in a similar context in Section~\ref{sec:computeM}.
+    Let $\hat x^k$ be the compressed version of $x$ copied $k$ times and stored in a word. After compressing $x$ and multiplying $\hat x$ with the mask $M$ (which has been computed via the {\ttfamily Util} helper function and stored as a class variable), we achieve the intended result. Note that we have already used multiplication in a similar context in Section~\ref{sec:computeM}.
     Then $\text{match}(x)$ is computed with the following expression \cite{patrascu2014dynamic}:
     \begin{align*}
         \text{match}(x) = \underbrace{\text{rank}(\hat x, branch \vee (\hat x^k \wedge free))}_{\text{Rank Lemma 1}}
@@ -2042,7 +2042,7 @@ As previously mentioned, the particular value of some of the bits at some positi
 \label{tab:compressedKeysWithDontCares}
 \end{table}
 
-In the data structure, this data is stored in the two class variables $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in the tables from figure~\ref{fig:branchAndFreeCompressedKeys}.% tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
+In the data structure, this data is stored in the two class variables, $branch$ and $free$, which follows the logic explained in \ref{sec:rankWithDontCares}. They are each a single $w$-bit word. If we lay each of those words in a $k \times k$ matrix, then each row will correspond to a compressed key. This is precisely what we see in the tables from figure~\ref{fig:branchAndFreeCompressedKeys}.% tables~\ref{tab:branchTable} and \ref{tab:freeTable}.
 
 \begin{figure}[H]
 \centering
@@ -2137,7 +2137,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
         \cline{1-2}
         x < y \implies comp = -1
     \end{align*}
-    If $comp = 0$ then $x = y$, which means that $x$ is already present in the set, thus its rank will be $i$. In this case, the method would return $i$. In this example this is not the case; thus, we proceed.
+    If $comp = 0$ then $x = y$, which means that $x$ is already present in the set, thus its rank will be $i$. In this case, the method would return $i$. In this example, this is not the case; thus, we proceed.
     
     \item
     We find the branching bit between $x$ and $y$ and store it in a local variable, $j$. This is done with $\text{msb}(x \oplus y)$:
@@ -2151,7 +2151,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
     \end{align*}
     
     \item
-    The idea behind the current step is described in the \textit{Desketchifying} chapter of \cite{erikdemainelec12}. Below, we also mention the abstraction of view the keys at the node as if they where in Bitwise Binary Tree. This abstraction has been explained in Section~\ref{par:bitwiseTrieAbstraction}.
+    The idea behind the current step is described in the \textit{Desketchifying} chapter of \cite{erikdemainelec12}. Below, we also mention the abstraction of viewing the keys at the node as if they were in a Bitwise Binary Tree. This abstraction has been explained in Section~\ref{par:bitwiseTrieAbstraction}.
     
     To find the actual rank of $x$, we need to use the $\text{match}$ function once again. We know now that there is a key, $y$, that matched $x$ but branched away from $x$ in the $6^{\text{th}}$ bit.
     We have now two cases:
@@ -2242,7 +2242,7 @@ Sections \ref{sec:keyCompression} and \ref{sec:keyCompressionWithDontCares} have
 \section{Inserting while Maintaining the Compressed Keys with "Don't Cares"} \label{sec:InsertDontCares}
 
 \paragraph*{Goal}
-Having the implementation from Section~\ref{sec:rankWithDontCares} as a starting point, the goal is to improve the insert method such that $branch$ and $free$ are maintained using the algorithm described in \cite{patrascu2014dynamic} for this effect. Rank queries keep their $O(k)$; and select queries keep their $O(1)$ time. Inserting is bound by the running time of one of its subroutines, which takes $O(k)$ time (the running time of this operation is addressed at a later section of \cite{patrascu2014dynamic}). Apart from that, all the insert algorithm steps take $O(1)$ time. Delete is kept unaltered.
+Having the implementation from Section~\ref{sec:rankWithDontCares} as a starting point, the goal is to improve the insert method such that $branch$ and $free$ are maintained using the algorithm described in \cite{patrascu2014dynamic} for this effect. Rank queries keep their $O(k)$, and select queries keep their $O(1)$ time. Inserting is bound by the running time of one of its subroutines, which takes $O(k)$ time (the running time of this operation is addressed at a later section of \cite{patrascu2014dynamic}). Apart from that, all the insert algorithm steps take $O(1)$ time. Delete is kept unaltered.
 
 In this section, we will address how to maintain the compressed keys with "don't cares" when inserting a new key, as described in section \textit{Inserting a key} of the \cite{patrascu2014dynamic} paper.
 We take another incremental on the implementations from Sections~\ref{sec:DynamicFusionNodeBinaryRank} and \ref{sec:rankWithDontCares}, keeping most of their details with the exception of the {\ttfamily insert} method.
@@ -2541,7 +2541,7 @@ The overall running time of this algorithm is bound by the match subroutines (st
 
 \subsection{Example} \label{sec:dontCaresInsertExample}
 
-We will now insert the key $x = 1001\ 0101\ 0001_2$ in a set containing the keys from table~\ref{tab:keysInTheSetBeforeInsertion}, showcasing all the steps. For brevity, the chosen keys only have set bits up to position 11 such that the 52 most significant bits do not influence any of the steps in the algorithm, and can safely be omitted.
+We will now insert the key $x = 1001\ 0101\ 0001_2$ in a set containing the keys from table~\ref{tab:keysInTheSetBeforeInsertion}, showcasing all the steps. For brevity, the chosen keys only have set bits up to position 11 such that the 52 most significant bits do not influence any of the steps in the algorithm and can safely be omitted.
 
 \begin{table}[H]
 \centering
@@ -2798,7 +2798,7 @@ The implemented test classes can be found in the folder shown in figure~\ref{fig
     \label{fig:testFolderTree}
 \end{figure}
 
-Validation summary tables, which include the results of the test, together with the range or size of the test instances, have been included.
+Validation summary tables, which include the test results, together with the range or size of the test instances, have been included.
 The symbol \checkmark \ in those tables signifies a passed test with the specified parameters.
 
 \section{{\ttfamily Util} Class Tests}
@@ -2861,7 +2861,7 @@ The {\ttfamily getField} and {\ttfamily setField} methods are tested in the {\tt
     Varying $b$ (being $b$ the size of each field) between $1$ and $w - 1$.
     
     \item
-    For each value $b$ takes, the number of fields to be stored in $A$, $m$, is computed as a function of $b$. The goal is to fit as many fields as possible in $A$, having $b$ and $w$ as constraints. The number of field to store in A are computed with the expression $m = w / b$.
+    For each value $b$ takes, the number of fields to be stored in $A$, $m$, is computed as a function of $b$. The goal is to fit as many fields as possible in $A$, having $b$ and $w$ as constraints. The number of fields to store in A is computed with $m = w / b$.
     
     \item
     Then, $m$ keys of $b$ size are pseudo-randomly generated. Each time a key is generated, $A$ is shifted to the left by $b$ bits, and the key is stored both in an auxiliary array and in $A$ with the {\ttfamily setField} function. 
@@ -2884,7 +2884,7 @@ The {\ttfamily rankLemma1} function is tested in a method with the same name.
 A pass in this test consists of:
 \begin{enumerate}
     \item
-    Varying $b$ (size in bits of each key). This range is specified in the fields of the {\ttfamily UtilTest} class by the by the variables {\ttfamily int loB} and {\ttfamily int hiB}.
+    Varying $b$ (size in bits of each key). This range is specified in the fields of the {\ttfamily UtilTest} class by the variables {\ttfamily int loB} and {\ttfamily int hiB}.
     
     \item
     For each value $b$ takes, the number of keys to be stored in $A$, $m$, is computed by taking the minimum between $2^b$ and $w/b$. This is because the method requires that all keys stored in $A$ to be distinct (and all combinations of keys of size $b$ are given by $2^b$), but also $A$ can only store up to $w/b$ keys.
@@ -2956,7 +2956,7 @@ The {\ttfamily RankSelectPredecessorUpdateTest} constructor takes the following 
     
     \item {\ttfamily int numKeys}.
     This parameter defines the size of the data set to be generated.
-    It is particular important for testing instances of {\ttfamily DynamicFusionNode}, which size cannot exceed $k$.
+    It is particularly important for testing instances of {\ttfamily DynamicFusionNode}, which size cannot exceed $k$.
 \end{itemize}
 
 \subsection{{\ttfamily insertAndMemberSmallTest()}} \label{sec:insertAndMemberSmallTest}
@@ -3029,10 +3029,10 @@ The methods tested in this test are {\ttfamily insert} and {\ttfamily delete}, a
 
 \subsection{{\ttfamily deleteTest()}}
 
-This test aims at asserting that only when deleting an existing key, the cardinality of the set is altered. It tests the methods {\ttfamily delete} and {\ttfamily size()}, and it can be executed in passes. At each pass:
+This test aims to assert that only when deleting an existing key, the set's cardinality is altered. It tests the methods {\ttfamily delete} and {\ttfamily size()}, and it can be executed in passes. At each pass:
 \begin{enumerate}
     \item
-    Pseudo-random keys are generated and delete on the set is called with that key.
+    Pseudo-random keys are generated, and delete on the set is called with that key.
     \item
     If the key was in the set, then the size must have decreased; otherwise, it must remain the same.
 \end{enumerate}
