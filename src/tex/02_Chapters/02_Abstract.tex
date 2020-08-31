@@ -6,19 +6,15 @@ This thesis investigates the theoretical data structure presented in the «Dynam
 The authors claim that their proposal solves the dynamic predecessor problem optimally \cite{patrascu2014dynamic}.
 Concretely, we follow the paper closely up to chapter 3.1 (inclusive), implementing the data structure and its algorithms, discussing and evaluating the running times.
 The data structure they propose denoted \textit{Dynamic Fusion Node}, is made possible due to the smart use of techniques such as bitwise tricks, word-level parallelism, key compression and wildcards (denoted "don't cares" in this report and also by Pătrașcu and Thorup), which for sets of size $n = w^{O(1)}$ and in the word-RAM model take $O(1)$ time.
-By using the \textit{Dynamic Fusion Node} in the implementation of a $k$-ary tree, thus enabling the sets to be of arbitrary size, the running times are $O(\log_w n)$, proven by Fredman and Saks to be optimal \cite{beame1999optimal}.
+By using the \textit{Dynamic Fusion Node} in the implementation of a $k$-ary tree, thus enabling the sets to be of arbitrary size, the running times are $O(\log_w n)$, proven by Fredman and Saks to be optimal \cite{fredman1989cell}.
 
-Using the \cite{patrascu2014dynamic} as our primary reference, and after framing the topic within its context (Chapters~\ref{sec:introductionChapter}), we explore the essential tools and algorithms used by Pătrașcu and Thorup in their proposal (Chapter~\ref{sec:backgroundChapter}).
-Section~\ref{sec:IntegerSets} shows different ways to solve the predecessor problem.
-
-Section~\ref{sec:summaryOfTechniques} builds and explores a library of relevant functions and algorithms used by the \textit{Dynamic Fusion Node}. These have also been implemented and mentioned further, of Chapter~\ref{sec:implementationsChapter}.
-
-Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point. This is presented in Chapter~\ref{sec:implementationsChapter}.
-
-We validate the implemented algorithms and data structures with correctness tests. These appear described in Chapter~\ref{sec:validationChapter}.
-
-Chapter~\ref{sec:conclusionChapter} concludes the project, leaving some remarks and suggestions for future work.
-Up to the point where this project ends, Pătrașcu and Thorup's proposal seems sound, as we have been able to implement their data structure proposal using only $O(1)$ operations of the word RAM model. In Section~\ref{sec:futureWork} we highlight the required steps to conclude the implementation.
+Using the \cite{patrascu2014dynamic} paper as our primary reference, and after framing the topic within its context, we explore the essential tools and algorithms used by Pătrașcu and Thorup in their proposal.
+We will build, explore and implement a library of relevant functions and algorithms used by the \textit{Dynamic Fusion Node}.
+Based on the theoretical algorithms presented in \cite{patrascu2014dynamic}, the implementation is presented in iterative steps, starting from a naive way up to the insertion method while using all the algorithms and techniques described up to that point.
+We validate the implemented algorithms and data structures with correctness tests.
+Finally, we conclude the project, leaving some remarks and suggestions for future work.
+Up to the point where this project ends, Pătrașcu and Thorup's proposal seems sound, as we have been able to implement their data structure proposal using mostly $O(1)$ operations of the word RAM model.
+We highlight the necessary steps make implementation $O(1)$, which at the moment is still bound by some subroutines that take more than constant time.
 
 The Java programming language is used throughout the project, and the resulting code is publicly available on the GitHub repository sited at \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} and subject to an MIT License.
 

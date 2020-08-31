@@ -16,7 +16,7 @@ Like in the Fusion Tree by Fredman and Willard, the \textit{Dynamic Fusion Node}
 
 This project can also be seen as a follow-up on the data structures discussed in the \textit{Integer Data Structure} lectures from the «6.851: Advanced Data Structures»\footnote{The lectures notes, recordings, and other course materials are available through the link: \url{http://courses.csail.mit.edu/6.851/fall17/lectures/}} and «CS 224: Advanced Algorithms»\footnote{The lectures notes, recordings, and other course materials are available through the link: \url{http://people.seas.harvard.edu/~minilek/cs224/fall14/index.html}} courses from Harvard University and MIT, respectively.
 These courses' scribe notes have also been an important resource for the work we have developed in this project.
-In particular, Demaine's lecture $12$ \cite{erikdemainelec12} and Nelson's lecture $2$ \cite{nelsonjelanilec2} of the aforementioned courses discuss the Fusion Trees which, as previously mentioned, are data structures that establish many important concepts that the Dynamic Fusion Tree from Pătrașcu and Thorup builds upon. 
+In particular, Demaine's lecture $12$ \cite{erikdemainelec12} and Nelson's lecture $2$ \cite{nelsonjelanilec2} of the aforementioned courses discuss the Fusion Trees which, as previously mentioned, are data structures that establish many important concepts that the \textit{Dynamic Fusion Tree} from Pătrașcu and Thorup builds upon. 
 This is relevant because, in their lectures, they present the Fusion Tree as a static predecessor problem data structure, e.g., it can be efficiently queried but does not support efficient updates, whereas the present implementation is focused on supporting efficient updates as well.
 
 \section{Goals}
@@ -30,7 +30,7 @@ Using the \cite{patrascu2014dynamic} as the main literature resource, this proje
     Reporting on the implementation, highlighting the algorithms and techniques that enable the data structure's functionality by means of illustrative examples.
     
     \item
-    Evaluating the soundness of Pătrașcu and Thorup's claim every, e.g., if it is possible to implement the data structure and its algorithms by using only $O(1)$ algorithms.
+    Evaluating the soundness of Pătrașcu and Thorup's claim, e.g., if it is possible to implement the data structure and its algorithms by using only $O(1)$ time operations in the word RAM model.
     
     \item
     Elaboration of a small survey on existing (dynamic) predecessor problem data structures, paving the way for a future benchmark between the present and the surveyed data structures.
@@ -38,7 +38,7 @@ Using the \cite{patrascu2014dynamic} as the main literature resource, this proje
 
 \section{Approach} % methodology
 
-We will be guided by the \cite{patrascu2014dynamic} publication, using contributions from other authors when needed. The data structure will be implemented by taking incremental steps, which more or less correspond to the Chapters and Sections of our primary reference.
+We will be guided by the \cite{patrascu2014dynamic} publication, using contributions from other authors whenever needed. The data structure will be implemented by taking incremental steps, which more or less correspond to the Chapters and Sections of our primary reference.
 
 This project encompasses the present document and the algorithms and data structures here reported. All the code developed in the scope of this project has been made publicly available in a GitHub repository, accessible through the link \url{https://github.com/hugo-brito/DynamicIntegerSetsWithOptimalRankSelectPredecessorSearch} and subject to an MIT License.
 The programs were implemented using the Java programming language.
