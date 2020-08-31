@@ -4,9 +4,9 @@ This repository features the work developed in the context of the thesis around 
 
 ## Contents
 The repository contains:
-- Writen report: ``somefile.pdf``, located in the root folder.
+- Written report: ``report.pdf``, located in the root folder.
 - Source code of the report: ``.\src\tex`` folder.
-- Documentation of the feature code, in the Javadoc format: ``.\src\javadoc`` folder.
+- Documentation of the featured code, in the Javadoc format: ``.\src\javadoc`` folder.
 - Source code of the implemented data structures and algorithms: ``.\src\main\java\integersets`` folder.
 - Source code of testing classes: ``.\src\test\java`` folder.
 
