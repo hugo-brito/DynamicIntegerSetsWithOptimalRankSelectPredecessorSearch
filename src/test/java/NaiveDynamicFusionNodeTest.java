@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 class NaiveDynamicFusionNodeTest {
 
   static final long seed = 42;
-  static final int passes = 100_000;
-  static final int numKeys = 16;
+  static final int passes = 10_000;
+  static final int numKeys = 1_000;
 
   private NaiveDynamicFusionNode set;
   private static RankSelectPredecessorUpdateTest test;
@@ -21,7 +21,7 @@ class NaiveDynamicFusionNodeTest {
 
   @BeforeEach
   void setUp() {
-    set = new NaiveDynamicFusionNode();
+    set = new NaiveDynamicFusionNode(numKeys);
   }
 
   @AfterEach

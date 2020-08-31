@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class DynamicFusionNodeDontCaresInsertTest {
 
   static final long seed = 42;
-  static final int passes = 1_000;
+  static final int passes = 100_000;
   static final int numKeys = 8;
 
   private DynamicFusionNodeDontCaresInsert set;
